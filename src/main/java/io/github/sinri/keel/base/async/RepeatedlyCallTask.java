@@ -1,12 +1,12 @@
-package io.github.sinri.keel.vertx.async;
+package io.github.sinri.keel.base.async;
 
+import io.github.sinri.keel.base.KeelVertxKeeper;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 
 import javax.annotation.Nonnull;
 import java.util.function.Function;
 
-import static io.github.sinri.keel.facade.KeelInstance.Keel;
 
 /**
  * A utility class designed to repeatedly execute a task until it is explicitly
@@ -44,7 +44,7 @@ public final class RepeatedlyCallTask {
                       if (thisTask.toStop) {
                           finalPromise.complete();
                       } else {
-                          Keel.getVertx().setTimer(1L, x -> start(thisTask, finalPromise));
+                          KeelVertxKeeper.getVertx().setTimer(1L, x -> start(thisTask, finalPromise));
                       }
                   } else {
                       finalPromise.fail(shouldStopAR.cause());

@@ -1,1 +1,1 @@
-package io.github.sinri.keel.vertx;
+package io.github.sinri.keel.base;

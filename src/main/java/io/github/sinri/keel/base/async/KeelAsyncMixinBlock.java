@@ -1,42 +1,21 @@
-package io.github.sinri.keel.vertx.async;
+package io.github.sinri.keel.base.async;
 
-import io.github.sinri.keel.core.TechnicalPreview;
-import io.github.sinri.keel.core.verticles.KeelVerticle;
-import io.github.sinri.keel.facade.KeelInstance;
+import io.github.sinri.keel.base.KeelVertxKeeper;
+import io.github.sinri.keel.base.annotations.TechnicalPreview;
+import io.github.sinri.keel.base.verticles.KeelVerticle;
 import io.vertx.core.*;
 
 import javax.annotation.Nonnull;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
-import static io.github.sinri.keel.facade.KeelInstance.Keel;
-
-/**
- * Use {@link KeelInstance#Keel} to use the methods defined by this interface
- *
- * @see KeelInstance#Keel
- * @since 4.1.0
- */
 interface KeelAsyncMixinBlock extends KeelAsyncMixinLogic {
     private boolean isInNonBlockContext() {
         Context currentContext = Vertx.currentContext();
         return currentContext != null && currentContext.isEventLoopContext();
     }
 
-    /**
-     * Executes a supplier function within a KeelVerticle deployed on a virtual thread, allowing for non-blocking
-     * operations while isolating logic in a virtual-threaded Vert.x verticle.
-     * <p>
-     * As of 4.1.3, use {@link KeelVerticle#instant(Function)} to implement.
-     *
-     * @param function a supplier that provides a {@link Future} representing the asynchronous operation
-     *                 to be executed within the virtual thread.
-     * @return a {@link Future} that completes when the execution of the supplier function finishes,
-     *         either successfully or with a failure.
-     * @since 4.1.1
-     */
     @TechnicalPreview(since = "4.1.1", notice = "Require JDK 21+")
     @Nonnull
     default Future<Void> runInVerticleOnVirtualThread(@Nonnull Supplier<Future<Void>> function) {
@@ -81,7 +60,7 @@ interface KeelAsyncMixinBlock extends KeelAsyncMixinLogic {
 
     default <R> Future<R> asyncTransformRawFuture(@Nonnull java.util.concurrent.Future<R> rawFuture) {
         if (isInNonBlockContext()) {
-            return Keel.getVertx().executeBlocking(rawFuture::get);
+            return KeelVertxKeeper.getVertx().executeBlocking(rawFuture::get);
         } else {
             try {
                 var r = rawFuture.get();
@@ -98,7 +77,7 @@ interface KeelAsyncMixinBlock extends KeelAsyncMixinLogic {
                 repeatedlyCallTask.stop();
                 return Future.succeededFuture();
             }
-            return Keel.asyncSleep(sleepTime);
+            return this.asyncSleep(sleepTime);
         })
                 .compose(over -> {
                     if (rawFuture.isCancelled()) {

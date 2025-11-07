@@ -1,5 +1,6 @@
-package io.github.sinri.keel.core.verticles;
+package io.github.sinri.keel.base.verticles;
 
+import io.github.sinri.keel.base.KeelVertxKeeper;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 
@@ -8,7 +9,6 @@ import javax.annotation.Nullable;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import static io.github.sinri.keel.facade.KeelInstance.Keel;
 
 /**
  * A concrete implementation of the {@link KeelVerticle} interface, extending
@@ -79,14 +79,12 @@ public final class KeelVerticleWrap extends KeelVerticleImpl {
                     if (stopperPromise != null) {
                         stopperPromise.future()
                                       .andThen(stopped -> {
-                                          Keel.getVertx().setTimer(100L, timer -> {
+                                          KeelVertxKeeper.getVertx().setTimer(100L, timer -> {
                                               String deploymentID = deploymentID();
                                               if (deploymentID != null) {
-                                                  this.undeployMe()
-                                                      .onFailure(throwable -> {
-                                                          Keel.getLogger()
-                                                              .exception(throwable, "Try to undeploy verticle [" + deploymentID + "] failed");
-                                                      });
+                                                  this.undeployMe().onFailure(throwable -> {
+                                                      System.err.println("Try to undeploy verticle [" + deploymentID + "] failed");
+                                                  });
                                               }
                                           });
                                       });

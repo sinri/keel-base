@@ -1,6 +1,5 @@
-package io.github.sinri.keel.vertx.async;
+package io.github.sinri.keel.base.async;
 
-import io.github.sinri.keel.facade.KeelInstance;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 
@@ -13,12 +12,6 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-/**
- * Use {@link KeelInstance#Keel} to use the methods defined by this interface
- *
- * @see KeelInstance#Keel
- * @since 4.1.0
- */
 interface KeelAsyncMixinLogic extends KeelAsyncMixinCore {
     /**
      * Initiates a task that will be called repeatedly until the task itself signals

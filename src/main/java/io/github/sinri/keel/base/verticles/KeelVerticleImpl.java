@@ -1,4 +1,4 @@
-package io.github.sinri.keel.core.verticles;
+package io.github.sinri.keel.base.verticles;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;

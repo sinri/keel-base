@@ -1,11 +1,9 @@
-package io.github.sinri.keel.core;
+package io.github.sinri.keel.base.annotations;
 
 import java.lang.annotation.*;
 
 /**
- * This annotation is designed for Keel codes that not fully tested.
- *
- * @since 3.0.10
+ * This annotation is designed while not fully tested in production environments.
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)

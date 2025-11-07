@@ -1,19 +1,12 @@
-package io.github.sinri.keel.vertx.async;
+package io.github.sinri.keel.base.async;
 
-import io.github.sinri.keel.facade.KeelInstance;
+import io.github.sinri.keel.base.KeelVertxKeeper;
 import io.vertx.core.Future;
 
 import javax.annotation.Nonnull;
 import java.util.function.Supplier;
 
-import static io.github.sinri.keel.facade.KeelInstance.Keel;
 
-/**
- * Use {@link KeelInstance#Keel} to use the methods defined by this interface
- *
- * @see KeelInstance#Keel
- * @since 4.1.0
- */
 interface KeelAsyncMixinLock extends KeelAsyncMixinCore {
     /**
      * Executes a supplier asynchronously while ensuring exclusive access to a given
@@ -30,9 +23,9 @@ interface KeelAsyncMixinLock extends KeelAsyncMixinCore {
      */
     default <T> Future<T> asyncCallExclusively(@Nonnull String lockName, long waitTimeForLock,
                                                @Nonnull Supplier<Future<T>> exclusiveSupplier) {
-        return Keel.getVertx().sharedData()
-                   .getLockWithTimeout(lockName, waitTimeForLock)
-                   .compose(lock -> Future.succeededFuture()
+        return KeelVertxKeeper.getVertx().sharedData()
+                              .getLockWithTimeout(lockName, waitTimeForLock)
+                              .compose(lock -> Future.succeededFuture()
                                           .compose(v -> exclusiveSupplier.get())
                                           .andThen(ar -> lock.release()));
     }

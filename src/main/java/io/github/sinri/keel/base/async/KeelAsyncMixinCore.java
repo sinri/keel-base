@@ -1,19 +1,12 @@
-package io.github.sinri.keel.vertx.async;
+package io.github.sinri.keel.base.async;
 
-import io.github.sinri.keel.facade.KeelInstance;
+import io.github.sinri.keel.base.KeelVertxKeeper;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 
 import javax.annotation.Nullable;
 
-import static io.github.sinri.keel.facade.KeelInstance.Keel;
 
-/**
- * Use {@link KeelInstance#Keel} to use the methods defined by this interface
- *
- * @see KeelInstance#Keel
- * @since 4.1.0
- */
 interface KeelAsyncMixinCore {
     /**
      * Asynchronously sleeps for a specified amount of time.
@@ -40,12 +33,12 @@ interface KeelAsyncMixinCore {
     default Future<Void> asyncSleep(long time, @Nullable Promise<Void> interrupter) {
         Promise<Void> promise = Promise.promise();
         time = Math.max(1, time);
-        long timer_id = Keel.getVertx().setTimer(time, timerID -> {
+        long timer_id = KeelVertxKeeper.getVertx().setTimer(time, timerID -> {
             promise.complete();
         });
         if (interrupter != null) {
             interrupter.future().onSuccess(interrupted -> {
-                Keel.getVertx().cancelTimer(timer_id);
+                KeelVertxKeeper.getVertx().cancelTimer(timer_id);
                 promise.tryComplete();
             });
         }

@@ -9,4 +9,4 @@
  * <p>These components enable developers to write non-blocking, reactive applications</p>
  * <p>with improved performance and resource utilization.</p>
  */
-package io.github.sinri.keel.vertx.async;
+package io.github.sinri.keel.base.async;

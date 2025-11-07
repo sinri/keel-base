@@ -8,4 +8,4 @@
  * <p>Verticles are the basic deployment units in Vert.x, providing isolation and</p>
  * <p>concurrent execution capabilities for building reactive applications.</p>
  */
-package io.github.sinri.keel.core.verticles;
+package io.github.sinri.keel.base.verticles;

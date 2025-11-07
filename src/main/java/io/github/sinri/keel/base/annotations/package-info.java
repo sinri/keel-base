@@ -1,1 +1,1 @@
-package io.github.sinri.keel.vertx.annotations;
+package io.github.sinri.keel.base.annotations;

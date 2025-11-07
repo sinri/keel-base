@@ -1,4 +1,4 @@
-package io.github.sinri.keel.base.async;
+package io.github.sinri.keel.base;
 
 import io.github.sinri.keel.base.annotations.KeelPrivate;
 import io.vertx.core.Vertx;
@@ -8,14 +8,14 @@ import java.util.Objects;
 
 @KeelPrivate
 public final class KeelVertxKeeper {
-    private Vertx vertx;
+    private static Vertx vertx;
 
     @Nonnull
-    public Vertx getVertx() {
+    public static Vertx getVertx() {
         return Objects.requireNonNull(vertx);
     }
 
-    public void setVertx(@Nonnull Vertx vertx) {
-        this.vertx = vertx;
+    public static void setVertx(@Nonnull Vertx vertx) {
+        KeelVertxKeeper.vertx = vertx;
     }
 }
