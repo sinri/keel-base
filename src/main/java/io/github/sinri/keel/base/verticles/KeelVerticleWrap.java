@@ -1,6 +1,5 @@
 package io.github.sinri.keel.base.verticles;
 
-import io.github.sinri.keel.base.KeelBase;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 
@@ -8,6 +7,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.function.Function;
 import java.util.function.Supplier;
+
+import static io.github.sinri.keel.facade.KeelInstance.Keel;
 
 
 /**
@@ -79,7 +80,7 @@ public final class KeelVerticleWrap extends KeelVerticleImpl {
                     if (stopperPromise != null) {
                         stopperPromise.future()
                                       .andThen(stopped -> {
-                                          KeelBase.getVertx().setTimer(100L, timer -> {
+                                          Keel.getVertx().setTimer(100L, timer -> {
                                               String deploymentID = deploymentID();
                                               if (deploymentID != null) {
                                                   this.undeployMe().onFailure(throwable -> {

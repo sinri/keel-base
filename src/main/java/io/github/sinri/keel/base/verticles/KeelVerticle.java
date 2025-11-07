@@ -1,6 +1,5 @@
 package io.github.sinri.keel.base.verticles;
 
-import io.github.sinri.keel.base.KeelBase;
 import io.vertx.core.*;
 import io.vertx.core.json.JsonObject;
 
@@ -8,6 +7,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.function.Function;
 import java.util.function.Supplier;
+
+import static io.github.sinri.keel.facade.KeelInstance.Keel;
 
 
 /**
@@ -111,7 +112,7 @@ public interface KeelVerticle extends Verticle {
         if (deploymentID != null) {
             throw new IllegalStateException("This verticle has been deployed already!");
         }
-        return KeelBase.getVertx().deployVerticle(this, deploymentOptions);
+        return Keel.getVertx().deployVerticle(this, deploymentOptions);
     }
 
     /**
@@ -126,7 +127,7 @@ public interface KeelVerticle extends Verticle {
         if (deploymentID == null) {
             throw new IllegalStateException("This verticle has not been deployed yet!");
         }
-        return KeelBase.getVertx().undeploy(deploymentID);
+        return Keel.getVertx().undeploy(deploymentID);
     }
 
     /**

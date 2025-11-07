@@ -1,6 +1,5 @@
 package io.github.sinri.keel.utils.io;
 
-import io.github.sinri.keel.base.KeelBase;
 import io.vertx.core.Future;
 
 import javax.annotation.Nonnull;
@@ -16,6 +15,8 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+
+import static io.github.sinri.keel.facade.KeelInstance.Keel;
 
 public class FileUtils {
     private FileUtils() {
@@ -51,7 +52,7 @@ public class FileUtils {
      * @since 4.0.12
      */
     public static Future<Void> mkdirsAsync(String dirPath) {
-        return KeelBase.getVertx().executeBlocking(() -> {
+        return Keel.getVertx().executeBlocking(() -> {
             mkdirs(dirPath);
             return null;
         });
@@ -76,7 +77,7 @@ public class FileUtils {
      * @since 4.1.0
      */
     public static Future<Void> deleteAsync(String path) {
-        return KeelBase.getVertx().executeBlocking(() -> {
+        return Keel.getVertx().executeBlocking(() -> {
             delete(path);
             return null;
         });
@@ -116,7 +117,7 @@ public class FileUtils {
      * @since 4.1.0
      */
     public static Future<Void> deleteRecursiveAsync(String path) {
-        return KeelBase.getVertx().executeBlocking(() -> {
+        return Keel.getVertx().executeBlocking(() -> {
             deleteRecursive(path);
             return null;
         });
@@ -143,7 +144,7 @@ public class FileUtils {
      * @since 4.0.12
      */
     public static Future<Void> copyAsync(String source, String destination) {
-        return KeelBase.getVertx().executeBlocking(() -> {
+        return Keel.getVertx().executeBlocking(() -> {
             copy(source, destination);
             return null;
         });
@@ -170,7 +171,7 @@ public class FileUtils {
      * @since 4.0.12
      */
     public static Future<Void> moveAsync(String source, String destination) {
-        return KeelBase.getVertx().executeBlocking(() -> {
+        return Keel.getVertx().executeBlocking(() -> {
             move(source, destination);
             return null;
         });
@@ -277,7 +278,7 @@ public class FileUtils {
      * @since 3.0.0
      */
     public static Future<String> createTempFileAsync(@Nullable String prefix, @Nullable String suffix) {
-        return KeelBase.getVertx().executeBlocking(() -> createTempFile(prefix, suffix));
+        return Keel.getVertx().executeBlocking(() -> createTempFile(prefix, suffix));
     }
 
     /**
@@ -415,7 +416,7 @@ public class FileUtils {
      * @since 4.0.12
      */
     public static Future<Void> createSymLinkAsync(String link, String target) {
-        return KeelBase.getVertx().executeBlocking(() -> {
+        return Keel.getVertx().executeBlocking(() -> {
             createSymLink(link, target);
             return null;
         });
@@ -449,7 +450,7 @@ public class FileUtils {
      * @since 4.0.12
      */
     public static Future<String> readFileAsStringAsync(String filePath, String charset) {
-        return KeelBase.getVertx().executeBlocking(() -> readFileAsString(filePath, charset));
+        return Keel.getVertx().executeBlocking(() -> readFileAsString(filePath, charset));
     }
 
     /**
@@ -493,7 +494,7 @@ public class FileUtils {
      * @since 4.0.12
      */
     public static Future<Void> writeFileAsync(String filePath, String content, String charset) {
-        return KeelBase.getVertx().executeBlocking(() -> {
+        return Keel.getVertx().executeBlocking(() -> {
             writeFile(filePath, content, charset);
             return null;
         });
@@ -509,7 +510,7 @@ public class FileUtils {
      * @since 4.1.0
      */
     public static Future<Void> writeFileAsync(String filePath, String content, Charset charset) {
-        return KeelBase.getVertx().executeBlocking(() -> {
+        return Keel.getVertx().executeBlocking(() -> {
             writeFile(filePath, content, charset);
             return null;
         });
@@ -572,7 +573,7 @@ public class FileUtils {
      * @since 4.0.12
      */
     public static Future<Void> appendFileAsync(String filePath, String content) {
-        return KeelBase.getVertx().executeBlocking(() -> {
+        return Keel.getVertx().executeBlocking(() -> {
             appendFile(filePath, content);
             return null;
         });
@@ -588,7 +589,7 @@ public class FileUtils {
      * @since 4.1.0
      */
     public static Future<Void> appendFileAsync(String filePath, String content, String charset) {
-        return KeelBase.getVertx().executeBlocking(() -> {
+        return Keel.getVertx().executeBlocking(() -> {
             appendFile(filePath, content, charset);
             return null;
         });
@@ -604,7 +605,7 @@ public class FileUtils {
      * @since 4.1.0
      */
     public static Future<Void> appendFileAsync(String filePath, String content, Charset charset) {
-        return KeelBase.getVertx().executeBlocking(() -> {
+        return Keel.getVertx().executeBlocking(() -> {
             appendFile(filePath, content, charset);
             return null;
         });
@@ -646,7 +647,7 @@ public class FileUtils {
      * @since 4.0.12
      */
     public static Future<Void> extractJarAsync(String jarPath, String targetDir) {
-        return KeelBase.getVertx().executeBlocking(() -> {
+        return Keel.getVertx().executeBlocking(() -> {
             extractJar(jarPath, targetDir);
             return null;
         });
@@ -677,7 +678,7 @@ public class FileUtils {
      * @since 4.0.12
      */
     public static Future<Void> createJarAsync(String sourceDir, String jarPath) {
-        return KeelBase.getVertx().executeBlocking(() -> {
+        return Keel.getVertx().executeBlocking(() -> {
             createJar(sourceDir, jarPath);
             return null;
         });
@@ -799,7 +800,7 @@ public class FileUtils {
      * @since 4.0.12
      */
     public static Future<Void> createZipAsync(String sourcePath, String zipPath) {
-        return KeelBase.getVertx().executeBlocking(() -> {
+        return Keel.getVertx().executeBlocking(() -> {
             createZip(sourcePath, zipPath);
             return null;
         });
@@ -855,7 +856,7 @@ public class FileUtils {
      * @since 4.0.12
      */
     public static Future<Void> extractZipAsync(String zipPath, String targetDir) {
-        return KeelBase.getVertx().executeBlocking(() -> {
+        return Keel.getVertx().executeBlocking(() -> {
             extractZip(zipPath, targetDir);
             return null;
         });
@@ -968,7 +969,7 @@ public class FileUtils {
      * @since 4.0.12
      */
     public static Future<Void> extractZipEntryAsync(String zipPath, String entryName, String targetPath) {
-        return KeelBase.getVertx().executeBlocking(() -> {
+        return Keel.getVertx().executeBlocking(() -> {
             extractZipEntry(zipPath, entryName, targetPath);
             return null;
         });

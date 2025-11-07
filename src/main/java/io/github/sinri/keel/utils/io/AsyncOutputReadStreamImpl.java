@@ -1,6 +1,5 @@
 package io.github.sinri.keel.utils.io;
 
-import io.github.sinri.keel.base.KeelBase;
 import io.vertx.core.*;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.streams.ReadStream;
@@ -16,6 +15,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
+
+import static io.github.sinri.keel.facade.KeelInstance.Keel;
 
 
 /**
@@ -68,7 +69,7 @@ class AsyncOutputReadStreamImpl extends OutputStream implements ReadStream<Buffe
     }
 
     public AsyncOutputReadStreamImpl() {
-        this(KeelBase.getVertx());
+        this(Keel.getVertx());
     }
 
 
@@ -77,7 +78,7 @@ class AsyncOutputReadStreamImpl extends OutputStream implements ReadStream<Buffe
             throw new IllegalStateException("Stream has already been wrapped");
         }
         this.readOverPromise = Promise.promise();
-        KeelBase.getVertx().executeBlocking(() -> inputStream.transferTo(this))
+        Keel.getVertx().executeBlocking(() -> inputStream.transferTo(this))
                 .onComplete(readOverPromise);
     }
 

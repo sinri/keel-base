@@ -1,6 +1,5 @@
 package io.github.sinri.keel.base.configuration;
 
-import io.github.sinri.keel.base.KeelBase;
 import io.vertx.core.Future;
 
 import javax.annotation.Nullable;
@@ -8,6 +7,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static io.github.sinri.keel.facade.KeelInstance.Keel;
 
 
 /**
@@ -84,7 +85,7 @@ public class KeelConfigPropertiesBuilder {
     }
 
     public Future<Void> writeToFile(String filePath) {
-        return KeelBase.getVertx()
+        return Keel.getVertx()
                        .fileSystem()
                        .writeFile(
                                       filePath,
@@ -93,7 +94,7 @@ public class KeelConfigPropertiesBuilder {
     }
 
     public Future<Void> appendToFile(String filePath) {
-        return KeelBase.getVertx().fileSystem()
+        return Keel.getVertx().fileSystem()
                        .open(filePath, new io.vertx.core.file.OpenOptions().setAppend(true))
                        .compose(file -> file.write(io.vertx.core.buffer.Buffer.buffer(writeToString().getBytes(StandardCharsets.US_ASCII)))
                                                    .compose(v -> file.close())

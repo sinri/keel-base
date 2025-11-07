@@ -1,6 +1,5 @@
 package io.github.sinri.keel.base.async;
 
-import io.github.sinri.keel.base.KeelBase;
 import io.github.sinri.keel.base.annotations.TechnicalPreview;
 import io.github.sinri.keel.base.verticles.KeelVerticle;
 import io.vertx.core.*;
@@ -9,6 +8,8 @@ import javax.annotation.Nonnull;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Supplier;
+
+import static io.github.sinri.keel.facade.KeelInstance.Keel;
 
 interface KeelAsyncMixinBlock extends KeelAsyncMixinLogic {
     private boolean isInNonBlockContext() {
@@ -60,7 +61,7 @@ interface KeelAsyncMixinBlock extends KeelAsyncMixinLogic {
 
     default <R> Future<R> asyncTransformRawFuture(@Nonnull java.util.concurrent.Future<R> rawFuture) {
         if (isInNonBlockContext()) {
-            return KeelBase.getVertx().executeBlocking(rawFuture::get);
+            return Keel.getVertx().executeBlocking(rawFuture::get);
         } else {
             try {
                 var r = rawFuture.get();

@@ -1,6 +1,5 @@
 package io.github.sinri.keel.utils.io;
 
-import io.github.sinri.keel.base.KeelBase;
 import io.vertx.core.*;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.streams.WriteStream;
@@ -13,6 +12,8 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import static io.github.sinri.keel.facade.KeelInstance.Keel;
 
 
 /**
@@ -46,7 +47,7 @@ class AsyncInputWriteStreamImpl extends InputStream implements WriteStream<Buffe
     }
 
     public AsyncInputWriteStreamImpl() {
-        this(KeelBase.getVertx());
+        this(Keel.getVertx());
     }
 
     @Nonnull
