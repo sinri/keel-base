@@ -24,6 +24,11 @@ public class StackUtils {
     }
 
     @Nonnull
+    public static String renderThrowableChain(@Nullable Throwable throwable) {
+        return renderThrowableChain(throwable, IgnorableCallStackPackage);
+    }
+
+    @Nonnull
     public static String renderThrowableChain(@Nullable Throwable throwable, @Nonnull Set<String> ignorableStackPackageSet) {
         if (throwable == null) return "";
         Throwable cause = throwable.getCause();
