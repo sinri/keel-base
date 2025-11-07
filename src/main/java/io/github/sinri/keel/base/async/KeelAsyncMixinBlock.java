@@ -1,6 +1,6 @@
 package io.github.sinri.keel.base.async;
 
-import io.github.sinri.keel.base.KeelVertxKeeper;
+import io.github.sinri.keel.base.KeelBase;
 import io.github.sinri.keel.base.annotations.TechnicalPreview;
 import io.github.sinri.keel.base.verticles.KeelVerticle;
 import io.vertx.core.*;
@@ -60,7 +60,7 @@ interface KeelAsyncMixinBlock extends KeelAsyncMixinLogic {
 
     default <R> Future<R> asyncTransformRawFuture(@Nonnull java.util.concurrent.Future<R> rawFuture) {
         if (isInNonBlockContext()) {
-            return KeelVertxKeeper.getVertx().executeBlocking(rawFuture::get);
+            return KeelBase.getVertx().executeBlocking(rawFuture::get);
         } else {
             try {
                 var r = rawFuture.get();

@@ -1,6 +1,6 @@
 package io.github.sinri.keel.base.configuration;
 
-import io.github.sinri.keel.base.KeelVertxKeeper;
+import io.github.sinri.keel.base.KeelBase;
 import io.vertx.core.Future;
 
 import javax.annotation.Nullable;
@@ -84,18 +84,18 @@ public class KeelConfigPropertiesBuilder {
     }
 
     public Future<Void> writeToFile(String filePath) {
-        return KeelVertxKeeper.getVertx()
-                              .fileSystem()
-                              .writeFile(
+        return KeelBase.getVertx()
+                       .fileSystem()
+                       .writeFile(
                                       filePath,
                                       io.vertx.core.buffer.Buffer.buffer(writeToString().getBytes(StandardCharsets.US_ASCII))
                               );
     }
 
     public Future<Void> appendToFile(String filePath) {
-        return KeelVertxKeeper.getVertx().fileSystem()
-                              .open(filePath, new io.vertx.core.file.OpenOptions().setAppend(true))
-                              .compose(file -> file.write(io.vertx.core.buffer.Buffer.buffer(writeToString().getBytes(StandardCharsets.US_ASCII)))
+        return KeelBase.getVertx().fileSystem()
+                       .open(filePath, new io.vertx.core.file.OpenOptions().setAppend(true))
+                       .compose(file -> file.write(io.vertx.core.buffer.Buffer.buffer(writeToString().getBytes(StandardCharsets.US_ASCII)))
                                                    .compose(v -> file.close())
                                                    .onFailure(err -> file.close())); // Ensure file is closed even on failure
 

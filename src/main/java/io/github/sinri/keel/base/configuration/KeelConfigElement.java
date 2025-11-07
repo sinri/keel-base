@@ -1,6 +1,6 @@
 package io.github.sinri.keel.base.configuration;
 
-import io.github.sinri.keel.base.KeelVertxKeeper;
+import io.github.sinri.keel.base.KeelBase;
 import io.vertx.config.ConfigRetriever;
 import io.vertx.config.ConfigRetrieverOptions;
 import io.vertx.core.Future;
@@ -102,7 +102,7 @@ public class KeelConfigElement {
      * @since 3.2.10
      */
     public static Future<KeelConfigElement> retrieve(@Nonnull ConfigRetrieverOptions configRetrieverOptions) {
-        ConfigRetriever configRetriever = ConfigRetriever.create(KeelVertxKeeper.getVertx(), configRetrieverOptions);
+        ConfigRetriever configRetriever = ConfigRetriever.create(KeelBase.getVertx(), configRetrieverOptions);
         return configRetriever.getConfig()
                               .compose(jsonObject -> {
                                   KeelConfigElement element = fromJsonObject(jsonObject);

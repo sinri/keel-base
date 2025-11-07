@@ -1,6 +1,6 @@
 package io.github.sinri.keel.base.async;
 
-import io.github.sinri.keel.base.KeelVertxKeeper;
+import io.github.sinri.keel.base.KeelBase;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 
@@ -44,7 +44,7 @@ public final class RepeatedlyCallTask {
                       if (thisTask.toStop) {
                           finalPromise.complete();
                       } else {
-                          KeelVertxKeeper.getVertx().setTimer(1L, x -> start(thisTask, finalPromise));
+                          KeelBase.getVertx().setTimer(1L, x -> start(thisTask, finalPromise));
                       }
                   } else {
                       finalPromise.fail(shouldStopAR.cause());

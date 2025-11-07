@@ -1,6 +1,6 @@
 package io.github.sinri.keel.base.async;
 
-import io.github.sinri.keel.base.KeelVertxKeeper;
+import io.github.sinri.keel.base.KeelBase;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 
@@ -33,12 +33,12 @@ interface KeelAsyncMixinCore {
     default Future<Void> asyncSleep(long time, @Nullable Promise<Void> interrupter) {
         Promise<Void> promise = Promise.promise();
         time = Math.max(1, time);
-        long timer_id = KeelVertxKeeper.getVertx().setTimer(time, timerID -> {
+        long timer_id = KeelBase.getVertx().setTimer(time, timerID -> {
             promise.complete();
         });
         if (interrupter != null) {
             interrupter.future().onSuccess(interrupted -> {
-                KeelVertxKeeper.getVertx().cancelTimer(timer_id);
+                KeelBase.getVertx().cancelTimer(timer_id);
                 promise.tryComplete();
             });
         }
