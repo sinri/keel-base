@@ -25,14 +25,14 @@ public class TimeUtils {
      * @return current timestamp expressed in MySQL Date Time Format
      * @since 3.0.10
      */
-    public String getCurrentDatetime() {
+    public static String getCurrentDatetime() {
         return getCurrentDateExpression(MYSQL_DATETIME_PATTERN);
     }
 
     /**
      * @since 3.0.10
      */
-    public String getCurrentDate() {
+    public static String getCurrentDate() {
         return getCurrentDateExpression(MYSQL_DATE_PATTERN);
     }
 
@@ -41,7 +41,7 @@ public class TimeUtils {
      * @return the date string or null
      * @since 2.6
      */
-    public String getCurrentDateExpression(String format) {
+    public static String getCurrentDateExpression(String format) {
         Date currentTime = new Date();
         return getDateExpression(currentTime, format);
     }
@@ -50,7 +50,7 @@ public class TimeUtils {
      * @param format for example: yyyy-MM-ddTHH:mm:ss
      * @since 2.6
      */
-    public String getDateExpression(Date date, String format) {
+    public static String getDateExpression(Date date, String format) {
         if (format == null || format.isEmpty()) {
             return null;
         }
@@ -61,7 +61,7 @@ public class TimeUtils {
     /**
      * @since 3.0.10
      */
-    public String getDateExpression(long timestamp, String format) {
+    public static String getDateExpression(long timestamp, String format) {
         Date date = new Date(timestamp);
         return getDateExpression(date, format);
     }
@@ -73,7 +73,7 @@ public class TimeUtils {
      * @return yyyy-MM-dd HH:mm:ss
      * @since 2.7
      */
-    public String getMySQLFormatLocalDateTimeExpression(String localDateTimeExpression) {
+    public static String getMySQLFormatLocalDateTimeExpression(String localDateTimeExpression) {
         return LocalDateTime.parse(localDateTimeExpression)
                             .format(DateTimeFormatter.ofPattern(MYSQL_DATETIME_PATTERN));
     }
@@ -82,7 +82,7 @@ public class TimeUtils {
      * @return Date Time in RFC 1123: Mon, 31 Oct 2022 01:18:43 GMT
      * @since 2.9.1
      */
-    public String getGMTDateTimeExpression(ZoneId zoneId) {
+    public static String getGMTDateTimeExpression(ZoneId zoneId) {
         DateTimeFormatter gmt = DateTimeFormatter.ofPattern(
                                                          GMT_PATTERN,
                                                          Locale.ENGLISH
@@ -94,7 +94,7 @@ public class TimeUtils {
     /**
      * @since 3.0.1
      */
-    public String getGMTDateTimeExpression() {
+    public static String getGMTDateTimeExpression() {
         return getGMTDateTimeExpression(ZoneId.systemDefault());
     }
 
@@ -103,7 +103,7 @@ public class TimeUtils {
      *
      * @since 3.0.1
      */
-    protected String makeStandardWidthField(int x, int w) {
+    protected static String makeStandardWidthField(int x, int w) {
         if (x < 0) throw new IllegalArgumentException();
         String numeric = String.valueOf(x);
         if (w < numeric.length()) throw new IllegalArgumentException();
@@ -114,7 +114,7 @@ public class TimeUtils {
     /**
      * @since 3.0.1
      */
-    public String toMySQLDatetime(LocalDateTime datetime) {
+    public static String toMySQLDatetime(LocalDateTime datetime) {
         return makeStandardWidthField(datetime.getYear(), 4)
                 + "-" + makeStandardWidthField(datetime.getMonthValue(), 2)
                 + "-" + makeStandardWidthField(datetime.getDayOfMonth(), 2)
@@ -128,7 +128,7 @@ public class TimeUtils {
      * @param formatPattern MYSQL_DATETIME_PATTERN,MYSQL_DATE_PATTERN,MYSQL_TIME_PATTERN
      * @since 3.0.1
      */
-    public String toMySQLDatetime(LocalDateTime localDateTime, String formatPattern) {
+    public static String toMySQLDatetime(LocalDateTime localDateTime, String formatPattern) {
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(formatPattern);
         return localDateTime.format(dateTimeFormatter);
     }
@@ -141,7 +141,7 @@ public class TimeUtils {
      * @return Date instance.
      * @since 3.0.11
      */
-    public @Nullable Date parseExpressionToDateInstance(@Nonnull String dateStr, @Nonnull String formatStr) {
+    public static @Nullable Date parseExpressionToDateInstance(@Nonnull String dateStr, @Nonnull String formatStr) {
         try {
             SimpleDateFormat format = new SimpleDateFormat(formatStr);
             format.setLenient(false); // 启用严格模式，校验日期是否真实存在
@@ -158,21 +158,21 @@ public class TimeUtils {
      * @return 指定时间戳在指定时区对应的日期时间表述字符串
      * @since 4.0.6
      */
-    public String getInstantExpression(Instant instant, ZoneId zoneId, String pattern) {
+    public static String getInstantExpression(Instant instant, ZoneId zoneId, String pattern) {
         return DateTimeFormatter.ofPattern(pattern).withZone(zoneId).format(instant);
     }
 
     /**
      * @since 4.0.0
      */
-    public boolean isNowMatchCronExpression(@Nonnull String cronExpression) {
+    public static boolean isNowMatchCronExpression(@Nonnull String cronExpression) {
         return new KeelCronExpression(cronExpression).match(Calendar.getInstance());
     }
 
     /**
      * @since 4.0.0
      */
-    public boolean isNowMatchCronExpression(@Nonnull KeelCronExpression cronExpression) {
+    public static boolean isNowMatchCronExpression(@Nonnull KeelCronExpression cronExpression) {
         return cronExpression.match(Calendar.getInstance());
     }
 }

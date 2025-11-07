@@ -12,7 +12,7 @@ import java.io.OutputStream;
 
 public class IOUtils {
     @TechnicalPreview(since = "4.1.5")
-    public AsyncOutputReadStream toReadStream(@Nonnull InputStream inputStream, @Nonnull Handler<ReadStream<Buffer>> handler) {
+    public static AsyncOutputReadStream toReadStream(@Nonnull InputStream inputStream, @Nonnull Handler<ReadStream<Buffer>> handler) {
         var readStream = AsyncOutputReadStream.create();
         readStream.pause();
         handler.handle(readStream);
@@ -22,7 +22,7 @@ public class IOUtils {
     }
 
     @TechnicalPreview(since = "4.1.5")
-    public AsyncInputWriteStream toWriteStream(@Nonnull OutputStream outputStream, @Nonnull Handler<WriteStream<Buffer>> handler) {
+    public static AsyncInputWriteStream toWriteStream(@Nonnull OutputStream outputStream, @Nonnull Handler<WriteStream<Buffer>> handler) {
         var writeStream = AsyncInputWriteStream.create();
         handler.handle(writeStream);
         writeStream.wrap(outputStream);

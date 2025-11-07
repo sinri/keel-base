@@ -2,7 +2,6 @@ package io.github.sinri.keel.utils.io;
 
 import io.github.sinri.keel.base.KeelBase;
 import io.vertx.core.Future;
-import io.vertx.core.file.FileProps;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -12,57 +11,113 @@ import java.io.InputStream;
 import java.net.JarURLConnection;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 public class FileUtils {
-    // todo remove the relies on vert.x
 
     /**
      * Checks if a file exists at the specified path.
      *
      * @param filePath the path to check
-     * @return Future containing true if the file exists, false otherwise
+     * @return true if the file exists, false otherwise
      * @since 4.0.12
      */
-    public Future<Boolean> exists(String filePath) {
-        return KeelBase.getVertx().fileSystem().exists(filePath);
+    public static boolean exists(String filePath) {
+        return Files.exists(Path.of(filePath));
     }
 
     /**
      * Creates a directory and all necessary parent directories.
      *
      * @param dirPath the directory path to create
+     * @throws IOException if an I/O error occurs
+     * @since 4.0.12
+     */
+    public static void mkdirs(String dirPath) throws IOException {
+        Files.createDirectories(Path.of(dirPath));
+    }
+
+    /**
+     * Creates a directory and all necessary parent directories asynchronously.
+     *
+     * @param dirPath the directory path to create
      * @return Future that completes when the directory is created
      * @since 4.0.12
      */
-    public Future<Void> mkdirs(String dirPath) {
-        return KeelBase.getVertx().fileSystem().mkdirs(dirPath);
+    public static Future<Void> mkdirsAsync(String dirPath) {
+        return KeelBase.getVertx().executeBlocking(() -> {
+            mkdirs(dirPath);
+            return null;
+        });
     }
 
     /**
      * Deletes a file or directory.
      *
      * @param path the path to delete
+     * @throws IOException if an I/O error occurs
+     * @since 4.1.0
+     */
+    public static void delete(String path) throws IOException {
+        Files.deleteIfExists(Path.of(path));
+    }
+
+    /**
+     * Deletes a file or directory asynchronously.
+     *
+     * @param path the path to delete
      * @return Future that completes when the deletion is done
      * @since 4.1.0
      */
-    public Future<Void> delete(String path) {
-        return KeelBase.getVertx().fileSystem().delete(path);
+    public static Future<Void> deleteAsync(String path) {
+        return KeelBase.getVertx().executeBlocking(() -> {
+            delete(path);
+            return null;
+        });
     }
 
     /**
      * Deletes a file or directory recursively.
      *
      * @param path the path to delete
+     * @throws IOException if an I/O error occurs
+     * @since 4.1.0
+     */
+    public static void deleteRecursive(String path) throws IOException {
+        Path targetPath = Path.of(path);
+        if (Files.exists(targetPath)) {
+            Files.walkFileTree(targetPath, new SimpleFileVisitor<Path>() {
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                    Files.delete(file);
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                    Files.delete(dir);
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+        }
+    }
+
+    /**
+     * Deletes a file or directory recursively asynchronously.
+     *
+     * @param path the path to delete
      * @return Future that completes when the deletion is done
      * @since 4.1.0
      */
-    public Future<Void> deleteRecursive(String path) {
-        return KeelBase.getVertx().fileSystem().deleteRecursive(path);
+    public static Future<Void> deleteRecursiveAsync(String path) {
+        return KeelBase.getVertx().executeBlocking(() -> {
+            deleteRecursive(path);
+            return null;
+        });
     }
 
     /**
@@ -70,11 +125,26 @@ public class FileUtils {
      *
      * @param source      the source file path
      * @param destination the destination file path
+     * @throws IOException if an I/O error occurs
+     * @since 4.0.12
+     */
+    public static void copy(String source, String destination) throws IOException {
+        Files.copy(Path.of(source), Path.of(destination), StandardCopyOption.REPLACE_EXISTING);
+    }
+
+    /**
+     * Copies a file from source to destination asynchronously.
+     *
+     * @param source      the source file path
+     * @param destination the destination file path
      * @return Future that completes when the copy is done
      * @since 4.0.12
      */
-    public Future<Void> copy(String source, String destination) {
-        return KeelBase.getVertx().fileSystem().copy(source, destination);
+    public static Future<Void> copyAsync(String source, String destination) {
+        return KeelBase.getVertx().executeBlocking(() -> {
+            copy(source, destination);
+            return null;
+        });
     }
 
     /**
@@ -82,14 +152,29 @@ public class FileUtils {
      *
      * @param source      the source file path
      * @param destination the destination file path
+     * @throws IOException if an I/O error occurs
+     * @since 4.0.12
+     */
+    public static void move(String source, String destination) throws IOException {
+        Files.move(Path.of(source), Path.of(destination), StandardCopyOption.REPLACE_EXISTING);
+    }
+
+    /**
+     * Moves a file from source to destination asynchronously.
+     *
+     * @param source      the source file path
+     * @param destination the destination file path
      * @return Future that completes when the move is done
      * @since 4.0.12
      */
-    public Future<Void> move(String source, String destination) {
-        return KeelBase.getVertx().fileSystem().move(source, destination);
+    public static Future<Void> moveAsync(String source, String destination) {
+        return KeelBase.getVertx().executeBlocking(() -> {
+            move(source, destination);
+            return null;
+        });
     }
 
-    public @Nonnull byte[] readFileAsByteArray(@Nonnull String filePath, boolean seekInsideJarWhenNotFound) throws IOException {
+    public static @Nonnull byte[] readFileAsByteArray(@Nonnull String filePath, boolean seekInsideJarWhenNotFound) throws IOException {
         if (!isValidPath(filePath)) {
             throw new IllegalArgumentException("Invalid file path: " + filePath);
         }
@@ -101,7 +186,7 @@ public class FileUtils {
                 throw new IOException("Failed to read file: " + filePath, e);
             }
 
-            try (InputStream resourceAsStream = getClass().getClassLoader().getResourceAsStream(filePath)) {
+            try (InputStream resourceAsStream = FileUtils.class.getClassLoader().getResourceAsStream(filePath)) {
                 if (resourceAsStream == null) {
                     throw new IOException("File not found in filesystem or JAR: " + filePath, e);
                 }
@@ -118,8 +203,8 @@ public class FileUtils {
      * @since 3.2.12.1 original name is `getUrlOfFileInJar`.
      */
     @Nullable
-    public URL getUrlOfFileInRunningJar(@Nonnull String filePath) {
-        return getClass().getClassLoader().getResource(filePath);
+    public static URL getUrlOfFileInRunningJar(@Nonnull String filePath) {
+        return FileUtils.class.getClassLoader().getResource(filePath);
     }
 
     /**
@@ -130,11 +215,11 @@ public class FileUtils {
      * @since 3.2.12.1 original name is `traversalInJar`.
      */
     @Nonnull
-    public List<JarEntry> traversalInRunningJar(@Nonnull String root) {
+    public static List<JarEntry> traversalInRunningJar(@Nonnull String root) {
         List<JarEntry> jarEntryList = new ArrayList<>();
         try {
             // should root ends with '/'?
-            URL url = getClass().getClassLoader().getResource(root);
+            URL url = FileUtils.class.getClassLoader().getResource(root);
             if (url == null) {
                 throw new RuntimeException("Resource is not found");
             }
@@ -172,11 +257,25 @@ public class FileUtils {
      *
      * @param prefix the prefix for the temporary file name
      * @param suffix the suffix for the temporary file name
+     * @return the absolute path of the created temporary file
+     * @throws IOException if an I/O error occurs
+     * @since 3.0.0
+     */
+    public static String createTempFile(@Nullable String prefix, @Nullable String suffix) throws IOException {
+        Path tempFile = Files.createTempFile(prefix, suffix);
+        return tempFile.toAbsolutePath().toString();
+    }
+
+    /**
+     * Creates a temporary file with the specified prefix and suffix asynchronously.
+     *
+     * @param prefix the prefix for the temporary file name
+     * @param suffix the suffix for the temporary file name
      * @return Future containing the absolute path of the created temporary file
      * @since 3.0.0
      */
-    public Future<String> createTempFile(@Nullable String prefix, @Nullable String suffix) {
-        return KeelBase.getVertx().fileSystem().createTempFile(prefix, suffix);
+    public static Future<String> createTempFileAsync(@Nullable String prefix, @Nullable String suffix) {
+        return KeelBase.getVertx().executeBlocking(() -> createTempFile(prefix, suffix));
     }
 
     /**
@@ -184,7 +283,7 @@ public class FileUtils {
      * @since 3.2.12.1 Changed the implementation with checking class paths.
      *         Check if this process is running with JAR file.
      */
-    public boolean isRunningFromJAR() {
+    public static boolean isRunningFromJAR() {
         List<String> classPathList = getClassPathList();
         for (var classPath : classPathList) {
             if (!classPath.endsWith(".jar")) {
@@ -197,7 +296,7 @@ public class FileUtils {
     /**
      * @since 3.2.12.1
      */
-    public List<String> getClassPathList() {
+    public static List<String> getClassPathList() {
         String classpath = System.getProperty("java.class.path");
         String[] classpathEntries = classpath.split(File.pathSeparator);
         return new ArrayList<>(Arrays.asList(classpathEntries));
@@ -208,13 +307,13 @@ public class FileUtils {
      *
      * @since 3.2.12.1 original name is `seekPackageClassFilesInJar`.
      */
-    public Set<String> seekPackageClassFilesInRunningJar(@Nonnull String packageName) {
+    public static Set<String> seekPackageClassFilesInRunningJar(@Nonnull String packageName) {
         Set<String> classes = new HashSet<>();
         // Get the current class's class loader
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 
         // Get the URL of the JAR file containing the current class
-        String currentClassUrlInJarFile = getClass().getName().replace('.', '/') + ".class";
+        String currentClassUrlInJarFile = FileUtils.class.getName().replace('.', '/') + ".class";
         URL jarUrl = classLoader.getResource(currentClassUrlInJarFile);
 
         if (jarUrl != null && jarUrl.getProtocol().equals("jar")) {
@@ -239,7 +338,7 @@ public class FileUtils {
                     }
                 }
             } catch (IOException e) {
-                // Keel.getLogger().debug(getClass() + " seekPackageClassFilesInRunningJar for package " + packageName + " error: " + e.getMessage());
+                // Keel.getLogger().debug(FileUtils.class + " seekPackageClassFilesInRunningJar for package " + packageName + " error: " + e.getMessage());
             }
         }
 
@@ -250,7 +349,7 @@ public class FileUtils {
      * @param jarFile File built from JAR in class path.
      * @since 3.2.12.1
      */
-    public List<String> traversalInJarFile(File jarFile) {
+    public static List<String> traversalInJarFile(File jarFile) {
         try (JarFile jar = new JarFile(jarFile)) {
             List<String> list = new ArrayList<>();
 
@@ -279,34 +378,45 @@ public class FileUtils {
      * Lists the contents of a directory.
      *
      * @param dirPath the directory path to list
-     * @return Future containing list of file names in the directory
+     * @return list of file names in the directory
+     * @throws IOException if an I/O error occurs
      * @since 4.0.12
      */
-    public Future<List<String>> listDir(String dirPath) {
-        return KeelBase.getVertx().fileSystem().readDir(dirPath);
+    public static List<String> listDir(String dirPath) throws IOException {
+        List<String> fileNames = new ArrayList<>();
+        try (var stream = Files.list(Path.of(dirPath))) {
+            stream.forEach(path -> fileNames.add(path.getFileName().toString()));
+        }
+        return fileNames;
     }
 
-    /**
-     * Gets file properties (size, creation time, last access time, last modified time).
-     *
-     * @param filePath the file path
-     * @return Future containing file properties
-     * @since 4.0.12
-     */
-    public Future<io.vertx.core.file.FileProps> getFileProps(String filePath) {
-        return KeelBase.getVertx().fileSystem().props(filePath);
-    }
 
     /**
      * Creates a symbolic link.
      *
      * @param link   the path of the symbolic link to create
      * @param target the target of the symbolic link
+     * @throws IOException if an I/O error occurs
+     * @throws UnsupportedOperationException if the operation is not supported
+     * @since 4.0.12
+     */
+    public static void createSymLink(String link, String target) throws IOException {
+        Files.createSymbolicLink(Path.of(link), Path.of(target));
+    }
+
+    /**
+     * Creates a symbolic link asynchronously.
+     *
+     * @param link   the path of the symbolic link to create
+     * @param target the target of the symbolic link
      * @return Future that completes when the link is created
      * @since 4.0.12
      */
-    public Future<Void> createSymLink(String link, String target) {
-        return KeelBase.getVertx().fileSystem().link(link, target);
+    public static Future<Void> createSymLinkAsync(String link, String target) {
+        return KeelBase.getVertx().executeBlocking(() -> {
+            createSymLink(link, target);
+            return null;
+        });
     }
 
     /**
@@ -314,17 +424,47 @@ public class FileUtils {
      *
      * @param filePath the file path
      * @param charset  the charset to use
-     * @return Future containing the file contents as a string
+     * @return the file contents as a string
      * @throws IllegalArgumentException if charset is invalid
+     * @throws IOException if an I/O error occurs
      * @since 4.0.12
      */
-    public Future<String> readFileAsString(String filePath, String charset) {
+    public static String readFileAsString(String filePath, String charset) throws IOException {
         try {
-            java.nio.charset.Charset.forName(charset); // Validate charset
-            return KeelBase.getVertx().fileSystem().readFile(filePath)
-                           .map(buffer -> buffer.toString(java.nio.charset.Charset.forName(charset)));
+            Charset charsetObj = Charset.forName(charset);
+            return Files.readString(Path.of(filePath), charsetObj);
         } catch (java.nio.charset.IllegalCharsetNameException | java.nio.charset.UnsupportedCharsetException e) {
-            return Future.failedFuture(new IllegalArgumentException("Invalid charset: " + charset, e));
+            throw new IllegalArgumentException("Invalid charset: " + charset, e);
+        }
+    }
+
+    /**
+     * Reads a file as a string with a specific charset asynchronously.
+     *
+     * @param filePath the file path
+     * @param charset  the charset to use
+     * @return Future containing the file contents as a string
+     * @since 4.0.12
+     */
+    public static Future<String> readFileAsStringAsync(String filePath, String charset) {
+        return KeelBase.getVertx().executeBlocking(() -> readFileAsString(filePath, charset));
+    }
+
+    /**
+     * Writes a string to a file with a specific charset.
+     *
+     * @param filePath the file path
+     * @param content  the content to write
+     * @param charset  the charset to use
+     * @throws IllegalArgumentException if charset is invalid
+     * @throws IOException if an I/O error occurs
+     * @since 4.0.12
+     */
+    public static void writeFile(String filePath, String content, String charset) throws IOException {
+        try {
+            writeFile(filePath, content, Charset.forName(charset));
+        } catch (java.nio.charset.IllegalCharsetNameException | java.nio.charset.UnsupportedCharsetException e) {
+            throw new IllegalArgumentException("Invalid charset: " + charset, e);
         }
     }
 
@@ -334,20 +474,31 @@ public class FileUtils {
      * @param filePath the file path
      * @param content  the content to write
      * @param charset  the charset to use
-     * @return Future that completes when the write is done
-     * @throws IllegalArgumentException if charset is invalid
-     * @since 4.0.12
+     * @throws IOException if an I/O error occurs
+     * @since 4.1.0
      */
-    public Future<Void> writeFile(String filePath, String content, String charset) {
-        try {
-            return writeFile(filePath, content, java.nio.charset.Charset.forName(charset));
-        } catch (java.nio.charset.IllegalCharsetNameException | java.nio.charset.UnsupportedCharsetException e) {
-            return Future.failedFuture(new IllegalArgumentException("Invalid charset: " + charset, e));
-        }
+    public static void writeFile(String filePath, String content, Charset charset) throws IOException {
+        Files.writeString(Path.of(filePath), content, charset, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
     }
 
     /**
-     * Writes a string to a file with a specific charset.
+     * Writes a string to a file with a specific charset asynchronously.
+     *
+     * @param filePath the file path
+     * @param content  the content to write
+     * @param charset  the charset to use
+     * @return Future that completes when the write is done
+     * @since 4.0.12
+     */
+    public static Future<Void> writeFileAsync(String filePath, String content, String charset) {
+        return KeelBase.getVertx().executeBlocking(() -> {
+            writeFile(filePath, content, charset);
+            return null;
+        });
+    }
+
+    /**
+     * Writes a string to a file with a specific charset asynchronously.
      *
      * @param filePath the file path
      * @param content  the content to write
@@ -355,11 +506,11 @@ public class FileUtils {
      * @return Future that completes when the write is done
      * @since 4.1.0
      */
-    public Future<Void> writeFile(String filePath, String content, java.nio.charset.Charset charset) {
-        return KeelBase.getVertx().fileSystem().writeFile(
-                filePath,
-                io.vertx.core.buffer.Buffer.buffer(content.getBytes(charset))
-        );
+    public static Future<Void> writeFileAsync(String filePath, String content, Charset charset) {
+        return KeelBase.getVertx().executeBlocking(() -> {
+            writeFile(filePath, content, charset);
+            return null;
+        });
     }
 
     /**
@@ -367,12 +518,12 @@ public class FileUtils {
      *
      * @param filePath the file path
      * @param content  the content to append
-     * @return Future that completes when the append is done
      * @throws IllegalArgumentException if filePath is null or empty
+     * @throws IOException if an I/O error occurs
      * @since 4.0.12
      */
-    public Future<Void> appendFile(String filePath, String content) {
-        return appendFile(filePath, content, Charset.defaultCharset());
+    public static void appendFile(String filePath, String content) throws IOException {
+        appendFile(filePath, content, Charset.defaultCharset());
     }
 
     /**
@@ -381,15 +532,15 @@ public class FileUtils {
      * @param filePath the file path
      * @param content  the content to append
      * @param charset  the charset to use
-     * @return Future that completes when the append is done
      * @throws IllegalArgumentException if filePath is null or empty or charset is invalid
+     * @throws IOException if an I/O error occurs
      * @since 4.1.0
      */
-    public Future<Void> appendFile(String filePath, String content, String charset) {
+    public static void appendFile(String filePath, String content, String charset) throws IOException {
         try {
-            return appendFile(filePath, content, java.nio.charset.Charset.forName(charset));
+            appendFile(filePath, content, Charset.forName(charset));
         } catch (java.nio.charset.IllegalCharsetNameException | java.nio.charset.UnsupportedCharsetException e) {
-            return Future.failedFuture(new IllegalArgumentException("Invalid charset: " + charset, e));
+            throw new IllegalArgumentException("Invalid charset: " + charset, e);
         }
     }
 
@@ -399,18 +550,62 @@ public class FileUtils {
      * @param filePath the file path
      * @param content  the content to append
      * @param charset  the charset to use
-     * @return Future that completes when the append is done
      * @throws IllegalArgumentException if filePath is null or empty
+     * @throws IOException if an I/O error occurs
      * @since 4.1.0
      */
-    public Future<Void> appendFile(String filePath, String content, java.nio.charset.Charset charset) {
+    public static void appendFile(String filePath, String content, Charset charset) throws IOException {
         if (filePath == null || filePath.trim().isEmpty()) {
-            return Future.failedFuture(new IllegalArgumentException("File path cannot be null or empty"));
+            throw new IllegalArgumentException("File path cannot be null or empty");
         }
-        return KeelBase.getVertx().fileSystem().open(filePath, new io.vertx.core.file.OpenOptions().setAppend(true))
-                       .compose(file -> file.write(io.vertx.core.buffer.Buffer.buffer(content.getBytes(charset)))
-                                            .compose(v -> file.close())
-                                            .onFailure(err -> file.close())); // Ensure file is closed even on failure
+        Files.writeString(Path.of(filePath), content, charset, StandardOpenOption.CREATE, StandardOpenOption.APPEND, StandardOpenOption.WRITE);
+    }
+
+    /**
+     * Appends content to a file asynchronously.
+     *
+     * @param filePath the file path
+     * @param content  the content to append
+     * @return Future that completes when the append is done
+     * @since 4.0.12
+     */
+    public static Future<Void> appendFileAsync(String filePath, String content) {
+        return KeelBase.getVertx().executeBlocking(() -> {
+            appendFile(filePath, content);
+            return null;
+        });
+    }
+
+    /**
+     * Appends content to a file with a specific charset asynchronously.
+     *
+     * @param filePath the file path
+     * @param content  the content to append
+     * @param charset  the charset to use
+     * @return Future that completes when the append is done
+     * @since 4.1.0
+     */
+    public static Future<Void> appendFileAsync(String filePath, String content, String charset) {
+        return KeelBase.getVertx().executeBlocking(() -> {
+            appendFile(filePath, content, charset);
+            return null;
+        });
+    }
+
+    /**
+     * Appends content to a file with a specific charset asynchronously.
+     *
+     * @param filePath the file path
+     * @param content  the content to append
+     * @param charset  the charset to use
+     * @return Future that completes when the append is done
+     * @since 4.1.0
+     */
+    public static Future<Void> appendFileAsync(String filePath, String content, Charset charset) {
+        return KeelBase.getVertx().executeBlocking(() -> {
+            appendFile(filePath, content, charset);
+            return null;
+        });
     }
 
     /**
@@ -418,32 +613,41 @@ public class FileUtils {
      *
      * @param jarPath   the path to the JAR file
      * @param targetDir the target directory
+     * @throws IOException if an I/O error occurs
+     * @since 4.0.12
+     */
+    public static void extractJar(String jarPath, String targetDir) throws IOException {
+        try (JarFile jar = new JarFile(jarPath)) {
+            Enumeration<JarEntry> entries = jar.entries();
+            while (entries.hasMoreElements()) {
+                JarEntry entry = entries.nextElement();
+                File file = new File(targetDir, entry.getName());
+                if (entry.isDirectory()) {
+                    file.mkdirs();
+                } else {
+                    file.getParentFile().mkdirs();
+                    try (InputStream in = jar.getInputStream(entry);
+                         java.io.FileOutputStream out = new java.io.FileOutputStream(file)) {
+                        in.transferTo(out);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Extracts a JAR file to a directory asynchronously.
+     *
+     * @param jarPath   the path to the JAR file
+     * @param targetDir the target directory
      * @return Future that completes when the extraction is done
      * @since 4.0.12
      */
-    public Future<Void> extractJar(String jarPath, String targetDir) {
-        return Future.succeededFuture()
-                     .compose(v -> {
-                         try (JarFile jar = new JarFile(jarPath)) {
-                             Enumeration<JarEntry> entries = jar.entries();
-                             while (entries.hasMoreElements()) {
-                                 JarEntry entry = entries.nextElement();
-                                 File file = new File(targetDir, entry.getName());
-                                 if (entry.isDirectory()) {
-                                     file.mkdirs();
-                                 } else {
-                                     file.getParentFile().mkdirs();
-                                     try (InputStream in = jar.getInputStream(entry);
-                                          java.io.FileOutputStream out = new java.io.FileOutputStream(file)) {
-                                         in.transferTo(out);
-                                     }
-                                 }
-                             }
-                             return Future.succeededFuture();
-                         } catch (IOException e) {
-                             return Future.failedFuture(e);
-                         }
-                     });
+    public static Future<Void> extractJarAsync(String jarPath, String targetDir) {
+        return KeelBase.getVertx().executeBlocking(() -> {
+            extractJar(jarPath, targetDir);
+            return null;
+        });
     }
 
     /**
@@ -451,24 +655,33 @@ public class FileUtils {
      *
      * @param sourceDir the source directory
      * @param jarPath   the path where the JAR file will be created
+     * @throws IOException if an I/O error occurs
+     * @since 4.0.12
+     */
+    public static void createJar(String sourceDir, String jarPath) throws IOException {
+        try (java.util.jar.JarOutputStream jos = new java.util.jar.JarOutputStream(
+                new java.io.FileOutputStream(jarPath))) {
+            File source = new File(sourceDir);
+            addToJar(source, source, jos);
+        }
+    }
+
+    /**
+     * Creates a new JAR file from a directory asynchronously.
+     *
+     * @param sourceDir the source directory
+     * @param jarPath   the path where the JAR file will be created
      * @return Future that completes when the JAR is created
      * @since 4.0.12
      */
-    public Future<Void> createJar(String sourceDir, String jarPath) {
-        return Future.succeededFuture()
-                     .compose(v -> {
-                         try (java.util.jar.JarOutputStream jos = new java.util.jar.JarOutputStream(
-                                 new java.io.FileOutputStream(jarPath))) {
-                             File source = new File(sourceDir);
-                             addToJar(source, source, jos);
-                             return Future.succeededFuture();
-                         } catch (IOException e) {
-                             return Future.failedFuture(e);
-                         }
-                     });
+    public static Future<Void> createJarAsync(String sourceDir, String jarPath) {
+        return KeelBase.getVertx().executeBlocking(() -> {
+            createJar(sourceDir, jarPath);
+            return null;
+        });
     }
 
-    private void addToJar(File root, File source, java.util.jar.JarOutputStream jos) throws IOException {
+    private static void addToJar(File root, File source, java.util.jar.JarOutputStream jos) throws IOException {
         String normalizedPath = source.getPath().substring(root.getPath().length() + 1).replace('\\', '/');
         if (source.isDirectory()) {
             String dirPath = normalizedPath;
@@ -501,44 +714,52 @@ public class FileUtils {
      * Gets the size of a file.
      *
      * @param filePath the file path
-     * @return Future containing the file size in bytes
+     * @return the file size in bytes
+     * @throws IOException if an I/O error occurs
      * @since 4.0.12
      */
-    public Future<Long> getFileSize(String filePath) {
-        return KeelBase.getVertx().fileSystem().props(filePath).map(FileProps::size);
+    public static long getFileSize(String filePath) throws IOException {
+        BasicFileAttributes attrs = Files.readAttributes(Path.of(filePath), BasicFileAttributes.class);
+        return attrs.size();
     }
 
     /**
      * Checks if a path is a directory.
      *
      * @param path the path to check
-     * @return Future containing true if the path is a directory
+     * @return true if the path is a directory
+     * @throws IOException if an I/O error occurs
      * @since 4.0.12
      */
-    public Future<Boolean> isDirectory(String path) {
-        return KeelBase.getVertx().fileSystem().props(path).map(FileProps::isDirectory);
+    public static boolean isDirectory(String path) throws IOException {
+        BasicFileAttributes attrs = Files.readAttributes(Path.of(path), BasicFileAttributes.class);
+        return attrs.isDirectory();
     }
 
     /**
      * Gets the last modified time of a file.
      *
      * @param filePath the file path
-     * @return Future containing the last modified time
+     * @return the last modified time in milliseconds since epoch
+     * @throws IOException if an I/O error occurs
      * @since 4.0.12
      */
-    public Future<Long> getLastModifiedTime(String filePath) {
-        return KeelBase.getVertx().fileSystem().props(filePath).map(FileProps::lastModifiedTime);
+    public static long getLastModifiedTime(String filePath) throws IOException {
+        BasicFileAttributes attrs = Files.readAttributes(Path.of(filePath), BasicFileAttributes.class);
+        return attrs.lastModifiedTime().toMillis();
     }
 
     /**
      * Gets the creation time of a file.
      *
      * @param filePath the file path
-     * @return Future containing the creation time
+     * @return the creation time in milliseconds since epoch
+     * @throws IOException if an I/O error occurs
      * @since 4.0.12
      */
-    public Future<Long> getCreatedTime(String filePath) {
-        return KeelBase.getVertx().fileSystem().props(filePath).map(FileProps::creationTime);
+    public static long getCreatedTime(String filePath) throws IOException {
+        BasicFileAttributes attrs = Files.readAttributes(Path.of(filePath), BasicFileAttributes.class);
+        return attrs.creationTime().toMillis();
     }
 
     /**
@@ -546,31 +767,40 @@ public class FileUtils {
      *
      * @param sourcePath the source file or directory path
      * @param zipPath    the path where the ZIP file will be created
-     * @return Future that completes when the ZIP is created
      * @throws IllegalArgumentException if sourcePath or zipPath is null or empty
+     * @throws IOException if an I/O error occurs
      * @since 4.0.12
      */
-    public Future<Void> createZip(String sourcePath, String zipPath) {
+    public static void createZip(String sourcePath, String zipPath) throws IOException {
         if (!isValidPath(sourcePath)) {
-            return Future.failedFuture(new IllegalArgumentException("Source path cannot be null or empty"));
+            throw new IllegalArgumentException("Source path cannot be null or empty");
         }
         if (!isValidPath(zipPath)) {
-            return Future.failedFuture(new IllegalArgumentException("ZIP path cannot be null or empty"));
+            throw new IllegalArgumentException("ZIP path cannot be null or empty");
         }
         File source = new File(sourcePath);
         if (!source.exists()) {
-            return Future.failedFuture(new IllegalArgumentException("Source path does not exist: " + sourcePath));
+            throw new IllegalArgumentException("Source path does not exist: " + sourcePath);
         }
-        return Future.succeededFuture()
-                     .compose(v -> {
-                         try (java.util.zip.ZipOutputStream zos = new java.util.zip.ZipOutputStream(
-                                 new java.io.FileOutputStream(zipPath))) {
-                             addToZip(source, source, zos);
-                             return Future.succeededFuture();
-                         } catch (IOException e) {
-                             return Future.failedFuture(e);
-                         }
-                     });
+        try (java.util.zip.ZipOutputStream zos = new java.util.zip.ZipOutputStream(
+                new java.io.FileOutputStream(zipPath))) {
+            addToZip(source, source, zos);
+        }
+    }
+
+    /**
+     * Creates a ZIP file from a directory or file asynchronously.
+     *
+     * @param sourcePath the source file or directory path
+     * @param zipPath    the path where the ZIP file will be created
+     * @return Future that completes when the ZIP is created
+     * @since 4.0.12
+     */
+    public static Future<Void> createZipAsync(String sourcePath, String zipPath) {
+        return KeelBase.getVertx().executeBlocking(() -> {
+            createZip(sourcePath, zipPath);
+            return null;
+        });
     }
 
     /**
@@ -578,49 +808,58 @@ public class FileUtils {
      *
      * @param zipPath   the path to the ZIP file
      * @param targetDir the target directory
-     * @return Future that completes when the extraction is done
      * @throws IllegalArgumentException if zipPath or targetDir is null or empty
+     * @throws IOException if an I/O error occurs
      * @since 4.0.12
      */
-    public Future<Void> extractZip(String zipPath, String targetDir) {
+    public static void extractZip(String zipPath, String targetDir) throws IOException {
         if (!isValidPath(zipPath)) {
-            return Future.failedFuture(new IllegalArgumentException("ZIP path cannot be null or empty"));
+            throw new IllegalArgumentException("ZIP path cannot be null or empty");
         }
         if (!isValidPath(targetDir)) {
-            return Future.failedFuture(new IllegalArgumentException("Target directory cannot be null or empty"));
+            throw new IllegalArgumentException("Target directory cannot be null or empty");
         }
         File zipFile = new File(zipPath);
         if (!zipFile.exists()) {
-            return Future.failedFuture(new IllegalArgumentException("ZIP file does not exist: " + zipPath));
+            throw new IllegalArgumentException("ZIP file does not exist: " + zipPath);
         }
         File baseDir = new File(targetDir);
-        return Future.succeededFuture()
-                     .compose(v -> {
-                         try (java.util.zip.ZipFile zip = new java.util.zip.ZipFile(zipPath)) {
-                             Enumeration<? extends java.util.zip.ZipEntry> entries = zip.entries();
-                             while (entries.hasMoreElements()) {
-                                 java.util.zip.ZipEntry entry = entries.nextElement();
-                                 File file = resolvePath(baseDir, entry.getName());
-                                 if (entry.isDirectory()) {
-                                     if (!file.mkdirs() && !file.exists()) {
-                                         return Future.failedFuture(new IOException("Failed to create directory: " + file.getPath()));
-                                     }
-                                 } else {
-                                     file.getParentFile().mkdirs();
-                                     try (InputStream in = zip.getInputStream(entry);
-                                          java.io.FileOutputStream out = new java.io.FileOutputStream(file)) {
-                                         in.transferTo(out);
-                                     }
-                                 }
-                             }
-                             return Future.succeededFuture();
-                         } catch (IOException e) {
-                             return Future.failedFuture(e);
-                         }
-                     });
+        try (java.util.zip.ZipFile zip = new java.util.zip.ZipFile(zipPath)) {
+            Enumeration<? extends java.util.zip.ZipEntry> entries = zip.entries();
+            while (entries.hasMoreElements()) {
+                java.util.zip.ZipEntry entry = entries.nextElement();
+                File file = resolvePath(baseDir, entry.getName());
+                if (entry.isDirectory()) {
+                    if (!file.mkdirs() && !file.exists()) {
+                        throw new IOException("Failed to create directory: " + file.getPath());
+                    }
+                } else {
+                    file.getParentFile().mkdirs();
+                    try (InputStream in = zip.getInputStream(entry);
+                         java.io.FileOutputStream out = new java.io.FileOutputStream(file)) {
+                        in.transferTo(out);
+                    }
+                }
+            }
+        }
     }
 
-    private void addToZip(File root, File source, java.util.zip.ZipOutputStream zos) throws IOException {
+    /**
+     * Extracts a ZIP file to a directory asynchronously.
+     *
+     * @param zipPath   the path to the ZIP file
+     * @param targetDir the target directory
+     * @return Future that completes when the extraction is done
+     * @since 4.0.12
+     */
+    public static Future<Void> extractZipAsync(String zipPath, String targetDir) {
+        return KeelBase.getVertx().executeBlocking(() -> {
+            extractZip(zipPath, targetDir);
+            return null;
+        });
+    }
+
+    private static void addToZip(File root, File source, java.util.zip.ZipOutputStream zos) throws IOException {
         String normalizedPath = source.getPath().substring(root.getPath().length() + 1).replace('\\', '/');
         if (source.isDirectory()) {
             String dirPath = normalizedPath;
@@ -653,31 +892,27 @@ public class FileUtils {
      * Lists the contents of a ZIP file.
      *
      * @param zipPath the path to the ZIP file
-     * @return Future containing list of entry names in the ZIP file
+     * @return list of entry names in the ZIP file
      * @throws IllegalArgumentException if zipPath is null or empty
+     * @throws IOException if an I/O error occurs
      * @since 4.0.12
      */
-    public Future<List<String>> listZipContents(String zipPath) {
+    public static List<String> listZipContents(String zipPath) throws IOException {
         if (!isValidPath(zipPath)) {
-            return Future.failedFuture(new IllegalArgumentException("ZIP path cannot be null or empty"));
+            throw new IllegalArgumentException("ZIP path cannot be null or empty");
         }
         File zipFile = new File(zipPath);
         if (!zipFile.exists()) {
-            return Future.failedFuture(new IllegalArgumentException("ZIP file does not exist: " + zipPath));
+            throw new IllegalArgumentException("ZIP file does not exist: " + zipPath);
         }
-        return Future.succeededFuture()
-                     .map(v -> {
-                         List<String> entries = new ArrayList<>();
-                         try (java.util.zip.ZipFile zip = new java.util.zip.ZipFile(zipPath)) {
-                             Enumeration<? extends java.util.zip.ZipEntry> zipEntries = zip.entries();
-                             while (zipEntries.hasMoreElements()) {
-                                 entries.add(zipEntries.nextElement().getName());
-                             }
-                         } catch (IOException e) {
-                             throw new RuntimeException("Failed to read ZIP file: " + e.getMessage(), e);
-                         }
-                         return entries;
-                     });
+        List<String> entries = new ArrayList<>();
+        try (java.util.zip.ZipFile zip = new java.util.zip.ZipFile(zipPath)) {
+            Enumeration<? extends java.util.zip.ZipEntry> zipEntries = zip.entries();
+            while (zipEntries.hasMoreElements()) {
+                entries.add(zipEntries.nextElement().getName());
+            }
+        }
+        return entries;
     }
 
     /**
@@ -686,45 +921,55 @@ public class FileUtils {
      * @param zipPath    the path to the ZIP file
      * @param entryName  the name of the entry to extract
      * @param targetPath the path where the file will be extracted
-     * @return Future that completes when the extraction is done
      * @throws IllegalArgumentException if any parameter is null or empty
+     * @throws IOException if an I/O error occurs
      * @since 4.0.12
      */
-    public Future<Void> extractZipEntry(String zipPath, String entryName, String targetPath) {
+    public static void extractZipEntry(String zipPath, String entryName, String targetPath) throws IOException {
         if (!isValidPath(zipPath)) {
-            return Future.failedFuture(new IllegalArgumentException("ZIP path cannot be null or empty"));
+            throw new IllegalArgumentException("ZIP path cannot be null or empty");
         }
         if (!isValidPath(entryName)) {
-            return Future.failedFuture(new IllegalArgumentException("Entry name cannot be null or empty"));
+            throw new IllegalArgumentException("Entry name cannot be null or empty");
         }
         if (!isValidPath(targetPath)) {
-            return Future.failedFuture(new IllegalArgumentException("Target path cannot be null or empty"));
+            throw new IllegalArgumentException("Target path cannot be null or empty");
         }
         File zipFile = new File(zipPath);
         if (!zipFile.exists()) {
-            return Future.failedFuture(new IllegalArgumentException("ZIP file does not exist: " + zipPath));
+            throw new IllegalArgumentException("ZIP file does not exist: " + zipPath);
         }
         File baseDir = new File(targetPath).getParentFile();
-        return Future.succeededFuture()
-                     .compose(v -> {
-                         try (java.util.zip.ZipFile zip = new java.util.zip.ZipFile(zipPath)) {
-                             java.util.zip.ZipEntry entry = zip.getEntry(entryName);
-                             if (entry == null) {
-                                 return Future.failedFuture("Entry not found: " + entryName);
-                             }
-                             File targetFile = resolvePath(baseDir, new File(targetPath).getName());
-                             if (!targetFile.getParentFile().mkdirs() && !targetFile.getParentFile().exists()) {
-                                 return Future.failedFuture(new IOException("Failed to create parent directory: " + targetFile.getParent()));
-                             }
-                             try (InputStream in = zip.getInputStream(entry);
-                                  java.io.FileOutputStream out = new java.io.FileOutputStream(targetFile)) {
-                                 in.transferTo(out);
-                             }
-                             return Future.succeededFuture();
-                         } catch (IOException e) {
-                             return Future.failedFuture(e);
-                         }
-                     });
+        try (java.util.zip.ZipFile zip = new java.util.zip.ZipFile(zipPath)) {
+            java.util.zip.ZipEntry entry = zip.getEntry(entryName);
+            if (entry == null) {
+                throw new IOException("Entry not found: " + entryName);
+            }
+            File targetFile = resolvePath(baseDir, new File(targetPath).getName());
+            if (!targetFile.getParentFile().mkdirs() && !targetFile.getParentFile().exists()) {
+                throw new IOException("Failed to create parent directory: " + targetFile.getParent());
+            }
+            try (InputStream in = zip.getInputStream(entry);
+                 java.io.FileOutputStream out = new java.io.FileOutputStream(targetFile)) {
+                in.transferTo(out);
+            }
+        }
+    }
+
+    /**
+     * Extracts a specific file from a ZIP archive asynchronously.
+     *
+     * @param zipPath    the path to the ZIP file
+     * @param entryName  the name of the entry to extract
+     * @param targetPath the path where the file will be extracted
+     * @return Future that completes when the extraction is done
+     * @since 4.0.12
+     */
+    public static Future<Void> extractZipEntryAsync(String zipPath, String entryName, String targetPath) {
+        return KeelBase.getVertx().executeBlocking(() -> {
+            extractZipEntry(zipPath, entryName, targetPath);
+            return null;
+        });
     }
 
     /**
@@ -749,7 +994,7 @@ public class FileUtils {
      * @return true if the path is valid, false otherwise
      * @since 4.0.12
      */
-    private boolean isValidPath(String path) {
+    private static boolean isValidPath(String path) {
         if (path == null || path.trim().isEmpty()) {
             return false;
         }
@@ -797,7 +1042,7 @@ public class FileUtils {
      * @throws IllegalArgumentException if the resolved path is outside the base directory
      * @since 4.0.12
      */
-    private File resolvePath(File baseDir, String path) {
+    private static File resolvePath(File baseDir, String path) {
         if (!isValidPath(path)) {
             throw new IllegalArgumentException("Invalid path: " + path);
         }
