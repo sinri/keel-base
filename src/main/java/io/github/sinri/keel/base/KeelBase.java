@@ -5,6 +5,7 @@ import io.github.sinri.keel.base.configuration.KeelConfigElement;
 import io.vertx.core.Vertx;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Objects;
 
 @KeelPrivate
@@ -17,7 +18,11 @@ public final class KeelBase {
         return Objects.requireNonNull(vertx);
     }
 
-    public static void setVertx(@Nonnull Vertx vertx) {
+    public static boolean isVertxInitialized() {
+        return vertx != null;
+    }
+
+    public static void setVertx(@Nullable Vertx vertx) {
         KeelBase.vertx = vertx;
     }
 
