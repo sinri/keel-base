@@ -11,6 +11,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 public class IOUtils {
+    private IOUtils() {
+    }
     @TechnicalPreview(since = "4.1.5")
     public static AsyncOutputReadStream toReadStream(@Nonnull InputStream inputStream, @Nonnull Handler<ReadStream<Buffer>> handler) {
         var readStream = AsyncOutputReadStream.create();

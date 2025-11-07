@@ -21,6 +21,9 @@ public class TimeUtils {
     public static final String GMT_PATTERN = "EEE, dd MMM yyyy HH:mm:ss z";
     public static final String ISO8601_PATTERN = "yyyy-MM-dd'T'HH:mm:ss'Z'";
 
+    private TimeUtils() {
+    }
+
     /**
      * @return current timestamp expressed in MySQL Date Time Format
      * @since 3.0.10

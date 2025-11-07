@@ -18,6 +18,8 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 public class FileUtils {
+    private FileUtils() {
+    }
 
     /**
      * Checks if a file exists at the specified path.
