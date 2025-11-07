@@ -38,7 +38,8 @@ public class StringUtils {
      * @since 3.0.8 toString → String.valueOf
      */
     @Nonnull
-    public <T> String joinStringArray(@Nullable T[] x, @Nonnull String separator) {
+    @Deprecated
+    public static <T> String joinStringArray(@Nullable T[] x, @Nonnull String separator) {
         if (x == null) return "";
 
         StringBuilder result = new StringBuilder();
@@ -60,7 +61,8 @@ public class StringUtils {
      * @since 3.0.8 toString → String.valueOf
      */
     @Nonnull
-    public String joinStringArray(@Nullable Iterable<?> x, @Nonnull String separator) {
+    @Deprecated
+    public static String joinStringArray(@Nullable Iterable<?> x, @Nonnull String separator) {
         if (x == null) return "";
 
         StringBuilder result = new StringBuilder();
@@ -84,7 +86,7 @@ public class StringUtils {
      * @since 1.11
      */
     @Nonnull
-    public String bufferToHexMatrix(@Nonnull Buffer buffer, int rowSize) {
+    public static String bufferToHexMatrix(@Nonnull Buffer buffer, int rowSize) {
         StringBuilder matrix = new StringBuilder();
         String s = BinaryUtils.encodeHexWithUpperDigits(buffer);
         for (int i = 0; i < s.length(); i += 2) {
@@ -102,7 +104,7 @@ public class StringUtils {
      * @since 3.0.12
      */
     @Nullable
-    public String fromUnderScoreCaseToCamelCase(@Nullable String underScoreCase, boolean firstCharLower) {
+    public static String fromUnderScoreCaseToCamelCase(@Nullable String underScoreCase, boolean firstCharLower) {
         if (underScoreCase == null) {
             return null;
         }
@@ -132,7 +134,7 @@ public class StringUtils {
      *
      * @since 2.7
      */
-    public String fromUnderScoreCaseToCamelCase(@Nullable String underScoreCase) {
+    public static String fromUnderScoreCaseToCamelCase(@Nullable String underScoreCase) {
         return fromUnderScoreCaseToCamelCase(underScoreCase, false);
     }
 
@@ -140,7 +142,7 @@ public class StringUtils {
      * @since 2.7
      */
     @Nullable
-    public String fromCamelCaseToUserScoreCase(@Nullable String camelCase) {
+    public static String fromCamelCaseToUserScoreCase(@Nullable String camelCase) {
         if (camelCase == null) {
             return null;
         }
@@ -175,7 +177,7 @@ public class StringUtils {
      * @since 2.9
      */
     @Nonnull
-    public String buildStackChainText(@Nullable StackTraceElement[] stackTrace,
+    public static String buildStackChainText(@Nullable StackTraceElement[] stackTrace,
                                       @Nonnull Set<String> ignorableStackPackageSet) {
         StringBuilder sb = new StringBuilder();
         if (stackTrace != null) {
@@ -244,7 +246,7 @@ public class StringUtils {
      * @since 2.9
      */
     @Nonnull
-    public String buildStackChainText(@Nullable StackTraceElement[] stackTrace) {
+    public static String buildStackChainText(@Nullable StackTraceElement[] stackTrace) {
         return buildStackChainText(stackTrace, Set.of());
     }
 
@@ -252,7 +254,7 @@ public class StringUtils {
      * @since 2.9
      */
     @Nonnull
-    public String renderThrowableChain(@Nullable Throwable throwable, @Nonnull Set<String> ignorableStackPackageSet) {
+    public static String renderThrowableChain(@Nullable Throwable throwable, @Nonnull Set<String> ignorableStackPackageSet) {
         if (throwable == null) return "";
         Throwable cause = throwable.getCause();
         StringBuilder sb = new StringBuilder();
@@ -284,7 +286,7 @@ public class StringUtils {
      * @since 2.9
      */
     @Nonnull
-    public String renderThrowableChain(@Nullable Throwable throwable) {
+    public static String renderThrowableChain(@Nullable Throwable throwable) {
         return renderThrowableChain(throwable, StackUtils.IgnorableCallStackPackage);
     }
 
@@ -292,7 +294,7 @@ public class StringUtils {
      * @since 2.9.4
      */
     @Nonnull
-    public byte[] encodeWithBase64ToBytes(@Nonnull String s) {
+    public static byte[] encodeWithBase64ToBytes(@Nonnull String s) {
         return BinaryUtils.encodeWithBase64(s.getBytes());
     }
 
@@ -300,7 +302,7 @@ public class StringUtils {
      * @since 2.9.4
      */
     @Nonnull
-    public String encodeWithBase64(@Nonnull String s) {
+    public static String encodeWithBase64(@Nonnull String s) {
         return new String(encodeWithBase64ToBytes(s));
     }
 
@@ -308,7 +310,7 @@ public class StringUtils {
      * @since 2.9.4
      */
     @Nonnull
-    public byte[] decodeWithBase64ToBytes(@Nonnull String s) {
+    public static byte[] decodeWithBase64ToBytes(@Nonnull String s) {
         return Base64.getDecoder().decode(s);
     }
 
@@ -316,7 +318,7 @@ public class StringUtils {
      * @since 2.9.4
      */
     @Nonnull
-    public String encodeWithBase32(@Nonnull String s) {
+    public static String encodeWithBase32(@Nonnull String s) {
         return Base32.encode(s.getBytes());
     }
 
@@ -324,7 +326,7 @@ public class StringUtils {
      * @since 2.9.4
      */
     @Nonnull
-    public byte[] decodeWithBase32ToBytes(@Nonnull String s) {
+    public static byte[] decodeWithBase32ToBytes(@Nonnull String s) {
         return Base32.decode(s);
     }
 
@@ -332,7 +334,7 @@ public class StringUtils {
      * @since 2.9.4
      */
     @Nonnull
-    public String decodeWithBase32(@Nonnull String s) {
+    public static String decodeWithBase32(@Nonnull String s) {
         return new String(decodeWithBase32ToBytes(s));
     }
 
@@ -342,7 +344,7 @@ public class StringUtils {
      * @since 3.0.8
      */
     @Nonnull
-    public List<String> regexFindAll(@Nonnull String regex, int flags, @Nonnull String text, int group) {
+    public static List<String> regexFindAll(@Nonnull String regex, int flags, @Nonnull String text, int group) {
         List<String> blankParamGroups = new ArrayList<>();
         Pattern patternForSpacedArgument = Pattern.compile(regex, flags);
         Matcher patternForSpacedArgumentMatcher = patternForSpacedArgument.matcher(text);
@@ -356,7 +358,7 @@ public class StringUtils {
      * @see <a href="https://www.freeformatter.com/html-entities.html">HTTP Entities</a>
      * @since 3.0.11
      */
-    public String escapeForHttpEntity(String raw) {
+    public static String escapeForHttpEntity(String raw) {
         AtomicReference<String> x = new AtomicReference<>(raw);
         HttpEntityEscapeDictionary.forEach((k, v) -> x.set(x.get().replace(k, v)));
         return x.get();
@@ -366,7 +368,7 @@ public class StringUtils {
      * @since 3.2.14
      * @since 3.2.15 PR from yhzdys
      */
-    public String encodeToNyaCode(@Nonnull String raw) {
+    public static String encodeToNyaCode(@Nonnull String raw) {
         String encoded = URLEncoder.encode(raw, StandardCharsets.UTF_8);
         int i = 0;
         char[] chars = encoded.toCharArray(), buffer = new char[chars.length << 1];
@@ -381,7 +383,7 @@ public class StringUtils {
      * @since 3.2.14
      * @since 3.2.15 PR from yhzdys
      */
-    public String decodeFromNyaCode(@Nonnull String code) {
+    public static String decodeFromNyaCode(@Nonnull String code) {
         int idx = 0;
         char[] chars = code.toCharArray(), buffer = new char[chars.length >> 1];
         for (int i = 0; i < chars.length; ) {
@@ -399,7 +401,7 @@ public class StringUtils {
      * @since 4.0.12
      */
     @Nonnull
-    public String truncateWithEllipsis(@Nullable String str, int maxLength) {
+    public static String truncateWithEllipsis(@Nullable String str, int maxLength) {
         if (str == null) return "";
         if (str.length() <= maxLength) return str;
         return str.substring(0, maxLength) + "...";
@@ -412,7 +414,7 @@ public class StringUtils {
      * @return true if the string is null, empty, or contains only whitespace
      * @since 4.0.12
      */
-    public boolean isNullOrBlank(@Nullable String str) {
+    public static boolean isNullOrBlank(@Nullable String str) {
         return str == null || str.trim().isEmpty();
     }
 
@@ -424,7 +426,7 @@ public class StringUtils {
      * @since 4.0.12
      */
     @Nonnull
-    public String reverse(@Nullable String str) {
+    public static String reverse(@Nullable String str) {
         if (str == null) return "";
         return new StringBuilder(str).reverse().toString();
     }
@@ -437,7 +439,7 @@ public class StringUtils {
      * @return the number of occurrences
      * @since 4.0.12
      */
-    public int countOccurrences(@Nullable String str, @Nullable String subStr) {
+    public static int countOccurrences(@Nullable String str, @Nullable String subStr) {
         if (str == null || subStr == null || subStr.isEmpty()) return 0;
         return (str.length() - str.replace(subStr, "").length()) / subStr.length();
     }
@@ -450,7 +452,7 @@ public class StringUtils {
      * @since 4.0.12
      */
     @Nonnull
-    public String removeWhitespace(@Nullable String str) {
+    public static String removeWhitespace(@Nullable String str) {
         if (str == null) return "";
         return str.replaceAll("\\s+", "");
     }
@@ -462,7 +464,7 @@ public class StringUtils {
      * @return true if the string contains only digits
      * @since 4.0.12
      */
-    public boolean isNumericAsIntegralNumber(@Nullable String str) {
+    public static boolean isNumericAsIntegralNumber(@Nullable String str) {
         if (str == null || str.isEmpty()) return false;
         return str.chars().allMatch(Character::isDigit);
     }
@@ -481,7 +483,7 @@ public class StringUtils {
      * @return true if the string represents a valid number
      * @since 4.0.12
      */
-    public boolean isNumericAsRealNumber(@Nullable String str) {
+    public static boolean isNumericAsRealNumber(@Nullable String str) {
         if (str == null || str.isEmpty()) return false;
         return str.matches("-?\\d+(\\.\\d+)?");
     }
@@ -494,7 +496,7 @@ public class StringUtils {
      * @since 4.0.12
      */
     @Nonnull
-    public String capitalizeWords(@Nullable String str) {
+    public static String capitalizeWords(@Nullable String str) {
         if (str == null || str.isEmpty()) return "";
         StringBuilder result = new StringBuilder();
         boolean capitalizeNext = true;
@@ -519,7 +521,7 @@ public class StringUtils {
      * @since 4.0.12
      */
     @Nonnull
-    public String removeNonAlphanumeric(@Nullable String str) {
+    public static String removeNonAlphanumeric(@Nullable String str) {
         if (str == null) return "";
         return str.replaceAll("[^a-zA-Z0-9]", "");
     }
@@ -531,7 +533,7 @@ public class StringUtils {
      * @return true if the email address is valid
      * @since 4.0.12
      */
-    public boolean isValidEmail(@Nullable String email) {
+    public static boolean isValidEmail(@Nullable String email) {
         if (email == null) return false;
         String emailRegex = "^[A-Za-z0-9+_.-]+@(.+)$";
         return Pattern.compile(emailRegex).matcher(email).matches();
@@ -546,7 +548,7 @@ public class StringUtils {
      * @since 4.0.12
      */
     @Nonnull
-    public String generateRandomString(int length) {
+    public static String generateRandomString(int length) {
         return generateRandomString(length, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
     }
 
@@ -559,7 +561,7 @@ public class StringUtils {
      * @since 4.0.12
      */
     @Nonnull
-    public String generateRandomString(int length, @Nonnull String charSet) {
+    public static String generateRandomString(int length, @Nonnull String charSet) {
         if (charSet.isEmpty()) {
             throw new IllegalArgumentException("Character set cannot be null or empty");
         }
