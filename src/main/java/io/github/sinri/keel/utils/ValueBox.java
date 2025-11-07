@@ -1,4 +1,4 @@
-package io.github.sinri.keel.base.utils;
+package io.github.sinri.keel.utils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
