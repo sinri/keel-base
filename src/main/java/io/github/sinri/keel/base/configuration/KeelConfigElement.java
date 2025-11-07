@@ -11,6 +11,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringReader;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -914,7 +915,7 @@ public class KeelConfigElement {
      * @return a non-null KeelConfigElement representing the loaded properties
      * @since 3.0.1
      */
-    public @Nonnull KeelConfigElement loadPropertiesFile(@Nonnull String propertiesFileName) {
+    public @Nonnull KeelConfigElement loadPropertiesFile(@Nonnull String propertiesFileName) throws IOException {
         return loadPropertiesFile(propertiesFileName, StandardCharsets.UTF_8);
     }
 
@@ -927,19 +928,21 @@ public class KeelConfigElement {
      * @return a non-null KeelConfigElement containing the configuration data from
      *         the loaded properties file.
      */
-    public @Nonnull KeelConfigElement loadPropertiesFile(@Nonnull String propertiesFileName, @Nonnull Charset charset) {
+    public @Nonnull KeelConfigElement loadPropertiesFile(@Nonnull String propertiesFileName, @Nonnull Charset charset)
+            throws IOException {
         Properties properties = new Properties();
         try {
             // here, the file named as `propertiesFileName` should be put along with JAR
             properties.load(new FileReader(propertiesFileName, charset));
         } catch (IOException e) {
             // Keel.getLogger().debug("Cannot read the file config.properties, use the embedded one.");
-            System.err.println("Cannot read the file " + propertiesFileName + ". Use the embedded one.");
-            try {
-                properties.load(getClass().getClassLoader().getResourceAsStream(propertiesFileName));
-            } catch (IOException ex) {
-                throw new RuntimeException("Cannot find the embedded file config.properties.", ex);
+            System.err.println("[WARNING] Cannot read the file " + propertiesFileName + ". Use the embedded one.");
+            InputStream resourceAsStream = getClass().getClassLoader().getResourceAsStream(propertiesFileName);
+            if (resourceAsStream == null) {
+                throw new IOException("The embedding properties file is not found.");
             }
+            properties.load(resourceAsStream);
+            // if the embedded file is not found, throw an IOException
         }
 
         return loadProperties(properties);
