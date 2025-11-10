@@ -3,9 +3,7 @@ package io.github.sinri.keel.facade;
 import io.github.sinri.keel.base.annotations.TechnicalPreview;
 import io.github.sinri.keel.base.async.KeelAsyncMixin;
 import io.github.sinri.keel.base.configuration.KeelConfigElement;
-import io.github.sinri.keel.logger.issue.record.KeelEventLog;
-import io.github.sinri.keel.logger.issue.recorder.KeelIssueRecorder;
-import io.github.sinri.keel.logger.issue.recorder.SilentIssueRecorder;
+import io.github.sinri.keel.logger.api.event.Logger;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
@@ -40,7 +38,7 @@ public final class KeelInstance implements KeelAsyncMixin {
     @Nonnull
     private final KeelConfigElement configuration;
     @Nonnull
-    private KeelIssueRecorder<KeelEventLog> logger;
+    private Logger logger;
     @Nullable
     private ClusterManager clusterManager;
     @Nullable
@@ -48,7 +46,7 @@ public final class KeelInstance implements KeelAsyncMixin {
 
     private KeelInstance() {
         this.configuration = new KeelConfigElement("");
-        this.logger = new SilentIssueRecorder<>();
+        this.logger = Logger.embedded("Keel");
     }
 
     @Nonnull
@@ -136,11 +134,11 @@ public final class KeelInstance implements KeelAsyncMixin {
      *         its visible level.
      */
     @Nonnull
-    public KeelIssueRecorder<KeelEventLog> getLogger() {
+    public Logger getLogger() {
         return Objects.requireNonNull(logger);
     }
 
-    public void setLogger(@Nonnull KeelIssueRecorder<KeelEventLog> logger) {
+    public void setLogger(@Nonnull Logger logger) {
         this.logger = logger;
     }
 
