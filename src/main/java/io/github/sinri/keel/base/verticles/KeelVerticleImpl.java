@@ -31,7 +31,12 @@ import java.util.UUID;
  */
 public abstract class KeelVerticleImpl extends AbstractVerticle implements KeelVerticle {
 
+    private KeelVerticleRunningStateEnum runningState;
     private String deploymentInstanceCode;
+
+    public KeelVerticleImpl() {
+        this.runningState = KeelVerticleRunningStateEnum.BEFORE_RUNNING;
+    }
 
     /**
      * Retrieves the threading model associated with the current context of the verticle.
@@ -41,7 +46,6 @@ public abstract class KeelVerticleImpl extends AbstractVerticle implements KeelV
      */
     @Override
     @Nullable
-
     public final ThreadingModel contextThreadModel() {
         if (this.context == null) return null;
         return this.context.threadingModel();
@@ -99,6 +103,7 @@ public abstract class KeelVerticleImpl extends AbstractVerticle implements KeelV
               })
               .andThen(ar -> {
                   if (ar.succeeded()) {
+                      runningState = KeelVerticleRunningStateEnum.RUNNING;
                       startPromise.complete();
                   } else {
                       startPromise.fail(ar.cause());
@@ -115,10 +120,33 @@ public abstract class KeelVerticleImpl extends AbstractVerticle implements KeelV
      */
     protected abstract Future<Void> startVerticle();
 
+    @Override
+    public final void stop() {
+
+    }
+
+    @Override
+    public final void stop(Promise<Void> stopPromise) {
+        stopVerticle()
+                .onComplete(ar -> {
+                    runningState = KeelVerticleRunningStateEnum.AFTER_RUNNING;
+                    stopPromise.complete();
+                });
+    }
+
+    protected Future<Void> stopVerticle() {
+        return Future.succeededFuture();
+    }
+
     @Nonnull
     @Override
     public String verticleIdentity() {
         return KeelVerticle.super.verticleIdentity()
                 + ":" + deploymentInstanceCode;
+    }
+
+    @Override
+    public KeelVerticleRunningStateEnum getRunningState() {
+        return runningState;
     }
 }

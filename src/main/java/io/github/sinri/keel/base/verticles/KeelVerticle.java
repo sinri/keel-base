@@ -153,4 +153,6 @@ public interface KeelVerticle extends Verticle {
 
         return String.format("%s@%s", mark, deploymentID());
     }
+
+    KeelVerticleRunningStateEnum getRunningState();
 }
