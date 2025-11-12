@@ -1,6 +1,7 @@
 package io.github.sinri.keel.facade;
 
 
+import io.github.sinri.keel.logger.api.consumer.TopicRecordConsumer;
 import io.github.sinri.keel.logger.api.event.EventRecorder;
 import io.github.sinri.keel.logger.api.factory.RecorderFactory;
 import io.github.sinri.keel.logger.api.issue.IssueRecord;
@@ -23,6 +24,11 @@ class KeelStdoutLoggingFactory implements RecorderFactory {
 
     public KeelStdoutLoggingFactory() {
         this.consumer = new KeelTopicRecordConsumer();
+    }
+
+    @Override
+    public TopicRecordConsumer sharedTopicRecordConsumer() {
+        return consumer;
     }
 
     @Override
