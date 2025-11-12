@@ -5,7 +5,7 @@ import io.github.sinri.keel.logger.api.event.EventRecorder;
 import io.github.sinri.keel.logger.api.factory.RecorderFactory;
 import io.github.sinri.keel.logger.api.issue.IssueRecord;
 import io.github.sinri.keel.logger.api.issue.IssueRecorder;
-import io.github.sinri.keel.logger.base.adapter.BaseTopicRecordConsumer;
+import io.github.sinri.keel.logger.base.consumer.BaseTopicRecordConsumer;
 import io.github.sinri.keel.logger.base.event.BaseEventRecorder;
 import io.github.sinri.keel.logger.base.issue.BaseIssueRecorder;
 import io.github.sinri.keel.utils.StringUtils;
