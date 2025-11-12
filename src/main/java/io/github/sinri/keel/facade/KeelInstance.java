@@ -54,7 +54,8 @@ public final class KeelInstance implements KeelAsyncMixin {
         return configuration;
     }
 
-    public @Nullable String config(@Nonnull String dotJoinedKeyChain) {
+    @Nullable
+    public String config(@Nonnull String dotJoinedKeyChain) {
         String[] split = dotJoinedKeyChain.split("\\.");
         KeelConfigElement keelConfigElement = this.getConfiguration().extract(split);
         if (keelConfigElement == null) {
@@ -63,7 +64,8 @@ public final class KeelInstance implements KeelAsyncMixin {
         return keelConfigElement.getValueAsString();
     }
 
-    public @Nonnull Vertx getVertx() {
+    @Nonnull
+    public Vertx getVertx() {
         return Objects.requireNonNull(vertx);
     }
 
