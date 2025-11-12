@@ -2,7 +2,7 @@ package io.github.sinri.keel.facade;
 
 
 import io.github.sinri.keel.logger.api.event.Event2LogRender;
-import io.github.sinri.keel.logger.base.factory.StdoutLoggingFactory;
+import io.github.sinri.keel.logger.base.factory.BaseLoggingFactory;
 import io.github.sinri.keel.utils.StringUtils;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -11,7 +11,7 @@ import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Map;
 
-class KeelStdoutLoggingFactory extends StdoutLoggingFactory {
+class KeelStdoutLoggingFactory extends BaseLoggingFactory {
     public KeelStdoutLoggingFactory() {
         super(new KeelEvent2LogRender(), null);
     }
