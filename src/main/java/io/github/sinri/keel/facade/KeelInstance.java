@@ -3,6 +3,7 @@ package io.github.sinri.keel.facade;
 import io.github.sinri.keel.base.annotations.TechnicalPreview;
 import io.github.sinri.keel.base.async.KeelAsyncMixin;
 import io.github.sinri.keel.base.configuration.KeelConfigElement;
+import io.github.sinri.keel.logger.api.factory.LoggingFactory;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
@@ -11,9 +12,7 @@ import io.vertx.core.spi.cluster.ClusterManager;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * As of 4.0.0, make it final and implement KeelAsyncMixin.
@@ -38,19 +37,32 @@ public final class KeelInstance implements KeelAsyncMixin {
 
     @Nonnull
     private final KeelConfigElement configuration;
-    private final Map<String, Object> register = new ConcurrentHashMap<>();
+    //private final Map<String, Object> register = new ConcurrentHashMap<>();
     @Nullable
     private ClusterManager clusterManager;
     @Nullable
     private Vertx vertx;
+    @Nonnull
+    private LoggingFactory loggingFactory;
 
     private KeelInstance() {
         this.configuration = new KeelConfigElement("");
+        this.loggingFactory = new KeelStdoutLoggingFactory();
     }
 
     @Nonnull
     public KeelConfigElement getConfiguration() {
         return configuration;
+    }
+
+    @Nonnull
+    public LoggingFactory getLoggingFactory() {
+        return loggingFactory;
+    }
+
+    public KeelInstance setLoggingFactory(@Nonnull LoggingFactory loggingFactory) {
+        this.loggingFactory = loggingFactory;
+        return this;
     }
 
     @Nullable
@@ -159,19 +171,19 @@ public final class KeelInstance implements KeelAsyncMixin {
         return gracefullyClose(Promise::complete);
     }
 
-    public void saveToRegister(@Nonnull String name, @Nullable Object anything) {
-        if (anything == null) {
-            register.remove(name);
-        } else {
-            register.put(name, anything);
-        }
-    }
-
-    @Nullable
-    @SuppressWarnings("unchecked")
-    public <R> R getFromRegister(String name) {
-        var r = register.get(name);
-        if (r == null) return null;
-        return (R) r;
-    }
+    //    public void saveToRegister(@Nonnull String name, @Nullable Object anything) {
+    //        if (anything == null) {
+    //            register.remove(name);
+    //        } else {
+    //            register.put(name, anything);
+    //        }
+    //    }
+    //
+    //    @Nullable
+    //    @SuppressWarnings("unchecked")
+    //    public <R> R getFromRegister(String name) {
+    //        var r = register.get(name);
+    //        if (r == null) return null;
+    //        return (R) r;
+    //    }
 }
