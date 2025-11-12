@@ -3,7 +3,6 @@ package io.github.sinri.keel.facade;
 import io.github.sinri.keel.base.annotations.TechnicalPreview;
 import io.github.sinri.keel.base.async.KeelAsyncMixin;
 import io.github.sinri.keel.base.configuration.KeelConfigElement;
-import io.github.sinri.keel.logger.api.event.Logger;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
@@ -12,7 +11,9 @@ import io.vertx.core.spi.cluster.ClusterManager;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * As of 4.0.0, make it final and implement KeelAsyncMixin.
@@ -37,8 +38,7 @@ public final class KeelInstance implements KeelAsyncMixin {
 
     @Nonnull
     private final KeelConfigElement configuration;
-    @Nonnull
-    private Logger logger;
+    private final Map<String, Object> register = new ConcurrentHashMap<>();
     @Nullable
     private ClusterManager clusterManager;
     @Nullable
@@ -46,7 +46,6 @@ public final class KeelInstance implements KeelAsyncMixin {
 
     private KeelInstance() {
         this.configuration = new KeelConfigElement("");
-        this.logger = Logger.embedded("Keel");
     }
 
     @Nonnull
@@ -120,7 +119,7 @@ public final class KeelInstance implements KeelAsyncMixin {
     @TechnicalPreview(since = "4.1.1")
     public void initializeVertx(@Nonnull Vertx vertx) {
         if (this.vertx != null && !Objects.equals(vertx, this.vertx)) {
-            Keel.getLogger().info("Re-initialize Vertx from " + this.vertx + " to " + vertx + ".");
+            // Keel.getLogger().info("Re-initialize Vertx from " + this.vertx + " to " + vertx + ".");
             this.vertx.close();
         }
         this.vertx = vertx;
@@ -130,19 +129,19 @@ public final class KeelInstance implements KeelAsyncMixin {
         return getVertx().isClustered();
     }
 
-    /**
-     * @since 4.0.2 To acquire an instant logger for those logs without designed topic. By default, it is print to
-     *         stdout and only WARNING and above may be recorded. If you want to debug locally, just get it and reset
-     *         its visible level.
-     */
-    @Nonnull
-    public Logger getLogger() {
-        return Objects.requireNonNull(logger);
-    }
-
-    public void setLogger(@Nonnull Logger logger) {
-        this.logger = logger;
-    }
+    //    /**
+    //     * @since 4.0.2 To acquire an instant logger for those logs without designed topic. By default, it is print to
+    //     *         stdout and only WARNING and above may be recorded. If you want to debug locally, just get it and reset
+    //     *         its visible level.
+    //     */
+    //    @Nonnull
+    //    public EventRecorder<String> getLogger() {
+    //        return Objects.requireNonNull(logger);
+    //    }
+    //
+    //    public void setLogger(@Nonnull EventRecorder<String> logger) {
+    //        this.logger = logger;
+    //    }
 
     public Future<Void> gracefullyClose(@Nonnull io.vertx.core.Handler<Promise<Void>> promiseHandler) {
         Promise<Void> promise = Promise.promise();
@@ -158,5 +157,21 @@ public final class KeelInstance implements KeelAsyncMixin {
 
     public Future<Void> close() {
         return gracefullyClose(Promise::complete);
+    }
+
+    public void saveToRegister(@Nonnull String name, @Nullable Object anything) {
+        if (anything == null) {
+            register.remove(name);
+        } else {
+            register.put(name, anything);
+        }
+    }
+
+    @Nullable
+    @SuppressWarnings("unchecked")
+    public <R> R getFromRegister(String name) {
+        var r = register.get(name);
+        if (r == null) return null;
+        return (R) r;
     }
 }
