@@ -8,7 +8,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import static io.github.sinri.keel.facade.KeelInstance.Keel;
+import static io.github.sinri.keel.base.KeelInstance.Keel;
 
 
 /**
@@ -36,7 +36,7 @@ public interface KeelVerticle extends Verticle {
      */
     @NotNull
     static KeelVerticle instant(@NotNull Supplier<Future<Void>> startFutureSupplier) {
-        return new KeelVerticleWrap(startFutureSupplier);
+        return new InstantKeelVerticle(startFutureSupplier);
     }
 
     /**
@@ -49,7 +49,7 @@ public interface KeelVerticle extends Verticle {
      */
     @NotNull
     static KeelVerticle instant(@NotNull Function<Promise<Void>, Future<Void>> starter) {
-        return new KeelVerticleWrap(starter);
+        return new InstantKeelVerticle(starter);
     }
 
     /**

@@ -4,7 +4,7 @@ import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import org.jetbrains.annotations.Nullable;
 
-import static io.github.sinri.keel.facade.KeelInstance.Keel;
+import static io.github.sinri.keel.base.KeelInstance.Keel;
 
 
 interface KeelAsyncMixinCore {
