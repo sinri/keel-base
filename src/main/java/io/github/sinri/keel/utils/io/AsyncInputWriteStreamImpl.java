@@ -3,8 +3,8 @@ package io.github.sinri.keel.utils.io;
 import io.vertx.core.*;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.streams.WriteStream;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -50,7 +50,7 @@ class AsyncInputWriteStreamImpl extends InputStream implements WriteStream<Buffe
         this(Keel.getVertx());
     }
 
-    @Nonnull
+    @NotNull
     public Promise<Void> getWriteOverPromise() {
         return Objects.requireNonNull(writeOverPromise, "this stream has not been wrapped yet");
     }
@@ -64,7 +64,7 @@ class AsyncInputWriteStreamImpl extends InputStream implements WriteStream<Buffe
      *
      * @param os Output stream to transfer the contents of this {@linkplain WriteStream} to
      */
-    public void wrap(@Nonnull OutputStream os) {
+    public void wrap(@NotNull OutputStream os) {
         this.writeOverPromise = Promise.promise();
         context.executeBlocking(() -> {
                    try (os) {

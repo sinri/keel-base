@@ -4,8 +4,8 @@ import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.streams.ReadStream;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.io.InputStream;
 
 /**
@@ -16,12 +16,12 @@ public interface AsyncOutputReadStream extends ReadStream<Buffer> {
         return new AsyncOutputReadStreamImpl();
     }
 
-    void wrap(@Nonnull InputStream inputStream);
+    void wrap(@NotNull InputStream inputStream);
 
-    @Nonnull
+    @NotNull
     Promise<Long> getReadOverPromise();
 
-    @Nonnull
+    @NotNull
     default Future<Long> readOver() {
         return getReadOverPromise().future();
     }

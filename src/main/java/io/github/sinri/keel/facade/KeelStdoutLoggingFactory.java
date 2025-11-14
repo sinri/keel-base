@@ -12,8 +12,8 @@ import io.github.sinri.keel.logger.base.issue.BaseIssueRecorder;
 import io.github.sinri.keel.utils.StringUtils;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -32,28 +32,28 @@ class KeelStdoutLoggingFactory implements RecorderFactory {
     }
 
     @Override
-    public EventRecorder createEventRecorder(@Nonnull String topic) {
+    public EventRecorder createEventRecorder(@NotNull String topic) {
         return new BaseEventRecorder(topic, consumer);
     }
 
     @Override
-    public <L extends IssueRecord<L>> IssueRecorder<L> createIssueRecorder(@Nonnull String topic, @Nonnull Supplier<L> issueRecordSupplier) {
+    public <L extends IssueRecord<L>> IssueRecorder<L> createIssueRecorder(@NotNull String topic, @NotNull Supplier<L> issueRecordSupplier) {
         return new BaseIssueRecorder<>(topic, issueRecordSupplier, consumer);
     }
 
     static class KeelTopicRecordConsumer extends BaseTopicRecordConsumer {
         @Override
-        public String renderThrowable(@Nonnull Throwable throwable) {
+        public String renderThrowable(@NotNull Throwable throwable) {
             return StringUtils.renderThrowableChain(throwable);
         }
 
         @Override
-        public String renderClassification(@Nonnull List<String> classification) {
+        public String renderClassification(@NotNull List<String> classification) {
             return new JsonArray(classification).encode();
         }
 
         @Override
-        public String renderContext(@Nonnull Map<String, Object> context) {
+        public String renderContext(@NotNull Map<String, Object> context) {
             return new JsonObject(context).encodePrettily();
         }
     }

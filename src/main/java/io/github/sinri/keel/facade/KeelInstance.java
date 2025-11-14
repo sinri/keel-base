@@ -9,9 +9,9 @@ import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
 import io.vertx.core.spi.cluster.ClusterManager;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Objects;
 
 /**
@@ -35,14 +35,14 @@ public final class KeelInstance implements KeelAsyncMixin {
         Keel = new KeelInstance();
     }
 
-    @Nonnull
+    @NotNull
     private final KeelConfigElement configuration;
     //private final Map<String, Object> register = new ConcurrentHashMap<>();
     @Nullable
     private ClusterManager clusterManager;
     @Nullable
     private Vertx vertx;
-    @Nonnull
+    @NotNull
     private RecorderFactory recorderFactory;
 
     private KeelInstance() {
@@ -50,23 +50,23 @@ public final class KeelInstance implements KeelAsyncMixin {
         this.recorderFactory = new KeelStdoutLoggingFactory();
     }
 
-    @Nonnull
+    @NotNull
     public KeelConfigElement getConfiguration() {
         return configuration;
     }
 
-    @Nonnull
+    @NotNull
     public RecorderFactory getRecorderFactory() {
         return recorderFactory;
     }
 
-    public KeelInstance setRecorderFactory(@Nonnull RecorderFactory recorderFactory) {
+    public KeelInstance setRecorderFactory(@NotNull RecorderFactory recorderFactory) {
         this.recorderFactory = recorderFactory;
         return this;
     }
 
     @Nullable
-    public String config(@Nonnull String dotJoinedKeyChain) {
+    public String config(@NotNull String dotJoinedKeyChain) {
         String[] split = dotJoinedKeyChain.split("\\.");
         KeelConfigElement keelConfigElement = this.getConfiguration().extract(split);
         if (keelConfigElement == null) {
@@ -75,7 +75,7 @@ public final class KeelInstance implements KeelAsyncMixin {
         return keelConfigElement.getValueAsString();
     }
 
-    @Nonnull
+    @NotNull
     public Vertx getVertx() {
         return Objects.requireNonNull(vertx);
     }
@@ -89,12 +89,12 @@ public final class KeelInstance implements KeelAsyncMixin {
         return vertx != null;
     }
 
-    public Future<Void> initializeVertx(@Nonnull VertxOptions vertxOptions) {
+    public Future<Void> initializeVertx(@NotNull VertxOptions vertxOptions) {
         return initializeVertx(vertxOptions, null);
     }
 
     public Future<Void> initializeVertx(
-            @Nonnull VertxOptions vertxOptions,
+            @NotNull VertxOptions vertxOptions,
             @Nullable ClusterManager clusterManager
     ) {
         if (isVertxInitialized()) {
@@ -113,7 +113,7 @@ public final class KeelInstance implements KeelAsyncMixin {
         }
     }
 
-    public void initializeVertxStandalone(@Nonnull VertxOptions vertxOptions) {
+    public void initializeVertxStandalone(@NotNull VertxOptions vertxOptions) {
         if (isVertxInitialized()) {
             throw new IllegalStateException("Vertx has been initialized!");
         }
@@ -129,7 +129,7 @@ public final class KeelInstance implements KeelAsyncMixin {
      * @since 4.1.1
      */
     @TechnicalPreview(since = "4.1.1")
-    public void initializeVertx(@Nonnull Vertx vertx) {
+    public void initializeVertx(@NotNull Vertx vertx) {
         if (this.vertx != null && !Objects.equals(vertx, this.vertx)) {
             // Keel.getLogger().info("Re-initialize Vertx from " + this.vertx + " to " + vertx + ".");
             this.vertx.close();
@@ -155,7 +155,7 @@ public final class KeelInstance implements KeelAsyncMixin {
     //        this.logger = logger;
     //    }
 
-    public Future<Void> gracefullyClose(@Nonnull io.vertx.core.Handler<Promise<Void>> promiseHandler) {
+    public Future<Void> gracefullyClose(@NotNull io.vertx.core.Handler<Promise<Void>> promiseHandler) {
         Promise<Void> promise = Promise.promise();
         promiseHandler.handle(promise);
         return promise.future()

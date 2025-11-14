@@ -1,7 +1,8 @@
 package io.github.sinri.keel.base.configuration;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -11,17 +12,17 @@ import java.util.Objects;
  */
 public class KeelConfigProperty {
     private final List<String> keychain = new ArrayList<>();
-    private @Nonnull String value = "";
+    private @NotNull String value = "";
 
     public KeelConfigProperty() {
     }
 
-    public final KeelConfigProperty setKeychain(@Nonnull List<String> keychain) {
+    public final KeelConfigProperty setKeychain(@NotNull List<String> keychain) {
         this.keychain.addAll(keychain);
         return this;
     }
 
-    public final KeelConfigProperty addToKeychain(@Nonnull String key) {
+    public final KeelConfigProperty addToKeychain(@NotNull String key) {
         this.keychain.add(key);
         return this;
     }
@@ -42,7 +43,7 @@ public class KeelConfigProperty {
      * @return the dot-separated property name
      * @since 4.1.1
      */
-    @Nonnull
+    @NotNull
     public String getPropertyName() {
         return String.join(".", keychain);
     }
@@ -56,7 +57,7 @@ public class KeelConfigProperty {
      * @return the property value as a string, never null
      * @since 4.1.1
      */
-    @Nonnull
+    @NotNull
     public String getPropertyValue() {
         return value;
     }

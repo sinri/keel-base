@@ -2,9 +2,9 @@ package io.github.sinri.keel.base.verticles;
 
 import io.vertx.core.*;
 import io.vertx.core.json.JsonObject;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -34,8 +34,8 @@ public interface KeelVerticle extends Verticle {
      * @return a new instance of {@link KeelVerticle} wrapping the provided start future supplier
      * @since 4.0.2
      */
-    @Nonnull
-    static KeelVerticle instant(@Nonnull Supplier<Future<Void>> startFutureSupplier) {
+    @NotNull
+    static KeelVerticle instant(@NotNull Supplier<Future<Void>> startFutureSupplier) {
         return new KeelVerticleWrap(startFutureSupplier);
     }
 
@@ -47,8 +47,8 @@ public interface KeelVerticle extends Verticle {
      * @return a new instance of {@link KeelVerticle} wrapping the provided starter function
      * @since 4.0.12
      */
-    @Nonnull
-    static KeelVerticle instant(@Nonnull Function<Promise<Void>, Future<Void>> starter) {
+    @NotNull
+    static KeelVerticle instant(@NotNull Function<Promise<Void>, Future<Void>> starter) {
         return new KeelVerticleWrap(starter);
     }
 
@@ -140,7 +140,7 @@ public interface KeelVerticle extends Verticle {
      *         a string in the format of "className@deploymentID" is returned.
      * @since 4.1.5
      */
-    @Nonnull
+    @NotNull
     default String verticleIdentity() {
         String mark = this.getClass().getName();
         JsonObject config = config();

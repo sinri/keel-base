@@ -1,6 +1,7 @@
 package io.github.sinri.keel.utils;
 
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
+
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -68,8 +69,8 @@ public class DigestUtils {
      * @since 4.0.0 <a href="https://github.com/sinri/Keel/pull/22">Enhance MD5 Performance with FastThreadLocal
      *         #22</a>
      */
-    @Nonnull
-    public static String md5(@Nonnull String raw) {
+    @NotNull
+    public static String md5(@NotNull String raw) {
         return md5(raw.getBytes());
     }
 
@@ -78,7 +79,7 @@ public class DigestUtils {
      *
      * @since 4.1.0
      */
-    public static String md5(@Nonnull byte[] raw) {
+    public static String md5(@NotNull byte[] raw) {
         MessageDigest digest = DigestUtils.getMD5MessageDigest();
         byte[] digested = digest.digest(raw);
         return BinaryUtils.encodeHexWithLowerDigits(digested);
@@ -94,8 +95,8 @@ public class DigestUtils {
      * @since 4.0.0 <a href="https://github.com/sinri/Keel/pull/22">Enhance MD5 Performance with FastThreadLocal
      *         #22</a>
      */
-    @Nonnull
-    public static String MD5(@Nonnull String raw) {
+    @NotNull
+    public static String MD5(@NotNull String raw) {
         return MD5(raw.getBytes());
     }
 
@@ -104,7 +105,7 @@ public class DigestUtils {
      *
      * @since 4.1.0
      */
-    public static String MD5(@Nonnull byte[] raw) {
+    public static String MD5(@NotNull byte[] raw) {
         MessageDigest digest = DigestUtils.getMD5MessageDigest();
         byte[] digested = digest.digest(raw);
         return BinaryUtils.encodeHexWithUpperDigits(digested);
@@ -113,7 +114,7 @@ public class DigestUtils {
     /**
      * @since 4.1.0
      */
-    public static String digestToLower(@Nonnull String algorithm, @Nonnull byte[] raw) throws NoSuchAlgorithmException {
+    public static String digestToLower(@NotNull String algorithm, @NotNull byte[] raw) throws NoSuchAlgorithmException {
         MessageDigest md = MessageDigest.getInstance(algorithm);
         md.update(raw);
         return BinaryUtils.encodeHexWithLowerDigits(md.digest());
@@ -124,14 +125,14 @@ public class DigestUtils {
      *
      * @since 3.0.11
      */
-    public static String digestToLower(@Nonnull String algorithm, @Nonnull String raw) throws NoSuchAlgorithmException {
+    public static String digestToLower(@NotNull String algorithm, @NotNull String raw) throws NoSuchAlgorithmException {
         return digestToLower(algorithm, raw.getBytes());
     }
 
     /**
      * @since 4.1.0
      */
-    public static String digestToUpper(@Nonnull String algorithm, @Nonnull byte[] raw) throws NoSuchAlgorithmException {
+    public static String digestToUpper(@NotNull String algorithm, @NotNull byte[] raw) throws NoSuchAlgorithmException {
         MessageDigest md = MessageDigest.getInstance(algorithm);
         md.update(raw);
         return BinaryUtils.encodeHexWithUpperDigits(md.digest());
@@ -142,15 +143,15 @@ public class DigestUtils {
      *
      * @since 3.0.11
      */
-    public static String digestToUpper(@Nonnull String algorithm, @Nonnull String raw) throws NoSuchAlgorithmException {
+    public static String digestToUpper(@NotNull String algorithm, @NotNull String raw) throws NoSuchAlgorithmException {
         return digestToUpper(algorithm, raw.getBytes());
     }
 
     /**
      * @since 3.0.11
      */
-    @Nonnull
-    public static String SHA512(@Nonnull String raw) {
+    @NotNull
+    public static String SHA512(@NotNull String raw) {
         try {
             return digestToUpper(DIGEST_ALGO_SHA_512, raw);
         } catch (NoSuchAlgorithmException e) {
@@ -161,8 +162,8 @@ public class DigestUtils {
     /**
      * @since 3.0.11
      */
-    @Nonnull
-    public static String sha512(@Nonnull String raw) {
+    @NotNull
+    public static String sha512(@NotNull String raw) {
         try {
             return digestToLower(DIGEST_ALGO_SHA_512, raw);
         } catch (NoSuchAlgorithmException e) {
@@ -173,8 +174,8 @@ public class DigestUtils {
     /**
      * @since 2.8
      */
-    @Nonnull
-    public static String SHA1(@Nonnull String raw) {
+    @NotNull
+    public static String SHA1(@NotNull String raw) {
         try {
             return digestToUpper(DIGEST_ALGO_SHA_1, raw);
         } catch (NoSuchAlgorithmException e) {
@@ -185,8 +186,8 @@ public class DigestUtils {
     /**
      * @since 2.8
      */
-    @Nonnull
-    public static String sha1(@Nonnull String raw) {
+    @NotNull
+    public static String sha1(@NotNull String raw) {
         try {
             return digestToLower(DIGEST_ALGO_SHA_1, raw);
         } catch (NoSuchAlgorithmException e) {
@@ -197,8 +198,8 @@ public class DigestUtils {
     /**
      * @since 2.8
      */
-    @Nonnull
-    private static byte[] compute_hmac_sha1(@Nonnull String raw, @Nonnull String key) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException {
+    @NotNull
+    private static byte[] compute_hmac_sha1(@NotNull String raw, @NotNull String key) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException {
         String MAC_NAME = "HmacSHA1";
         String ENCODING = "UTF-8";
 
@@ -218,8 +219,8 @@ public class DigestUtils {
     /**
      * @since 2.8
      */
-    @Nonnull
-    public static String hmac_sha1_base64(@Nonnull String raw, @Nonnull String key) {
+    @NotNull
+    public static String hmac_sha1_base64(@NotNull String raw, @NotNull String key) {
         byte[] bytes;
         try {
             bytes = compute_hmac_sha1(raw, key);
@@ -232,8 +233,8 @@ public class DigestUtils {
     /**
      * @since 2.8
      */
-    @Nonnull
-    public static String hmac_sha1_hex(@Nonnull String raw, @Nonnull String key) {
+    @NotNull
+    public static String hmac_sha1_hex(@NotNull String raw, @NotNull String key) {
         byte[] bytes;
         try {
             bytes = compute_hmac_sha1(raw, key);
@@ -246,7 +247,7 @@ public class DigestUtils {
     /**
      * @since 2.8
      */
-    public static @Nonnull String HMAC_SHA1_HEX(@Nonnull String raw, @Nonnull String key) {
+    public static @NotNull String HMAC_SHA1_HEX(@NotNull String raw, @NotNull String key) {
         byte[] bytes;
         try {
             bytes = compute_hmac_sha1(raw, key);

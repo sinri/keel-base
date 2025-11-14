@@ -3,9 +3,9 @@ package io.github.sinri.keel.core.json;
 import io.github.sinri.keel.utils.StackUtils;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -30,14 +30,14 @@ public class JsonifiedThrowable extends JsonifiableDataUnitImpl {
         super();
     }
 
-    public static JsonifiedThrowable wrap(@Nonnull Throwable throwable) {
+    public static JsonifiedThrowable wrap(@NotNull Throwable throwable) {
         return wrap(throwable, StackUtils.IgnorableCallStackPackage, true);
     }
 
-    @Nonnull
+    @NotNull
     public static JsonifiedThrowable wrap(
-            @Nonnull Throwable throwable,
-            @Nonnull Set<String> ignorableStackPackageSet,
+            @NotNull Throwable throwable,
+            @NotNull Set<String> ignorableStackPackageSet,
             boolean omitIgnoredStack
     ) {
         JsonifiedThrowable x = new JsonifiedThrowable();
@@ -70,10 +70,10 @@ public class JsonifiedThrowable extends JsonifiableDataUnitImpl {
      * @since 2.9 original name: buildStackChainText
      * @since 3.0.0 become private and renamed to filterStackTraceToJsonArray
      */
-    @Nonnull
+    @NotNull
     private static List<JsonifiedCallStackItem> filterStackTraceAndReduce(
             @Nullable StackTraceElement[] stackTrace,
-            @Nonnull Set<String> ignorableStackPackageSet,
+            @NotNull Set<String> ignorableStackPackageSet,
             boolean omitIgnoredStack
     ) {
         List<JsonifiedCallStackItem> items = new ArrayList<>();
@@ -108,9 +108,9 @@ public class JsonifiedThrowable extends JsonifiableDataUnitImpl {
 
     private static void filterStackTrace(
             @Nullable StackTraceElement[] stackTrace,
-            @Nonnull Set<String> ignorableStackPackageSet,
-            @Nonnull BiConsumer<String, Integer> ignoredStackTraceItemsConsumer,
-            @Nonnull Consumer<StackTraceElement> stackTraceItemConsumer
+            @NotNull Set<String> ignorableStackPackageSet,
+            @NotNull BiConsumer<String, Integer> ignoredStackTraceItemsConsumer,
+            @NotNull Consumer<StackTraceElement> stackTraceItemConsumer
     ) {
         if (stackTrace != null) {
             String ignoringClassPackage = null;
@@ -161,7 +161,7 @@ public class JsonifiedThrowable extends JsonifiableDataUnitImpl {
         return readString("message");
     }
 
-    @Nonnull
+    @NotNull
     public List<JsonifiedCallStackItem> getThrowableStack() {
         List<JsonifiedCallStackItem> items = new ArrayList<>();
         var a = readJsonArray("stack");

@@ -1,8 +1,8 @@
 package io.github.sinri.keel.base.configuration;
 
 import io.vertx.core.Future;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;

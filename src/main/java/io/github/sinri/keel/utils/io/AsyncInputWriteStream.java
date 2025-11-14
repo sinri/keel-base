@@ -4,8 +4,8 @@ import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.streams.WriteStream;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.io.OutputStream;
 
 /**
@@ -16,12 +16,12 @@ public interface AsyncInputWriteStream extends WriteStream<Buffer> {
         return new AsyncInputWriteStreamImpl();
     }
 
-    void wrap(@Nonnull OutputStream os);
+    void wrap(@NotNull OutputStream os);
 
-    @Nonnull
+    @NotNull
     Promise<Void> getWriteOverPromise();
 
-    @Nonnull
+    @NotNull
     default Future<Void> writeOver() {
         return getWriteOverPromise().future();
     }

@@ -1,9 +1,9 @@
 package io.github.sinri.keel.base.annotations;
 
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 
 
 public interface SelfInterface<T> {
-    @Nonnull
+    @NotNull
     T getImplementation();
 }

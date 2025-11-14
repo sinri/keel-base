@@ -1,9 +1,9 @@
 package io.github.sinri.keel.utils.io;
 
 import io.vertx.core.Future;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -177,7 +177,7 @@ public class FileUtils {
         });
     }
 
-    public static @Nonnull byte[] readFileAsByteArray(@Nonnull String filePath, boolean seekInsideJarWhenNotFound) throws IOException {
+    public static @NotNull byte[] readFileAsByteArray(@NotNull String filePath, boolean seekInsideJarWhenNotFound) throws IOException {
         if (!isValidPath(filePath)) {
             throw new IllegalArgumentException("Invalid file path: " + filePath);
         }
@@ -206,7 +206,7 @@ public class FileUtils {
      * @since 3.2.12.1 original name is `getUrlOfFileInJar`.
      */
     @Nullable
-    public static URL getUrlOfFileInRunningJar(@Nonnull String filePath) {
+    public static URL getUrlOfFileInRunningJar(@NotNull String filePath) {
         return FileUtils.class.getClassLoader().getResource(filePath);
     }
 
@@ -217,8 +217,8 @@ public class FileUtils {
      * @return list of JarEntry
      * @since 3.2.12.1 original name is `traversalInJar`.
      */
-    @Nonnull
-    public static List<JarEntry> traversalInRunningJar(@Nonnull String root) {
+    @NotNull
+    public static List<JarEntry> traversalInRunningJar(@NotNull String root) {
         List<JarEntry> jarEntryList = new ArrayList<>();
         try {
             // should root ends with '/'?
@@ -310,7 +310,7 @@ public class FileUtils {
      *
      * @since 3.2.12.1 original name is `seekPackageClassFilesInJar`.
      */
-    public static Set<String> seekPackageClassFilesInRunningJar(@Nonnull String packageName) {
+    public static Set<String> seekPackageClassFilesInRunningJar(@NotNull String packageName) {
         Set<String> classes = new HashSet<>();
         // Get the current class's class loader
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();

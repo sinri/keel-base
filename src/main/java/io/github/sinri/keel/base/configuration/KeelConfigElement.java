@@ -5,9 +5,9 @@ import io.vertx.config.ConfigRetrieverOptions;
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,9 +31,9 @@ import static io.github.sinri.keel.facade.KeelInstance.Keel;
  * using keychains.
  */
 public class KeelConfigElement {
-    @Nonnull
+    @NotNull
     private final String name;
-    @Nonnull
+    @NotNull
     private final Map<String, KeelConfigElement> children;
     @Nullable
     private String value;
@@ -43,7 +43,7 @@ public class KeelConfigElement {
      *
      * @param name the name of the configuration element, must not be null
      */
-    public KeelConfigElement(@Nonnull String name) {
+    public KeelConfigElement(@NotNull String name) {
         this.name = name;
         this.value = null;
         this.children = new ConcurrentHashMap<>();
@@ -55,7 +55,7 @@ public class KeelConfigElement {
      *
      * @param another the KeelConfigElement to copy from, must not be null
      */
-    public KeelConfigElement(@Nonnull KeelConfigElement another) {
+    public KeelConfigElement(@NotNull KeelConfigElement another) {
         this.name = another.getName();
         this.children = another.getChildren();
         this.value = another.getValueAsString();
@@ -71,7 +71,7 @@ public class KeelConfigElement {
      * @throws IllegalArgumentException if any of the children in the JSON object is
      *                                  not a JSON object
      */
-    public static KeelConfigElement fromJsonObject(@Nonnull JsonObject jsonObject) {
+    public static KeelConfigElement fromJsonObject(@NotNull JsonObject jsonObject) {
         String name = jsonObject.getString("name");
         KeelConfigElement keelConfigElement = new KeelConfigElement(name);
         if (jsonObject.containsKey("value")) {
@@ -103,7 +103,7 @@ public class KeelConfigElement {
      * @see <a href="https://vertx.io/docs/vertx-config/java/">Vert.x Config</a>
      * @since 3.2.10
      */
-    public static Future<KeelConfigElement> retrieve(@Nonnull ConfigRetrieverOptions configRetrieverOptions) {
+    public static Future<KeelConfigElement> retrieve(@NotNull ConfigRetrieverOptions configRetrieverOptions) {
         ConfigRetriever configRetriever = ConfigRetriever.create(Keel.getVertx(), configRetrieverOptions);
         return configRetriever.getConfig()
                               .compose(jsonObject -> {
@@ -127,9 +127,9 @@ public class KeelConfigElement {
      * @param out  the list to collect resulting {@link KeelConfigProperty} objects
      * @since 4.1.1
      */
-    private static void dfsTransform(@Nonnull KeelConfigElement node,
-                                     @Nonnull List<String> path,
-                                     @Nonnull List<KeelConfigProperty> out) {
+    private static void dfsTransform(@NotNull KeelConfigElement node,
+                                     @NotNull List<String> path,
+                                     @NotNull List<KeelConfigProperty> out) {
         // 当前节点若有值，则输出一条属性
         if (node.value != null) {
             out.add(new KeelConfigProperty()
@@ -157,7 +157,7 @@ public class KeelConfigElement {
      * @return the name of the configuration element, which is guaranteed to be
      *         non-null
      */
-    @Nonnull
+    @NotNull
     public String getName() {
         return name;
     }
@@ -212,7 +212,7 @@ public class KeelConfigElement {
      *         match any child
      */
     @Nullable
-    public String readString(@Nonnull List<String> keychain) {
+    public String readString(@NotNull List<String> keychain) {
         var x = extract(keychain);
         if (x == null)
             return null;
@@ -232,7 +232,7 @@ public class KeelConfigElement {
      *         or the keychain does not match any child
      */
     @Nullable
-    public String readString(@Nonnull List<String> keychain, @Nullable String def) {
+    public String readString(@NotNull List<String> keychain, @Nullable String def) {
         KeelConfigElement extracted = this.extract(keychain);
         if (extracted == null)
             return def;
@@ -252,7 +252,7 @@ public class KeelConfigElement {
      *         or the keychain does not match any child
      */
     @Nullable
-    public String readString(@Nonnull String keychain, @Nullable String def) {
+    public String readString(@NotNull String keychain, @Nullable String def) {
         return readString(List.of(keychain), def);
     }
 
@@ -316,7 +316,7 @@ public class KeelConfigElement {
      *         integer
      */
     @Nullable
-    public Integer readInteger(@Nonnull List<String> keychain) {
+    public Integer readInteger(@NotNull List<String> keychain) {
         var x = this.extract(keychain);
         if (x == null)
             return null;
@@ -338,7 +338,7 @@ public class KeelConfigElement {
      *         default value if the value is not
      *         set or cannot be parsed
      */
-    public int readInteger(@Nonnull List<String> keychain, int def) {
+    public int readInteger(@NotNull List<String> keychain, int def) {
         KeelConfigElement extracted = this.extract(keychain);
         if (extracted == null)
             return def;
@@ -360,7 +360,7 @@ public class KeelConfigElement {
      *         default value if the value is not
      *         set or cannot be parsed
      */
-    public int readInteger(@Nonnull String keychain, int def) {
+    public int readInteger(@NotNull String keychain, int def) {
         return readInteger(List.of(keychain), def);
     }
 
@@ -416,7 +416,7 @@ public class KeelConfigElement {
      *         a valid long value
      */
     @Nullable
-    public Long readLong(@Nonnull List<String> keychain) {
+    public Long readLong(@NotNull List<String> keychain) {
         KeelConfigElement extracted = this.extract(keychain);
         if (extracted != null) {
             return extracted.getValueAsLong();
@@ -436,7 +436,7 @@ public class KeelConfigElement {
      *         value if the keychain is invalid or the
      *         value is not a long
      */
-    public long readLong(@Nonnull List<String> keychain, long def) {
+    public long readLong(@NotNull List<String> keychain, long def) {
         KeelConfigElement extracted = this.extract(keychain);
         if (extracted == null)
             return def;
@@ -453,7 +453,7 @@ public class KeelConfigElement {
      * @return the long value found at the specified keychain, or the default value
      *         if not found or invalid
      */
-    public long readLong(@Nonnull String keychain, long def) {
+    public long readLong(@NotNull String keychain, long def) {
         return readLong(List.of(keychain), def);
     }
 
@@ -510,7 +510,7 @@ public class KeelConfigElement {
      *         converted to a float
      */
     @Nullable
-    public Float readFloat(@Nonnull List<String> keychain) {
+    public Float readFloat(@NotNull List<String> keychain) {
         var x = extract(keychain);
         if (x == null)
             return null;
@@ -526,7 +526,7 @@ public class KeelConfigElement {
      * @return the float value found at the end of the keychain, or the default
      *         value if not found or invalid
      */
-    public float readFloat(@Nonnull List<String> keychain, float def) {
+    public float readFloat(@NotNull List<String> keychain, float def) {
         KeelConfigElement extracted = this.extract(keychain);
         if (extracted == null)
             return def;
@@ -543,7 +543,7 @@ public class KeelConfigElement {
      * @return the float value found at the specified keychain, or the default value
      *         if not found or invalid
      */
-    public float readFloat(@Nonnull String keychain, float def) {
+    public float readFloat(@NotNull String keychain, float def) {
         return readFloat(List.of(keychain), def);
     }
 
@@ -599,7 +599,7 @@ public class KeelConfigElement {
      *         cannot be converted to a double
      */
     @Nullable
-    public Double readDouble(@Nonnull List<String> keychain) {
+    public Double readDouble(@NotNull List<String> keychain) {
         var x = extract(keychain);
         if (x == null)
             return null;
@@ -616,7 +616,7 @@ public class KeelConfigElement {
      *         keychain is invalid or the value is
      *         not a double
      */
-    public double readDouble(@Nonnull List<String> keychain, double def) {
+    public double readDouble(@NotNull List<String> keychain, double def) {
         KeelConfigElement extracted = this.extract(keychain);
         if (extracted == null)
             return def;
@@ -635,7 +635,7 @@ public class KeelConfigElement {
      *         if the keychain is not found or the
      *         value is not a valid double
      */
-    public double readDouble(@Nonnull String keychain, double def) {
+    public double readDouble(@NotNull String keychain, double def) {
         return readDouble(List.of(keychain), def);
     }
 
@@ -693,7 +693,7 @@ public class KeelConfigElement {
      *         cannot be converted to a boolean
      */
     @Nullable
-    public Boolean readBoolean(@Nonnull List<String> keychain) {
+    public Boolean readBoolean(@NotNull List<String> keychain) {
         var x = extract(keychain);
         if (x == null)
             return null;
@@ -712,7 +712,7 @@ public class KeelConfigElement {
      *         if the element is not found or
      *         conversion fails
      */
-    public boolean readBoolean(@Nonnull List<String> keychain, boolean def) {
+    public boolean readBoolean(@NotNull List<String> keychain, boolean def) {
         KeelConfigElement extracted = this.extract(keychain);
         if (extracted == null)
             return def;
@@ -729,7 +729,7 @@ public class KeelConfigElement {
      * @return the boolean value associated with the keychain, or the default value
      *         if not found or invalid
      */
-    public boolean readBoolean(@Nonnull String keychain, boolean def) {
+    public boolean readBoolean(@NotNull String keychain, boolean def) {
         return readBoolean(List.of(keychain), def);
     }
 
@@ -741,7 +741,7 @@ public class KeelConfigElement {
      * @param childName the name of the child element to ensure
      * @return the KeelConfigElement corresponding to the child
      */
-    public KeelConfigElement ensureChild(@Nonnull String childName) {
+    public KeelConfigElement ensureChild(@NotNull String childName) {
         return this.children.computeIfAbsent(childName, x -> new KeelConfigElement(childName));
     }
 
@@ -752,7 +752,7 @@ public class KeelConfigElement {
      *              null.
      * @return the current KeelConfigElement instance, allowing for method chaining.
      */
-    public KeelConfigElement addChild(@Nonnull KeelConfigElement child) {
+    public KeelConfigElement addChild(@NotNull KeelConfigElement child) {
         this.children.put(child.getName(), child);
         return this;
     }
@@ -763,7 +763,7 @@ public class KeelConfigElement {
      * @param child the child element to be removed, must not be null
      * @return the current KeelConfigElement instance after the removal
      */
-    public KeelConfigElement removeChild(@Nonnull KeelConfigElement child) {
+    public KeelConfigElement removeChild(@NotNull KeelConfigElement child) {
         this.children.remove(child.getName());
         return this;
     }
@@ -775,7 +775,7 @@ public class KeelConfigElement {
      *                  null
      * @return the current KeelConfigElement instance after the removal operation
      */
-    public KeelConfigElement removeChild(@Nonnull String childName) {
+    public KeelConfigElement removeChild(@NotNull String childName) {
         this.children.remove(childName);
         return this;
     }
@@ -787,7 +787,7 @@ public class KeelConfigElement {
      *              null
      * @return the current instance of KeelConfigElement with the updated value
      */
-    public KeelConfigElement setValue(@Nonnull String value) {
+    public KeelConfigElement setValue(@NotNull String value) {
         this.value = value;
         return this;
     }
@@ -802,7 +802,7 @@ public class KeelConfigElement {
      *         child and the value is the
      *         {@link KeelConfigElement} instance
      */
-    @Nonnull
+    @NotNull
     public Map<String, KeelConfigElement> getChildren() {
         return children;
     }
@@ -814,7 +814,7 @@ public class KeelConfigElement {
      * @return the child element if found, or null if no such child exists
      */
     @Nullable
-    public KeelConfigElement getChild(@Nonnull String childName) {
+    public KeelConfigElement getChild(@NotNull String childName) {
         return children.get(childName);
     }
 
@@ -845,7 +845,7 @@ public class KeelConfigElement {
      * @return the KeelConfigElement located at the specified path, or null if any
      *         key in the path does not exist.
      */
-    public @Nullable KeelConfigElement extract(@Nonnull List<String> split) {
+    public @Nullable KeelConfigElement extract(@NotNull List<String> split) {
         if (split.isEmpty())
             return this;
         if (split.size() == 1)
@@ -871,7 +871,7 @@ public class KeelConfigElement {
      * @return the extracted KeelConfigElement if found, or null if no matching
      *         element is found
      */
-    public @Nullable KeelConfigElement extract(@Nonnull String... split) {
+    public @Nullable KeelConfigElement extract(@NotNull String... split) {
         List<String> list = Arrays.asList(split);
         return this.extract(list);
     }
@@ -884,7 +884,7 @@ public class KeelConfigElement {
      * @param properties the properties to load. Must not be null.
      * @return the current KeelConfigElement instance, allowing method chaining.
      */
-    public KeelConfigElement loadProperties(@Nonnull Properties properties) {
+    public KeelConfigElement loadProperties(@NotNull Properties properties) {
         properties.forEach((k, v) -> {
             String fullKey = k.toString();
             String[] keyArray = fullKey.split("\\.");
@@ -916,7 +916,7 @@ public class KeelConfigElement {
      * @return a non-null KeelConfigElement representing the loaded properties
      * @since 3.0.1
      */
-    public @Nonnull KeelConfigElement loadPropertiesFile(@Nonnull String propertiesFileName) throws IOException {
+    public @NotNull KeelConfigElement loadPropertiesFile(@NotNull String propertiesFileName) throws IOException {
         return loadPropertiesFile(propertiesFileName, StandardCharsets.UTF_8);
     }
 
@@ -929,7 +929,7 @@ public class KeelConfigElement {
      * @return a non-null KeelConfigElement containing the configuration data from
      *         the loaded properties file.
      */
-    public @Nonnull KeelConfigElement loadPropertiesFile(@Nonnull String propertiesFileName, @Nonnull Charset charset)
+    public @NotNull KeelConfigElement loadPropertiesFile(@NotNull String propertiesFileName, @NotNull Charset charset)
             throws IOException {
         Properties properties = new Properties();
         try {
@@ -957,7 +957,7 @@ public class KeelConfigElement {
      */ /*
      * @since 3.0.6
      */
-    public @Nonnull KeelConfigElement loadPropertiesFileContent(@Nonnull String content) {
+    public @NotNull KeelConfigElement loadPropertiesFileContent(@NotNull String content) {
         Properties properties = new Properties();
         try {
             properties.load(new StringReader(content));

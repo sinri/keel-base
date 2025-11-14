@@ -1,9 +1,9 @@
 package io.github.sinri.keel.utils.time;
 
 import io.github.sinri.keel.utils.time.cron.KeelCronExpression;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -144,7 +144,7 @@ public class TimeUtils {
      * @return Date instance.
      * @since 3.0.11
      */
-    public static @Nullable Date parseExpressionToDateInstance(@Nonnull String dateStr, @Nonnull String formatStr) {
+    public static @Nullable Date parseExpressionToDateInstance(@NotNull String dateStr, @NotNull String formatStr) {
         try {
             SimpleDateFormat format = new SimpleDateFormat(formatStr);
             format.setLenient(false); // 启用严格模式，校验日期是否真实存在
@@ -168,14 +168,14 @@ public class TimeUtils {
     /**
      * @since 4.0.0
      */
-    public static boolean isNowMatchCronExpression(@Nonnull String cronExpression) {
+    public static boolean isNowMatchCronExpression(@NotNull String cronExpression) {
         return new KeelCronExpression(cronExpression).match(Calendar.getInstance());
     }
 
     /**
      * @since 4.0.0
      */
-    public static boolean isNowMatchCronExpression(@Nonnull KeelCronExpression cronExpression) {
+    public static boolean isNowMatchCronExpression(@NotNull KeelCronExpression cronExpression) {
         return cronExpression.match(Calendar.getInstance());
     }
 }

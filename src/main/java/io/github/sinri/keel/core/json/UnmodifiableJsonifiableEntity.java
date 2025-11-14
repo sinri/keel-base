@@ -2,8 +2,8 @@ package io.github.sinri.keel.core.json;
 
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.shareddata.Shareable;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.lang.reflect.InvocationTargetException;
 
 
@@ -35,11 +35,11 @@ public interface UnmodifiableJsonifiableEntity
      * @throws IllegalAccessException    if the constructor is not accessible
      * @since 4.1.5
      */
-    static <U extends UnmodifiableJsonifiableEntity> U wrap(@Nonnull JsonObject jsonObject, Class<U> clazz) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    static <U extends UnmodifiableJsonifiableEntity> U wrap(@NotNull JsonObject jsonObject, Class<U> clazz) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         return clazz.getConstructor(JsonObject.class).newInstance(jsonObject);
     }
 
-    static UnmodifiableJsonifiableEntity wrap(@Nonnull JsonObject jsonObject) {
+    static UnmodifiableJsonifiableEntity wrap(@NotNull JsonObject jsonObject) {
         return new UnmodifiableJsonifiableEntityImpl(jsonObject);
     }
 
@@ -53,7 +53,7 @@ public interface UnmodifiableJsonifiableEntity
      *         `io.github.sinri.keel.core.json.UnmodifiableJsonifiableEntity#toJsonExpression()`.
      * @since 3.2.17
      */
-    @Nonnull
+    @NotNull
     default JsonObject cloneAsJsonObject() {
         return new JsonObject(toJsonExpression());
     }

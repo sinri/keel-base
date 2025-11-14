@@ -3,9 +3,9 @@ package io.github.sinri.keel.core.json;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.pointer.JsonPointer;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Function;
 
@@ -17,7 +17,7 @@ import java.util.function.Function;
 public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> {
 
     @Nullable
-    <T> T read(@Nonnull Function<JsonPointer, Class<T>> func);
+    <T> T read(@NotNull Function<JsonPointer, Class<T>> func);
 
     /**
      * Reads a string value from a JSON structure using the specified JSON Pointer arguments.
@@ -45,7 +45,7 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
      * @param args The JSON Pointer arguments.
      * @throws NullPointerException if the value is null.
      */
-    default @Nonnull String readStringRequired(String... args) {
+    default @NotNull String readStringRequired(String... args) {
         var r = readString(args);
         Objects.requireNonNull(r);
         return r;
@@ -77,7 +77,7 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
      * @param args The JSON Pointer arguments.
      * @throws NullPointerException if the value is null.
      */
-    default @Nonnull Number readNumberRequired(String... args) {
+    default @NotNull Number readNumberRequired(String... args) {
         var r = readNumber(args);
         Objects.requireNonNull(r);
         return r;
@@ -96,7 +96,7 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
      * @param args The JSON Pointer arguments.
      * @throws NullPointerException if the value is null.
      */
-    default @Nonnull Long readLongRequired(String... args) {
+    default @NotNull Long readLongRequired(String... args) {
         var r = readLong(args);
         Objects.requireNonNull(r);
         return r;
@@ -115,7 +115,7 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
      * @param args The JSON Pointer arguments.
      * @throws NullPointerException if the value is null.
      */
-    default @Nonnull Integer readIntegerRequired(String... args) {
+    default @NotNull Integer readIntegerRequired(String... args) {
         var r = readInteger(args);
         Objects.requireNonNull(r);
         return r;
@@ -134,7 +134,7 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
      * @param args The JSON Pointer arguments.
      * @throws NullPointerException if the value is null.
      */
-    default @Nonnull Float readFloatRequired(String... args) {
+    default @NotNull Float readFloatRequired(String... args) {
         var r = readFloat(args);
         Objects.requireNonNull(r);
         return r;
@@ -153,7 +153,7 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
      * @param args The JSON Pointer arguments.
      * @throws NullPointerException if the value is null.
      */
-    default @Nonnull Double readDoubleRequired(String... args) {
+    default @NotNull Double readDoubleRequired(String... args) {
         var r = readDouble(args);
         Objects.requireNonNull(r);
         return r;
@@ -175,7 +175,7 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
      * @param args The JSON Pointer arguments.
      * @throws NullPointerException if the value is null.
      */
-    default @Nonnull Boolean readBooleanRequired(String... args) {
+    default @NotNull Boolean readBooleanRequired(String... args) {
         var r = readBoolean(args);
         Objects.requireNonNull(r);
         return r;
@@ -197,7 +197,7 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
      * @param args The JSON Pointer arguments.
      * @throws NullPointerException if the value is null.
      */
-    default @Nonnull JsonObject readJsonObjectRequired(String... args) {
+    default @NotNull JsonObject readJsonObjectRequired(String... args) {
         var r = readJsonObject(args);
         Objects.requireNonNull(r);
         return r;
@@ -219,7 +219,7 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
      * @param args The JSON Pointer arguments.
      * @throws NullPointerException if the value is null.
      */
-    default @Nonnull JsonArray readJsonArrayRequired(String... args) {
+    default @NotNull JsonArray readJsonArrayRequired(String... args) {
         var r = readJsonArray(args);
         Objects.requireNonNull(r);
         return r;
@@ -253,7 +253,7 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
      * @param args The JSON Pointer arguments.
      * @throws NullPointerException if the value is null.
      */
-    default @Nonnull List<JsonObject> readJsonObjectArrayRequired(String... args) {
+    default @NotNull List<JsonObject> readJsonObjectArrayRequired(String... args) {
         var r = readJsonObjectArray(args);
         Objects.requireNonNull(r);
         return r;
@@ -285,7 +285,7 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
      * @param args The JSON Pointer arguments.
      * @throws NullPointerException if the value is null.
      */
-    default @Nonnull List<String> readStringArrayRequired(String... args) {
+    default @NotNull List<String> readStringArrayRequired(String... args) {
         var r = readStringArray(args);
         Objects.requireNonNull(r);
         return r;
@@ -321,7 +321,7 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
      * @param args The JSON Pointer arguments.
      * @throws NullPointerException if the value is null.
      */
-    default @Nonnull List<Integer> readIntegerArrayRequired(String... args) {
+    default @NotNull List<Integer> readIntegerArrayRequired(String... args) {
         var r = readIntegerArray(args);
         Objects.requireNonNull(r);
         return r;
@@ -357,7 +357,7 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
      * @param args The JSON Pointer arguments.
      * @throws NullPointerException if the value is null.
      */
-    default @Nonnull List<Long> readLongArrayRequired(String... args) {
+    default @NotNull List<Long> readLongArrayRequired(String... args) {
         var r = readLongArray(args);
         Objects.requireNonNull(r);
         return r;
@@ -393,7 +393,7 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
      * @param args The JSON Pointer arguments.
      * @throws NullPointerException if the value is null.
      */
-    default @Nonnull List<Float> readFloatArrayRequired(String... args) {
+    default @NotNull List<Float> readFloatArrayRequired(String... args) {
         var r = readFloatArray(args);
         Objects.requireNonNull(r);
         return r;
@@ -429,7 +429,7 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
      * @param args The JSON Pointer arguments.
      * @throws NullPointerException if the value is null.
      */
-    default @Nonnull List<Double> readDoubleArrayRequired(String... args) {
+    default @NotNull List<Double> readDoubleArrayRequired(String... args) {
         var r = readDoubleArray(args);
         Objects.requireNonNull(r);
         return r;
@@ -451,7 +451,7 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
      * @param args The JSON Pointer arguments.
      * @throws NullPointerException if the value is null.
      */
-    default @Nonnull Object readValueRequired(String... args) {
+    default @NotNull Object readValueRequired(String... args) {
         var r = readValue(args);
         Objects.requireNonNull(r);
         return r;
@@ -468,7 +468,7 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
      * @return The entity read from the JSON Object.
      * @since 4.0.13
      */
-    default @Nullable <C> C readEntity(@Nonnull Class<C> cClass, String... args) {
+    default @Nullable <C> C readEntity(@NotNull Class<C> cClass, String... args) {
         JsonObject jsonObject = readJsonObject(args);
         if (jsonObject == null) {
             return null;
@@ -487,6 +487,6 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
      * @since 3.0.0
      */
     @Override
-    @Nonnull
+    @NotNull
     Iterator<Map.Entry<String, Object>> iterator();
 }

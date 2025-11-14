@@ -4,9 +4,9 @@ import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.pointer.JsonPointer;
 import io.vertx.core.shareddata.ClusterSerializable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.function.Function;
@@ -20,7 +20,7 @@ public interface JsonifiableDataUnit
         extends JsonObjectConvertible, JsonObjectReloadable, JsonObjectWritable,
         UnmodifiableJsonifiableEntity, ClusterSerializable {
     @Nullable
-    default <T> T read(@Nonnull Function<JsonPointer, Class<T>> func) {
+    default <T> T read(@NotNull Function<JsonPointer, Class<T>> func) {
         try {
             JsonPointer jsonPointer = JsonPointer.create();
             Class<T> tClass = func.apply(jsonPointer);
@@ -50,7 +50,7 @@ public interface JsonifiableDataUnit
     }
 
     @Override
-    @Nonnull
+    @NotNull
     default Iterator<Map.Entry<String, Object>> iterator() {
         return toJsonObject().iterator();
     }

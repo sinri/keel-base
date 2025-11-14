@@ -2,8 +2,8 @@ package io.github.sinri.keel.base.async;
 
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -23,7 +23,7 @@ interface KeelAsyncMixinLogic extends KeelAsyncMixinCore {
      * @return a Future that completes with Void when the repeatedly called task has
      *         finished its execution
      */
-    private Future<Void> asyncCallRepeatedly(@Nonnull RepeatedlyCallTask repeatedlyCallTask) {
+    private Future<Void> asyncCallRepeatedly(@NotNull RepeatedlyCallTask repeatedlyCallTask) {
         Promise<Void> promise = Promise.promise();
         RepeatedlyCallTask.start(repeatedlyCallTask, promise);
         return promise.future();
@@ -43,7 +43,7 @@ interface KeelAsyncMixinLogic extends KeelAsyncMixinCore {
      * @return a Future that completes with Void when the repeatedly called task has
      *         finished its execution.
      */
-    default Future<Void> asyncCallRepeatedly(@Nonnull Function<RepeatedlyCallTask, Future<Void>> processor) {
+    default Future<Void> asyncCallRepeatedly(@NotNull Function<RepeatedlyCallTask, Future<Void>> processor) {
         return asyncCallRepeatedly(new RepeatedlyCallTask(processor));
     }
 
@@ -65,8 +65,8 @@ interface KeelAsyncMixinLogic extends KeelAsyncMixinCore {
      *         the itemsProcessor have completed
      */
     default <T> Future<Void> asyncCallIteratively(
-            @Nonnull Iterator<T> iterator,
-            @Nonnull BiFunction<List<T>, RepeatedlyCallTask, Future<Void>> itemsProcessor,
+            @NotNull Iterator<T> iterator,
+            @NotNull BiFunction<List<T>, RepeatedlyCallTask, Future<Void>> itemsProcessor,
             int batchSize) {
         if (batchSize <= 0)
             throw new IllegalArgumentException("batchSize must be greater than 0");
@@ -102,8 +102,8 @@ interface KeelAsyncMixinLogic extends KeelAsyncMixinCore {
      * @return a future that completes when all items have been processed
      */
     default <T> Future<Void> asyncCallIteratively(
-            @Nonnull Iterator<T> iterator,
-            @Nonnull Function<List<T>, Future<Void>> itemsProcessor,
+            @NotNull Iterator<T> iterator,
+            @NotNull Function<List<T>, Future<Void>> itemsProcessor,
             int batchSize) {
         return asyncCallIteratively(
                 iterator,
@@ -122,8 +122,8 @@ interface KeelAsyncMixinLogic extends KeelAsyncMixinCore {
      * @return a Future representing the completion of the processing
      */
     default <T> Future<Void> asyncCallIteratively(
-            @Nonnull Iterable<T> iterable,
-            @Nonnull BiFunction<List<T>, RepeatedlyCallTask, Future<Void>> itemsProcessor,
+            @NotNull Iterable<T> iterable,
+            @NotNull BiFunction<List<T>, RepeatedlyCallTask, Future<Void>> itemsProcessor,
             int batchSize) {
         return asyncCallIteratively(iterable.iterator(), itemsProcessor, batchSize);
     }
@@ -144,8 +144,8 @@ interface KeelAsyncMixinLogic extends KeelAsyncMixinCore {
      *         fails
      */
     default <T> Future<Void> asyncCallIteratively(
-            @Nonnull Iterator<T> iterator,
-            @Nonnull BiFunction<T, RepeatedlyCallTask, Future<Void>> itemProcessor) {
+            @NotNull Iterator<T> iterator,
+            @NotNull BiFunction<T, RepeatedlyCallTask, Future<Void>> itemProcessor) {
         return asyncCallRepeatedly(routineResult -> Future.succeededFuture()
                                                           .compose(v -> {
                                                               if (iterator.hasNext()) {
@@ -169,8 +169,8 @@ interface KeelAsyncMixinLogic extends KeelAsyncMixinCore {
      *         if any item processing fails
      */
     default <T> Future<Void> asyncCallIteratively(
-            @Nonnull Iterator<T> iterator,
-            @Nonnull Function<T, Future<Void>> itemProcessor) {
+            @NotNull Iterator<T> iterator,
+            @NotNull Function<T, Future<Void>> itemProcessor) {
         return asyncCallIteratively(
                 iterator,
                 (t, repeatedlyCallTask) -> itemProcessor.apply(t));
@@ -191,8 +191,8 @@ interface KeelAsyncMixinLogic extends KeelAsyncMixinCore {
      *         processed
      */
     default <T> Future<Void> asyncCallIteratively(
-            @Nonnull Iterable<T> iterable,
-            @Nonnull Function<T, Future<Void>> itemProcessor) {
+            @NotNull Iterable<T> iterable,
+            @NotNull Function<T, Future<Void>> itemProcessor) {
         return asyncCallIteratively(iterable.iterator(), itemProcessor);
     }
 
@@ -208,8 +208,8 @@ interface KeelAsyncMixinLogic extends KeelAsyncMixinCore {
      * @return a Future that completes when all items have been processed
      */
     default <T> Future<Void> asyncCallIteratively(
-            @Nonnull Iterable<T> iterable,
-            @Nonnull BiFunction<T, RepeatedlyCallTask, Future<Void>> itemProcessor) {
+            @NotNull Iterable<T> iterable,
+            @NotNull BiFunction<T, RepeatedlyCallTask, Future<Void>> itemProcessor) {
         return asyncCallIteratively(iterable.iterator(), itemProcessor);
     }
 
@@ -296,7 +296,7 @@ interface KeelAsyncMixinLogic extends KeelAsyncMixinCore {
      * @param supplier An async job handler that provides a {@code Future<Void>}.
      * @since 3.0.1
      */
-    default void asyncCallEndlessly(@Nonnull Supplier<Future<Void>> supplier) {
+    default void asyncCallEndlessly(@NotNull Supplier<Future<Void>> supplier) {
         asyncCallRepeatedly(routineResult -> Future.succeededFuture()
                                                    .compose(v -> supplier.get())
                                                    .eventually(() -> {

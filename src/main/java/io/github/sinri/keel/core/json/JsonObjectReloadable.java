@@ -1,8 +1,7 @@
 package io.github.sinri.keel.core.json;
 
 import io.vertx.core.json.JsonObject;
-
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * An interface for those entities could be reloaded with a JSON Object.
@@ -13,6 +12,6 @@ public interface JsonObjectReloadable {
     /**
      * @param jsonObject the JSON object with which this class should be reloaded
      */
-    void reloadData(@Nonnull JsonObject jsonObject);
+    void reloadData(@NotNull JsonObject jsonObject);
 
 }

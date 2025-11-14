@@ -1,6 +1,7 @@
 package io.github.sinri.keel.utils.time.cron;
 
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Calendar;
 
 /**
@@ -61,7 +62,7 @@ public class ParsedCalenderElements {
      *
      * @param currentCalendar the Calendar object from which to extract the date and time components
      */
-    public ParsedCalenderElements(@Nonnull Calendar currentCalendar) {
+    public ParsedCalenderElements(@NotNull Calendar currentCalendar) {
         minute = currentCalendar.get(Calendar.MINUTE);
         hour = currentCalendar.get(Calendar.HOUR_OF_DAY);
         day = currentCalendar.get(Calendar.DAY_OF_MONTH);

@@ -1,17 +1,16 @@
 package io.github.sinri.keel.core.json;
 
 import io.vertx.core.json.JsonObject;
-
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @since 4.1.1
  */
 public class JsonifiableDataUnitImpl implements JsonifiableDataUnit {
-    @Nonnull
+    @NotNull
     private JsonObject jsonObject;
 
-    public JsonifiableDataUnitImpl(@Nonnull JsonObject jsonObject) {
+    public JsonifiableDataUnitImpl(@NotNull JsonObject jsonObject) {
         this.jsonObject = jsonObject;
     }
 
@@ -19,14 +18,14 @@ public class JsonifiableDataUnitImpl implements JsonifiableDataUnit {
         this.jsonObject = new JsonObject();
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public JsonObject toJsonObject() {
         return jsonObject;
     }
 
     @Override
-    public void reloadData(@Nonnull JsonObject jsonObject) {
+    public void reloadData(@NotNull JsonObject jsonObject) {
         this.jsonObject = jsonObject;
     }
 

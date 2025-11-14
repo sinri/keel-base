@@ -3,8 +3,8 @@ package io.github.sinri.keel.base.async;
 import io.github.sinri.keel.base.annotations.TechnicalPreview;
 import io.github.sinri.keel.base.verticles.KeelVerticle;
 import io.vertx.core.*;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Supplier;
@@ -18,8 +18,8 @@ interface KeelAsyncMixinBlock extends KeelAsyncMixinLogic {
     }
 
     @TechnicalPreview(since = "4.1.1", notice = "Require JDK 21+")
-    @Nonnull
-    default Future<Void> runInVerticleOnVirtualThread(@Nonnull Supplier<Future<Void>> function) {
+    @NotNull
+    default Future<Void> runInVerticleOnVirtualThread(@NotNull Supplier<Future<Void>> function) {
         return KeelVerticle.instant(promise -> Future.succeededFuture()
                                                      .compose(v -> function.get())
                                                      .onComplete(promise)
@@ -28,7 +28,7 @@ interface KeelAsyncMixinBlock extends KeelAsyncMixinLogic {
                            .compose(s -> Future.succeededFuture());
     }
 
-    default <R> Future<R> asyncTransformCompletableFuture(@Nonnull CompletableFuture<R> completableFuture) {
+    default <R> Future<R> asyncTransformCompletableFuture(@NotNull CompletableFuture<R> completableFuture) {
         Promise<R> promise = Promise.promise();
         Context currentContext = Vertx.currentContext();
 
@@ -59,7 +59,7 @@ interface KeelAsyncMixinBlock extends KeelAsyncMixinLogic {
         return promise.future();
     }
 
-    default <R> Future<R> asyncTransformRawFuture(@Nonnull java.util.concurrent.Future<R> rawFuture) {
+    default <R> Future<R> asyncTransformRawFuture(@NotNull java.util.concurrent.Future<R> rawFuture) {
         if (isInNonBlockContext()) {
             return Keel.getVertx().executeBlocking(rawFuture::get);
         } else {
@@ -72,7 +72,7 @@ interface KeelAsyncMixinBlock extends KeelAsyncMixinLogic {
         }
     }
 
-    default <R> Future<R> asyncTransformRawFuture(@Nonnull java.util.concurrent.Future<R> rawFuture, long sleepTime) {
+    default <R> Future<R> asyncTransformRawFuture(@NotNull java.util.concurrent.Future<R> rawFuture, long sleepTime) {
         return asyncCallRepeatedly(repeatedlyCallTask -> {
             if (rawFuture.isDone()) {
                 repeatedlyCallTask.stop();

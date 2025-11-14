@@ -2,9 +2,9 @@ package io.github.sinri.keel.base.verticles;
 
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -27,7 +27,7 @@ import static io.github.sinri.keel.facade.KeelInstance.Keel;
  */
 public final class KeelVerticleWrap extends KeelVerticleImpl {
 
-    @Nonnull
+    @NotNull
     private final Supplier<Future<Void>> startFutureSupplier;
 
     /**
@@ -46,7 +46,7 @@ public final class KeelVerticleWrap extends KeelVerticleImpl {
      * @param startFutureSupplier a supplier that provides a future representing the start operation
      * @since 4.0.2
      */
-    KeelVerticleWrap(@Nonnull Supplier<Future<Void>> startFutureSupplier) {
+    KeelVerticleWrap(@NotNull Supplier<Future<Void>> startFutureSupplier) {
         this.stopperPromise = null;
         this.startFutureSupplier = startFutureSupplier;
     }
@@ -59,7 +59,7 @@ public final class KeelVerticleWrap extends KeelVerticleImpl {
      * @param starter a function that takes a stop promise and returns a future representing the start operation
      * @since 4.0.12
      */
-    KeelVerticleWrap(@Nonnull Function<Promise<Void>, Future<Void>> starter) {
+    KeelVerticleWrap(@NotNull Function<Promise<Void>, Future<Void>> starter) {
         this.stopperPromise = Promise.promise();
         this.startFutureSupplier = () -> starter.apply(stopperPromise);
     }

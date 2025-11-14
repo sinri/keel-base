@@ -5,9 +5,9 @@ import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.ThreadingModel;
 import io.vertx.core.json.JsonObject;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.UUID;
 
 /**
@@ -138,7 +138,7 @@ public abstract class KeelVerticleImpl extends AbstractVerticle implements KeelV
         return Future.succeededFuture();
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public String verticleIdentity() {
         return KeelVerticle.super.verticleIdentity()

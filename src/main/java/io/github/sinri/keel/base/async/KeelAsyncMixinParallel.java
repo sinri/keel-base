@@ -1,8 +1,8 @@
 package io.github.sinri.keel.base.async;
 
 import io.vertx.core.Future;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -23,8 +23,8 @@ interface KeelAsyncMixinParallel extends KeelAsyncMixinCore {
      *         the itemProcessor have succeeded
      * @since 4.0.2
      */
-    default <T> Future<Void> parallelForAllSuccess(@Nonnull Iterable<T> collection,
-                                                   @Nonnull Function<T, Future<Void>> itemProcessor) {
+    default <T> Future<Void> parallelForAllSuccess(@NotNull Iterable<T> collection,
+                                                   @NotNull Function<T, Future<Void>> itemProcessor) {
         return parallelForAllSuccess(collection.iterator(), itemProcessor);
     }
 
@@ -42,8 +42,8 @@ interface KeelAsyncMixinParallel extends KeelAsyncMixinCore {
      *         the itemProcessor have succeeded
      * @since 4.0.2
      */
-    default <T> Future<Void> parallelForAllSuccess(@Nonnull Iterator<T> iterator,
-                                                   @Nonnull Function<T, Future<Void>> itemProcessor) {
+    default <T> Future<Void> parallelForAllSuccess(@NotNull Iterator<T> iterator,
+                                                   @NotNull Function<T, Future<Void>> itemProcessor) {
         List<Future<Void>> futures = new ArrayList<>();
         while (iterator.hasNext()) {
             Future<Void> f = itemProcessor.apply(iterator.next());
@@ -70,8 +70,8 @@ interface KeelAsyncMixinParallel extends KeelAsyncMixinCore {
      *         the itemProcessor have succeeded
      * @since 4.0.2
      */
-    default <T> Future<Void> parallelForAnySuccess(@Nonnull Iterable<T> collection,
-                                                   @Nonnull Function<T, Future<Void>> itemProcessor) {
+    default <T> Future<Void> parallelForAnySuccess(@NotNull Iterable<T> collection,
+                                                   @NotNull Function<T, Future<Void>> itemProcessor) {
         return parallelForAnySuccess(collection.iterator(), itemProcessor);
     }
 
@@ -89,8 +89,8 @@ interface KeelAsyncMixinParallel extends KeelAsyncMixinCore {
      *         the itemProcessor have succeeded
      * @since 4.0.2
      */
-    default <T> Future<Void> parallelForAnySuccess(@Nonnull Iterator<T> iterator,
-                                                   @Nonnull Function<T, Future<Void>> itemProcessor) {
+    default <T> Future<Void> parallelForAnySuccess(@NotNull Iterator<T> iterator,
+                                                   @NotNull Function<T, Future<Void>> itemProcessor) {
         List<Future<Void>> futures = new ArrayList<>();
         while (iterator.hasNext()) {
             Future<Void> f = itemProcessor.apply(iterator.next());
@@ -117,8 +117,8 @@ interface KeelAsyncMixinParallel extends KeelAsyncMixinCore {
      *         the itemProcessor have completed
      * @since 4.0.2
      */
-    default <T> Future<Void> parallelForAllComplete(@Nonnull Iterable<T> collection,
-                                                    @Nonnull Function<T, Future<Void>> itemProcessor) {
+    default <T> Future<Void> parallelForAllComplete(@NotNull Iterable<T> collection,
+                                                    @NotNull Function<T, Future<Void>> itemProcessor) {
         return parallelForAllComplete(collection.iterator(), itemProcessor);
     }
 
@@ -136,8 +136,8 @@ interface KeelAsyncMixinParallel extends KeelAsyncMixinCore {
      *         the itemProcessor have completed
      * @since 4.0.2
      */
-    default <T> Future<Void> parallelForAllComplete(@Nonnull Iterator<T> iterator,
-                                                    @Nonnull Function<T, Future<Void>> itemProcessor) {
+    default <T> Future<Void> parallelForAllComplete(@NotNull Iterator<T> iterator,
+                                                    @NotNull Function<T, Future<Void>> itemProcessor) {
         List<Future<Void>> futures = new ArrayList<>();
         while (iterator.hasNext()) {
             Future<Void> f = itemProcessor.apply(iterator.next());

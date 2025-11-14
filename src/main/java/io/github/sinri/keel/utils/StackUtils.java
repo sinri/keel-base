@@ -1,7 +1,8 @@
 package io.github.sinri.keel.utils;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -23,13 +24,13 @@ public class StackUtils {
         ));
     }
 
-    @Nonnull
+    @NotNull
     public static String renderThrowableChain(@Nullable Throwable throwable) {
         return renderThrowableChain(throwable, IgnorableCallStackPackage);
     }
 
-    @Nonnull
-    public static String renderThrowableChain(@Nullable Throwable throwable, @Nonnull Set<String> ignorableStackPackageSet) {
+    @NotNull
+    public static String renderThrowableChain(@Nullable Throwable throwable, @NotNull Set<String> ignorableStackPackageSet) {
         if (throwable == null) return "";
         Throwable cause = throwable.getCause();
         StringBuilder sb = new StringBuilder();
@@ -57,8 +58,8 @@ public class StackUtils {
         return sb.toString();
     }
 
-    @Nonnull
-    private static String buildStackChainText(@Nullable StackTraceElement[] stackTrace, @Nonnull Set<String> ignorableStackPackageSet) {
+    @NotNull
+    private static String buildStackChainText(@Nullable StackTraceElement[] stackTrace, @NotNull Set<String> ignorableStackPackageSet) {
         StringBuilder sb = new StringBuilder();
         if (stackTrace != null) {
             String ignoringClassPackage = null;

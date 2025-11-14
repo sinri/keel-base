@@ -2,9 +2,9 @@ package io.github.sinri.keel.core.json;
 
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.pointer.JsonPointer;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.function.Function;
@@ -25,9 +25,9 @@ import java.util.function.Function;
  * @since 3.1.10
  */
 public class UnmodifiableJsonifiableEntityImpl implements UnmodifiableJsonifiableEntity {
-    private final @Nonnull JsonObject jsonObject;
+    private final @NotNull JsonObject jsonObject;
 
-    public UnmodifiableJsonifiableEntityImpl(@Nonnull JsonObject jsonObject) {
+    public UnmodifiableJsonifiableEntityImpl(@NotNull JsonObject jsonObject) {
         this.jsonObject = purify(jsonObject);
     }
 
@@ -66,7 +66,7 @@ public class UnmodifiableJsonifiableEntityImpl implements UnmodifiableJsonifiabl
      * @since 3.1.10 make it abstract.
      */
     @Override
-    public @Nullable <T> T read(@Nonnull Function<JsonPointer, Class<T>> func) {
+    public @Nullable <T> T read(@NotNull Function<JsonPointer, Class<T>> func) {
         try {
             JsonPointer jsonPointer = JsonPointer.create();
             Class<T> tClass = func.apply(jsonPointer);
@@ -80,7 +80,7 @@ public class UnmodifiableJsonifiableEntityImpl implements UnmodifiableJsonifiabl
         }
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public Iterator<Map.Entry<String, Object>> iterator() {
         return jsonObject.iterator();

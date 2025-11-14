@@ -1,7 +1,8 @@
 package io.github.sinri.keel.utils.time.cron;
 
 
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
+
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -20,7 +21,7 @@ public class KeelCronExpression {
     final Set<Integer> dayOptions = new HashSet<>();
     final Set<Integer> monthOptions = new HashSet<>();
     final Set<Integer> weekdayOptions = new HashSet<>();
-    private final @Nonnull String rawCronExpression;
+    private final @NotNull String rawCronExpression;
 
     /**
      * Constructs a new KeelCronExpression from the given raw cron expression.
@@ -38,7 +39,7 @@ public class KeelCronExpression {
      * @throws RuntimeException if the provided cron expression is invalid (e.g., incorrect number of fields or invalid
      *                          values)
      */
-    public KeelCronExpression(@Nonnull String rawCronExpression) {
+    public KeelCronExpression(@NotNull String rawCronExpression) {
         this.rawCronExpression = rawCronExpression;
 
         String[] parts = rawCronExpression.trim().split("\\s+");
@@ -66,7 +67,7 @@ public class KeelCronExpression {
      * @return a ParsedCalenderElements instance containing the parsed date and time components
      * @since 3.2.4
      */
-    public static ParsedCalenderElements parseCalenderToElements(@Nonnull Calendar currentCalendar) {
+    public static ParsedCalenderElements parseCalenderToElements(@NotNull Calendar currentCalendar) {
         return new ParsedCalenderElements(currentCalendar);
     }
 
@@ -76,7 +77,7 @@ public class KeelCronExpression {
      * @param currentCalendar the Calendar object to match against the cron expression, must not be null
      * @return true if the Calendar object matches the cron expression, false otherwise
      */
-    public boolean match(@Nonnull Calendar currentCalendar) {
+    public boolean match(@NotNull Calendar currentCalendar) {
         ParsedCalenderElements parsedCalenderElements = new ParsedCalenderElements(currentCalendar);
         return match(parsedCalenderElements);
     }
@@ -88,7 +89,7 @@ public class KeelCronExpression {
      *                               be null
      * @return true if the ParsedCalenderElements match the cron expression, false otherwise
      */
-    public boolean match(@Nonnull ParsedCalenderElements parsedCalenderElements) {
+    public boolean match(@NotNull ParsedCalenderElements parsedCalenderElements) {
         return minuteOptions.contains(parsedCalenderElements.minute)
                 && hourOptions.contains(parsedCalenderElements.hour)
                 && dayOptions.contains(parsedCalenderElements.day)
@@ -105,7 +106,7 @@ public class KeelCronExpression {
      * @param max          the maximum allowed value for the component
      * @throws IllegalArgumentException if the raw component is invalid or contains out-of-range values
      */
-    private void parseField(@Nonnull String rawComponent, @Nonnull Set<Integer> optionSet, int min, int max) {
+    private void parseField(@NotNull String rawComponent, @NotNull Set<Integer> optionSet, int min, int max) {
         if (rawComponent.equals("*")) {
             for (int i = min; i <= max; i++) {
                 optionSet.add(i);
@@ -163,7 +164,7 @@ public class KeelCronExpression {
      *
      * @return the raw cron expression as a non-null String
      */
-    @Nonnull
+    @NotNull
     public String getRawCronExpression() {
         return rawCronExpression;
     }

@@ -1,8 +1,9 @@
 package io.github.sinri.keel.utils;
 
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Objects;
@@ -46,7 +47,7 @@ public class NetUtils {
         }
     }
 
-    @Nonnull
+    @NotNull
     public static byte[] convertIPv4ToAddressBytes(long ipv4AsLong) {
         return new byte[]{
                 (byte) (ipv4AsLong >> 24),
@@ -56,7 +57,7 @@ public class NetUtils {
         };
     }
 
-    @Nonnull
+    @NotNull
     public static byte[] convertIPv4ToAddressBytes(@Nullable String ipv4) {
         long x = Objects.requireNonNull(convertIPv4ToNumber(ipv4));
         return convertIPv4ToAddressBytes(x);

@@ -2,9 +2,9 @@ package io.github.sinri.keel.utils.json;
 
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -20,8 +20,8 @@ public class JsonUtils {
     /**
      * @since 2.4
      */
-    @Nonnull
-    private static JsonArray getSortedJsonArray(@Nonnull JsonArray array) {
+    @NotNull
+    private static JsonArray getSortedJsonArray(@NotNull JsonArray array) {
         List<Object> list = new ArrayList<>();
         array.forEach(list::add);
         list.sort(Comparator.comparing(Object::toString));
@@ -31,16 +31,16 @@ public class JsonUtils {
     /**
      * @since 2.4
      */
-    @Nonnull
-    public static String getJsonForArrayWhoseItemsSorted(@Nonnull JsonArray array) {
+    @NotNull
+    public static String getJsonForArrayWhoseItemsSorted(@NotNull JsonArray array) {
         return getSortedJsonArray(array).toString();
     }
 
     /**
      * @since 2.4
      */
-    @Nonnull
-    private static JsonObject getSortedJsonObject(@Nonnull JsonObject object) {
+    @NotNull
+    private static JsonObject getSortedJsonObject(@NotNull JsonObject object) {
         JsonObject result = new JsonObject();
         List<String> keyList = new ArrayList<>(object.getMap().keySet());
         keyList.sort(Comparator.naturalOrder());
@@ -60,16 +60,16 @@ public class JsonUtils {
     /**
      * @since 2.4
      */
-    @Nonnull
-    public static String getJsonForObjectWhoseItemKeysSorted(@Nonnull JsonObject object) {
+    @NotNull
+    public static String getJsonForObjectWhoseItemKeysSorted(@NotNull JsonObject object) {
         return getSortedJsonObject(object).toString();
     }
 
     public static void filterStackTrace(
             @Nullable StackTraceElement[] stackTrace,
-            @Nonnull Set<String> ignorableStackPackageSet,
-            @Nonnull BiConsumer<String, Integer> ignoredStackTraceItemsConsumer,
-            @Nonnull Consumer<StackTraceElement> stackTraceItemConsumer
+            @NotNull Set<String> ignorableStackPackageSet,
+            @NotNull BiConsumer<String, Integer> ignoredStackTraceItemsConsumer,
+            @NotNull Consumer<StackTraceElement> stackTraceItemConsumer
     ) {
         if (stackTrace != null) {
             String ignoringClassPackage = null;
@@ -115,7 +115,7 @@ public class JsonUtils {
     /**
      * @since 3.0.0
      */
-    @Nonnull
+    @NotNull
     public static String renderJsonToStringBlock(@Nullable String name, @Nullable Object object) {
         if (object == null) {
             return "null";
@@ -128,7 +128,7 @@ public class JsonUtils {
      * @param object Value of entry amongst the entries, or the item amongst the array.
      * @return rendered string block ended with NEW_LINE.
      */
-    @Nonnull
+    @NotNull
     private static String renderJsonItem(@Nullable String key, @Nullable Object object, int indentation, @Nullable String typeMark) {
         StringBuilder subBlock = new StringBuilder();
         if (indentation > 1) {

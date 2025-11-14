@@ -2,8 +2,8 @@ package io.github.sinri.keel.base.async;
 
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.function.Function;
 
 import static io.github.sinri.keel.facade.KeelInstance.Keel;
@@ -24,15 +24,15 @@ import static io.github.sinri.keel.facade.KeelInstance.Keel;
  * @since 4.1.0
  */
 public final class RepeatedlyCallTask {
-    @Nonnull
+    @NotNull
     private final Function<RepeatedlyCallTask, Future<Void>> processor;
     private volatile boolean toStop = false;
 
-    public RepeatedlyCallTask(@Nonnull Function<RepeatedlyCallTask, Future<Void>> processor) {
+    public RepeatedlyCallTask(@NotNull Function<RepeatedlyCallTask, Future<Void>> processor) {
         this.processor = processor;
     }
 
-    public static void start(@Nonnull RepeatedlyCallTask thisTask, @Nonnull Promise<Void> finalPromise) {
+    public static void start(@NotNull RepeatedlyCallTask thisTask, @NotNull Promise<Void> finalPromise) {
         Future.succeededFuture()
               .compose(v -> {
                   if (thisTask.toStop) {

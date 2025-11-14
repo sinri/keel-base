@@ -4,8 +4,8 @@ import io.vertx.core.*;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.streams.ReadStream;
 import io.vertx.core.streams.WriteStream;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -73,7 +73,7 @@ class AsyncOutputReadStreamImpl extends OutputStream implements ReadStream<Buffe
     }
 
 
-    public void wrap(@Nonnull InputStream inputStream) {
+    public void wrap(@NotNull InputStream inputStream) {
         if (started || this.readOverPromise != null) {
             throw new IllegalStateException("Stream has already been wrapped");
         }
@@ -82,7 +82,7 @@ class AsyncOutputReadStreamImpl extends OutputStream implements ReadStream<Buffe
                 .onComplete(readOverPromise);
     }
 
-    @Nonnull
+    @NotNull
     public Promise<Long> getReadOverPromise() {
         return Objects.requireNonNull(readOverPromise, "this stream has not been wrapped yet");
     }
