@@ -1,5 +1,6 @@
 package io.github.sinri.keel.base.utils;
 
+import io.github.sinri.keel.base.KeelInstance;
 import io.github.sinri.keel.base.internal.encryption.base32.Base32;
 import io.vertx.core.buffer.Buffer;
 import org.jetbrains.annotations.NotNull;
@@ -287,7 +288,7 @@ public class StringUtils {
      */
     @NotNull
     public static String renderThrowableChain(@Nullable Throwable throwable) {
-        return renderThrowableChain(throwable, StackUtils.IgnorableCallStackPackage);
+        return renderThrowableChain(throwable, KeelInstance.IgnorableCallStackPackage);
     }
 
     /**

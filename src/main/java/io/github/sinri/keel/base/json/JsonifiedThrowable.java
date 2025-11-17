@@ -1,6 +1,6 @@
 package io.github.sinri.keel.base.json;
 
-import io.github.sinri.keel.base.utils.StackUtils;
+import io.github.sinri.keel.base.KeelInstance;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.jetbrains.annotations.NotNull;
@@ -31,7 +31,7 @@ public class JsonifiedThrowable extends JsonifiableDataUnitImpl {
     }
 
     public static JsonifiedThrowable wrap(@NotNull Throwable throwable) {
-        return wrap(throwable, StackUtils.IgnorableCallStackPackage, true);
+        return wrap(throwable, KeelInstance.IgnorableCallStackPackage, true);
     }
 
     @NotNull

@@ -13,7 +13,9 @@ import io.vertx.core.spi.cluster.ClusterManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * As of 4.0.0, make it final and implement KeelAsyncMixin.
@@ -23,6 +25,7 @@ import java.util.Objects;
  */
 public final class KeelInstance implements KeelAsyncMixin {
     public final static KeelInstance Keel;
+    public static final Set<String> IgnorableCallStackPackage;
 
     static {
         // As of 4.1.3
@@ -32,6 +35,18 @@ public final class KeelInstance implements KeelAsyncMixin {
             // 必须在任何 Vert.x 类被加载之前设置此属性
             System.setProperty("vertx.logger-delegate-factory-class-name", "io.vertx.core.logging.JULLogDelegateFactory");
         }
+
+        IgnorableCallStackPackage = new HashSet<>(Set.of(
+                "io.github.sinri.keel.facade.async.",
+                "io.github.sinri.keel.facade.tesuto.",
+                "io.vertx.core.",
+                "io.vertx.ext.web",
+                "io.netty.",
+                "java.lang.",
+                "jdk.internal.",
+                "io.vertx.mysqlclient",
+                "io.vertx.sqlclient"
+        ));
 
         Keel = new KeelInstance();
     }

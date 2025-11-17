@@ -1,32 +1,17 @@
 package io.github.sinri.keel.base.utils;
 
+import io.github.sinri.keel.base.KeelInstance;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
 public class StackUtils {
-    public static final Set<String> IgnorableCallStackPackage;
-
-    static {
-        IgnorableCallStackPackage = new HashSet<>(Set.of(
-                "io.github.sinri.keel.facade.async.",
-                "io.github.sinri.keel.facade.tesuto.",
-                "io.vertx.core.",
-                "io.vertx.ext.web",
-                "io.netty.",
-                "java.lang.",
-                "jdk.internal.",
-                "io.vertx.mysqlclient",
-                "io.vertx.sqlclient"
-        ));
-    }
 
     @NotNull
     public static String renderThrowableChain(@Nullable Throwable throwable) {
-        return renderThrowableChain(throwable, IgnorableCallStackPackage);
+        return renderThrowableChain(throwable, KeelInstance.IgnorableCallStackPackage);
     }
 
     @NotNull
