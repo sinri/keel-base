@@ -2,14 +2,14 @@ package io.github.sinri.keel.base.internal.logger;
 
 
 import io.github.sinri.keel.base.utils.StringUtils;
-import io.github.sinri.keel.logger.api.consumer.BaseTopicRecordConsumer;
-import io.github.sinri.keel.logger.api.consumer.TopicRecordConsumer;
-import io.github.sinri.keel.logger.api.event.BaseEventRecorder;
-import io.github.sinri.keel.logger.api.event.EventRecorder;
-import io.github.sinri.keel.logger.api.factory.RecorderFactory;
-import io.github.sinri.keel.logger.api.issue.BaseIssueRecorder;
-import io.github.sinri.keel.logger.api.issue.IssueRecord;
-import io.github.sinri.keel.logger.api.issue.IssueRecorder;
+import io.github.sinri.keel.logger.api.consumer.BaseLogWriter;
+import io.github.sinri.keel.logger.api.consumer.LogWriterAdapter;
+import io.github.sinri.keel.logger.api.factory.LoggerFactory;
+import io.github.sinri.keel.logger.api.log.SpecificLog;
+import io.github.sinri.keel.logger.api.logger.BaseLogger;
+import io.github.sinri.keel.logger.api.logger.BaseSpecificLogger;
+import io.github.sinri.keel.logger.api.logger.Logger;
+import io.github.sinri.keel.logger.api.logger.SpecificLogger;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.jetbrains.annotations.NotNull;
@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
-public class KeelStdoutLoggingFactory implements RecorderFactory {
+public class KeelStdoutLoggingFactory implements LoggerFactory {
 
     private final KeelTopicRecordConsumer consumer;
 
@@ -27,21 +27,21 @@ public class KeelStdoutLoggingFactory implements RecorderFactory {
     }
 
     @Override
-    public TopicRecordConsumer sharedTopicRecordConsumer() {
+    public LogWriterAdapter sharedAdapter() {
         return consumer;
     }
 
     @Override
-    public EventRecorder createEventRecorder(@NotNull String topic) {
-        return new BaseEventRecorder(topic, consumer);
+    public Logger createLogger(@NotNull String topic) {
+        return new BaseLogger(topic, consumer);
     }
 
     @Override
-    public <L extends IssueRecord<L>> IssueRecorder<L> createIssueRecorder(@NotNull String topic, @NotNull Supplier<L> issueRecordSupplier) {
-        return new BaseIssueRecorder<>(topic, issueRecordSupplier, consumer);
+    public <L extends SpecificLog<L>> SpecificLogger<L> createLogger(@NotNull String topic, @NotNull Supplier<L> specificLogSupplier) {
+        return new BaseSpecificLogger<>(topic, specificLogSupplier, consumer);
     }
 
-    static class KeelTopicRecordConsumer extends BaseTopicRecordConsumer {
+    static class KeelTopicRecordConsumer extends BaseLogWriter {
         @Override
         public String renderThrowable(@NotNull Throwable throwable) {
             return StringUtils.renderThrowableChain(throwable);
