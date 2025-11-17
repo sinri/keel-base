@@ -17,6 +17,10 @@ module io.github.sinri.keel.base {
     exports io.github.sinri.keel.base.utils.io;
     exports io.github.sinri.keel.base.utils.cron;
     exports io.github.sinri.keel.base.verticles;
+    exports io.github.sinri.keel.base.logger.adapter;
+    exports io.github.sinri.keel.base.logger.factory;
+    exports io.github.sinri.keel.base.logger.logger;
+    exports io.github.sinri.keel.base.logger.metric;
 
     // Open packages for reflection-based serialization (Jackson or others)
     opens io.github.sinri.keel.base.json;
