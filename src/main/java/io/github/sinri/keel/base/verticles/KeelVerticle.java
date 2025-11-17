@@ -12,12 +12,11 @@ import static io.github.sinri.keel.base.KeelInstance.Keel;
 
 
 /**
- * An extension of the {@link Verticle} interface, providing additional functionality and convenience methods.
- * This interface is designed to be implemented by verticles that are part of the Keel framework.
+ * Keel 体系下的 {@link Verticle} 强化标准接口。
  * <p>
  * Note: a possibility to base this class on {@link Deployable}.
  *
- * @since 3.2.0
+ * @since 5.0.0
  */
 public interface KeelVerticle extends Verticle {
 
@@ -25,14 +24,9 @@ public interface KeelVerticle extends Verticle {
     String CONFIG_KEY_OF_VERTICLE_IDENTITY = "verticle_identity";
 
     /**
-     * Creates a new instance of {@link KeelVerticle} that wraps the provided start future supplier.
-     * <p>
-     * If you need to know when the verticle is deployed, so that you can undeploy it, use {@link #instant(Function)}
-     * instead.
+     * 根据给定的启动逻辑创建一个 {@link KeelVerticle} 实例。
      *
-     * @param startFutureSupplier a supplier that provides a future which represents the start operation of the verticle
-     * @return a new instance of {@link KeelVerticle} wrapping the provided start future supplier
-     * @since 4.0.2
+     * @param startFutureSupplier 启动逻辑，返回一个异步完成
      */
     @NotNull
     static KeelVerticle instant(@NotNull Supplier<Future<Void>> startFutureSupplier) {
@@ -40,23 +34,22 @@ public interface KeelVerticle extends Verticle {
     }
 
     /**
-     * Creates a new instance of {@link KeelVerticle} that wraps the provided starter function.
-     * The starter function accepts a Promise that can be used to trigger the verticle's undeployment.
+     * 根据给定的启动逻辑创建一个 {@link KeelVerticle} 实例，并提供外部中断的异步操作透出。
      *
-     * @param starter a function that takes a stop promise and returns a future representing the start operation
-     * @return a new instance of {@link KeelVerticle} wrapping the provided starter function
-     * @since 4.0.12
+     * @param starter 启动逻辑，给定一个停止用的{@link Promise}，返回一个异步完成
      */
     @NotNull
     static KeelVerticle instant(@NotNull Function<Promise<Void>, Future<Void>> starter) {
         return new InstantKeelVerticle(starter);
     }
 
+    @NotNull
+    Vertx vertx();
+
     /**
      * Retrieves the threading model associated with the current execution context of the verticle.
      *
      * @return the threading model of the current context, or {@code null} if not deployed yet.
-     * @since 4.1.5
      */
     @Nullable
     ThreadingModel contextThreadModel();
@@ -65,7 +58,6 @@ public interface KeelVerticle extends Verticle {
      * Returns the unique identifier for the deployment of this verticle.
      *
      * @return the deployment ID as a string, or {@code null} if not deployed yet.
-     * @since 2.8
      */
     @Nullable
     String deploymentID();
@@ -120,7 +112,6 @@ public interface KeelVerticle extends Verticle {
      *
      * @return a future that completes when the undeployment is successful, or fails with an exception if the
      *         undeployment fails
-     * @since 2.8 add default implementation
      */
     default Future<Void> undeployMe() {
         String deploymentID = deploymentID();
@@ -138,7 +129,6 @@ public interface KeelVerticle extends Verticle {
      *
      * @return the identity of the verticle as a string. If the configuration key is absent or null,
      *         a string in the format of "className@deploymentID" is returned.
-     * @since 4.1.5
      */
     @NotNull
     default String verticleIdentity() {

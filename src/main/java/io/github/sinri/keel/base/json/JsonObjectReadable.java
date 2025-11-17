@@ -10,9 +10,9 @@ import java.util.*;
 import java.util.function.Function;
 
 /**
- * An interface for those entities could be read as an JSON object.
+ * 本接口定义了一类可作为 JSON 对象读取的实体。
  *
- * @since 4.1.1
+ * @since 5.0.0
  */
 public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> {
 

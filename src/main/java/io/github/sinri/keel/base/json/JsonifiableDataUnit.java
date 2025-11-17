@@ -12,9 +12,9 @@ import java.util.Map;
 import java.util.function.Function;
 
 /**
- * This class is for data unit.
+ * 本接口定义了一类基于 JSON 对象的数据实体，可读写、转换、重载。
  *
- * @since 4.1.1
+ * @since 5.0.0
  */
 public interface JsonifiableDataUnit
         extends JsonObjectConvertible, JsonObjectReloadable, JsonObjectWritable,

@@ -1,33 +1,20 @@
 package io.github.sinri.keel.base.verticles;
 
-import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Future;
-import io.vertx.core.Promise;
-import io.vertx.core.ThreadingModel;
+import io.vertx.core.*;
 import io.vertx.core.json.JsonObject;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
 import java.util.UUID;
 
 /**
- * An abstract implementation of the {@link KeelVerticle} interface, extending from {@link AbstractVerticle}.
- * This class provides a structured way to implement custom verticles within the Keel framework.
- * <p>
- * The primary responsibility of this class is to manage the lifecycle of the verticle, ensuring that
- * the `start` method is called in a consistent and reliable manner. It also enforces that subclasses
- * must provide an implementation for the `startVerticle` method, which contains the specific logic
- * to be executed when the verticle starts.
- * <p>
- * Subclasses should focus on implementing the `startVerticle` method to define their specific behavior.
- * The `start` method is overridden to ensure that it is not used directly, and the
- * {@code start(Promise<Void> startPromise)}
- * method is implemented to handle the asynchronous startup process, including calling the `startVerticle` method
- * and handling the completion or failure of the startup process.
+ *
+ * 接口 {@link KeelVerticle} 的基础实现，基于 {@link AbstractVerticle}。
  * <p>
  * Note: a possibility to base this class on {@link io.vertx.core.VerticleBase}.
  *
- * @since 4.0.2 remove the logging embeddings.
+ * @since 5.0.0
  */
 public abstract class AbstractKeelVerticle extends AbstractVerticle implements KeelVerticle {
 
@@ -38,12 +25,13 @@ public abstract class AbstractKeelVerticle extends AbstractVerticle implements K
         this.runningState = KeelVerticleRunningStateEnum.BEFORE_RUNNING;
     }
 
-    /**
-     * Retrieves the threading model associated with the current context of the verticle.
-     *
-     * @return the threading model of the current context
-     * @since 4.1.3
-     */
+    @Override
+    @NotNull
+    public Vertx vertx() {
+        Objects.requireNonNull(context);
+        return context.owner();
+    }
+
     @Override
     @Nullable
     public final ThreadingModel contextThreadModel() {
@@ -51,9 +39,6 @@ public abstract class AbstractKeelVerticle extends AbstractVerticle implements K
         return this.context.threadingModel();
     }
 
-    /**
-     * @since 4.1.5
-     */
     @Nullable
     @Override
     public String deploymentID() {
@@ -61,9 +46,6 @@ public abstract class AbstractKeelVerticle extends AbstractVerticle implements K
         return context.deploymentID();
     }
 
-    /**
-     * @since 4.1.5
-     */
     @Nullable
     @Override
     public JsonObject config() {
@@ -72,26 +54,14 @@ public abstract class AbstractKeelVerticle extends AbstractVerticle implements K
     }
 
     /**
-     * This method is the entry point for the verticle's lifecycle. It is called by the Vert.x framework when the
-     * verticle
-     * is deployed. The implementation in this class is final and does nothing, as it is intended to be not overridden
-     * by
-     * subclasses that extend {@link AbstractKeelVerticle}. Subclasses should implement the {@code startVerticle} method
-     * instead,
-     * which is called within the asynchronous startup process.
+     * 封印。
      */
     @Override
     public final void start() {
     }
 
     /**
-     * Asynchronously starts the verticle and handles the startup process.
-     * This method is called by the Vert.x framework when the verticle is deployed.
-     * It ensures that the `startVerticle` method, which contains the specific logic
-     * to be executed during the startup, is called in a consistent and reliable manner.
-     *
-     * @param startPromise a promise that will be completed when the verticle starts successfully,
-     *                     or failed with an exception if the startup fails
+     * 固有实现。
      */
     @Override
     public final void start(Promise<Void> startPromise) {
@@ -112,19 +82,23 @@ public abstract class AbstractKeelVerticle extends AbstractVerticle implements K
     }
 
     /**
-     * Starts the verticle and returns a future that completes when the verticle has started successfully,
-     * or fails with an exception if the startup process encounters an error.
+     * 启动逻辑。
      *
-     * @return a {@link Future} that completes with {@code null} when the verticle starts successfully,
-     *         or fails with an exception if the startup process fails
+     * @return 如果正常异步返回则部署正常运作；否则部署失败。
      */
     protected abstract Future<Void> startVerticle();
 
+    /**
+     * 封印
+     */
     @Override
     public final void stop() {
 
     }
 
+    /**
+     * 固有实现
+     */
     @Override
     public final void stop(Promise<Void> stopPromise) {
         stopVerticle()
@@ -134,6 +108,11 @@ public abstract class AbstractKeelVerticle extends AbstractVerticle implements K
                 });
     }
 
+    /**
+     * 停止逻辑。
+     *
+     * @return 如果正常异步返回则解除部署正常结束；否则解除部署失败。
+     */
     protected Future<Void> stopVerticle() {
         return Future.succeededFuture();
     }

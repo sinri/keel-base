@@ -6,38 +6,36 @@ import org.jetbrains.annotations.NotNull;
 import java.util.function.Supplier;
 
 
-
+/**
+ * 异步独占运行机制。
+ *
+ * @since 5.0.0
+ */
 interface KeelAsyncMixinLock extends KeelAsyncMixinCore {
     /**
-     * Executes a supplier asynchronously while ensuring exclusive access to a given
-     * lock.
+     * 在Vertx 的锁机制下，独占运行一段异步逻辑。
+     * <p>
+     * 尝试在制定时间限制内获取锁，并运行异步逻辑，执行完毕后释放锁。
      *
-     * @param <T>               the type of the result returned by the supplier
-     * @param lockName          the name of the lock to be used for ensuring
-     *                          exclusivity
-     * @param waitTimeForLock   the maximum time in milliseconds to wait for
-     *                          acquiring the lock
-     * @param exclusiveSupplier the supplier that provides a future, which will be
-     *                          executed exclusively
-     * @return a future representing the asynchronous computation result
+     * @param <T>               异步逻辑的返回值类型
+     * @param lockName          锁名称
+     * @param waitTimeForLock   最长锁等待时间，以毫秒计
+     * @param exclusiveSupplier 需要独占运行的异步逻辑
+     * @return 异步逻辑的结果；如果锁获取失败，则会异步返回相应失败。
      */
     default <T> Future<T> asyncCallExclusively(@NotNull String lockName, long waitTimeForLock,
                                                @NotNull Supplier<Future<T>> exclusiveSupplier) {
         return getVertx().sharedData()
-                       .getLockWithTimeout(lockName, waitTimeForLock)
-                       .compose(lock -> Future.succeededFuture()
-                                          .compose(v -> exclusiveSupplier.get())
-                                          .andThen(ar -> lock.release()));
+                         .getLockWithTimeout(lockName, waitTimeForLock)
+                         .compose(lock -> Future.succeededFuture()
+                                                .compose(v -> exclusiveSupplier.get())
+                                                .andThen(ar -> lock.release()));
     }
 
     /**
-     * Executes the given supplier asynchronously with an exclusive lock.
-     *
-     * @param <T>               the type of the result produced by the supplier
-     * @param lockName          the name of the lock to be used for exclusivity
-     * @param exclusiveSupplier the supplier that produces a future, which will be
-     *                          executed exclusively
-     * @return a future representing the asynchronous computation
+     * 在Vertx 的锁机制下，独占运行一段异步逻辑。
+     * <p>
+     * 和 {@link KeelAsyncMixinLock#asyncCallExclusively(String, long, Supplier)} 逻辑一致，锁等待时间默认 1 秒。
      */
     default <T> Future<T> asyncCallExclusively(@NotNull String lockName,
                                                @NotNull Supplier<Future<T>> exclusiveSupplier) {

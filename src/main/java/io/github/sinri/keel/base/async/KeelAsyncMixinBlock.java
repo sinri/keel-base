@@ -9,14 +9,24 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Supplier;
 
-
+/**
+ * 本接口包含了方法定义，支持将同步阻塞调用异步化。
+ *
+ * @since 5.0.0
+ */
 interface KeelAsyncMixinBlock extends KeelAsyncMixinLogic {
     private boolean isInNonBlockContext() {
         Context currentContext = Vertx.currentContext();
         return currentContext != null && currentContext.isEventLoopContext();
     }
 
-    @TechnicalPreview(since = "4.1.1", notice = "Require JDK 21+")
+    /**
+     * 在虚拟线程中运行给定的异步逻辑。
+     *
+     * @param function 一个需要在虚拟线程中运行的异步逻辑
+     * @return 在虚拟线程中运行给定逻辑之后的 Future，或相关失败 Future。
+     */
+    @TechnicalPreview(notice = "Require JDK 21+")
     @NotNull
     default Future<Void> runInVerticleOnVirtualThread(@NotNull Supplier<Future<Void>> function) {
         return KeelVerticle.instant(promise -> Future.succeededFuture()
@@ -27,6 +37,13 @@ interface KeelAsyncMixinBlock extends KeelAsyncMixinLogic {
                            .compose(s -> Future.succeededFuture());
     }
 
+    /**
+     * 将 {@link CompletableFuture} 转换为 {@link Future}。
+     *
+     * @param completableFuture 给定的 {@link CompletableFuture}
+     * @param <R>               异步返回值的类型
+     * @return 转换好的 {@link Future}
+     */
     default <R> Future<R> asyncTransformCompletableFuture(@NotNull CompletableFuture<R> completableFuture) {
         Promise<R> promise = Promise.promise();
         Context currentContext = Vertx.currentContext();
@@ -58,6 +75,13 @@ interface KeelAsyncMixinBlock extends KeelAsyncMixinLogic {
         return promise.future();
     }
 
+    /**
+     * 将 {@link java.util.concurrent.Future} 转换为 {@link Future}。
+     *
+     * @param rawFuture 给定的 {@link java.util.concurrent.Future}
+     * @param <R>       异步返回值的类型
+     * @return 转换好的 {@link Future}
+     */
     default <R> Future<R> asyncTransformRawFuture(@NotNull java.util.concurrent.Future<R> rawFuture) {
         if (isInNonBlockContext()) {
             return getVertx().executeBlocking(rawFuture::get);
@@ -71,6 +95,14 @@ interface KeelAsyncMixinBlock extends KeelAsyncMixinLogic {
         }
     }
 
+    /**
+     * 将 {@link java.util.concurrent.Future} 转换为 {@link Future}。
+     *
+     * @param rawFuture 给定的 {@link java.util.concurrent.Future}
+     * @param sleepTime 等待时间，单位毫秒
+     * @param <R>       异步返回值的类型
+     * @return 转换好的 {@link Future}
+     */
     default <R> Future<R> asyncTransformRawFuture(@NotNull java.util.concurrent.Future<R> rawFuture, long sleepTime) {
         return asyncCallRepeatedly(repeatedlyCallTask -> {
             if (rawFuture.isDone()) {
@@ -93,9 +125,18 @@ interface KeelAsyncMixinBlock extends KeelAsyncMixinLogic {
                 });
     }
 
+    /**
+     * 阻塞等待一个异步任务完成。
+     * <p>
+     * 本方法不应该在 EventLoop 里执行。
+     *
+     * @param longTermAsyncProcessFuture 一个耗时的异步任务所返回的 {@link Future}
+     * @param <T>                        异步任务返回的值的类型
+     * @return 异步任务返回的值
+     */
     default <T> T blockAwait(Future<T> longTermAsyncProcessFuture) {
         if (isInNonBlockContext()) {
-            throw new IllegalCallerException("Cannot call blockAwait in event loop context");
+            throw new IllegalThreadStateException("Cannot call blockAwait in event loop context");
         }
 
         CompletableFuture<T> cf = new CompletableFuture<>();

@@ -4,7 +4,7 @@ import io.vertx.core.json.JsonObject;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * An interface for those entities could be reloaded with a JSON Object.
+ * 本接口定义了一类可通过 JSON 对象重载数据的实体。
  *
  * @since 4.1.1
  */

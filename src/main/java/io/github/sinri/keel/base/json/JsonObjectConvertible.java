@@ -4,9 +4,9 @@ import io.vertx.core.json.JsonObject;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * An interface for those entities could be serialized as a JSON Object.
+ * 本接口定义了一类可组装或转换为 JSON 对象的实体。
  *
- * @since 4.1.1
+ * @since 5.0.0
  */
 public interface JsonObjectConvertible extends JsonSerializable {
     /**

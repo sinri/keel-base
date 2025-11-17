@@ -8,13 +8,11 @@ import java.lang.reflect.InvocationTargetException;
 
 
 /**
- * An interface representing an unmodifiable entity that can be converted to a JSON object.
- * This interface extends {@link Iterable} and {@link Shareable}, providing methods to read various types of values from
- * the underlying JSON structure.
+ * 本接口定义了一类基于 JSON 对象的只读封装。
  * <p>
- * The implementation is expected to provide a constructor accept one only parameter as {@link JsonObject}.
+ * 本接口的实现类应提供一个构造函数，接受 {@link JsonObject} 类型的唯一参数。
  *
- * @since 3.0.0
+ * @since 5.0.0
  */
 public interface UnmodifiableJsonifiableEntity
         extends JsonObjectReadable, JsonSerializable, Shareable {

@@ -1,6 +1,6 @@
 package io.github.sinri.keel.base.json;
 
-import io.github.sinri.keel.base.KeelInstance;
+import io.github.sinri.keel.logger.api.LoggingStackSpecification;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.jetbrains.annotations.NotNull;
@@ -15,14 +15,11 @@ import java.util.function.Consumer;
 
 
 /**
- * A JSON CODEC REGISTER action is required, i.e.
- * {@link JsonifiableSerializer#register()}, to ensure this class to work
- * correctly.
+ * 被 JSON 化的异常对象。
  * <p>
- * As of 4.1.5, it extends {@link JsonifiableDataUnitImpl} to provide a non generic JSON data class.
+ * 需要提前注册 JSON CODEC ，如执行 {@link JsonifiableSerializer#register()}，才能正常运作。
  *
- * @since 4.1.0
- *
+ * @since 5.0.0
  */
 public class JsonifiedThrowable extends JsonifiableDataUnitImpl {
 
@@ -31,7 +28,7 @@ public class JsonifiedThrowable extends JsonifiableDataUnitImpl {
     }
 
     public static JsonifiedThrowable wrap(@NotNull Throwable throwable) {
-        return wrap(throwable, KeelInstance.IgnorableCallStackPackage, true);
+        return wrap(throwable, LoggingStackSpecification.IgnorableCallStackPackage, true);
     }
 
     @NotNull
@@ -66,10 +63,6 @@ public class JsonifiedThrowable extends JsonifiableDataUnitImpl {
         return x;
     }
 
-    /**
-     * @since 2.9 original name: buildStackChainText
-     * @since 3.0.0 become private and renamed to filterStackTraceToJsonArray
-     */
     @NotNull
     private static List<JsonifiedCallStackItem> filterStackTraceAndReduce(
             @Nullable StackTraceElement[] stackTrace,
@@ -116,6 +109,7 @@ public class JsonifiedThrowable extends JsonifiableDataUnitImpl {
             String ignoringClassPackage = null;
             int ignoringCount = 0;
             for (StackTraceElement stackTranceItem : stackTrace) {
+                if (stackTranceItem == null) continue;
                 String className = stackTranceItem.getClassName();
                 String matchedClassPackage = null;
                 for (var cp : ignorableStackPackageSet) {

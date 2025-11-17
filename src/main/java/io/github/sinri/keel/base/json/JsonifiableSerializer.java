@@ -11,15 +11,11 @@ import io.vertx.core.json.jackson.DatabindCodec;
 import java.io.IOException;
 
 /**
- * Implements Jackson Databind Serializer for {@link JsonSerializable}.
+ * 针对 {@link JsonSerializable} 接口的兼容实体，实现 Jackson Databind Serializer。
  * <p>
- * Must call {@link JsonifiableSerializer#register()} before using any classes which implements
- * {@link JsonSerializable}.
- * <p>
- * As of 4.1.1, the serializer support scope moved from {@link UnmodifiableJsonifiableEntity} to
- * {@link JsonSerializable}.
+ * 必须在程序运行之初，{@link JsonSerializable} 的子类工作之前，调用 {@link JsonifiableSerializer#register()} 。
  *
- * @since 4.1.0
+ * @since 5.0.0
  */
 public class JsonifiableSerializer extends JsonSerializer<JsonSerializable> {
     private static final ObjectMapper objectMapper = new ObjectMapper();

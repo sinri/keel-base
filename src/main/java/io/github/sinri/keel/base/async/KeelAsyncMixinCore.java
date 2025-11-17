@@ -5,31 +5,37 @@ import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import org.jetbrains.annotations.Nullable;
 
-
+/**
+ * Keel 异步能力调用的核心定义。
+ *
+ * @since 5.0.0
+ */
 interface KeelAsyncMixinCore {
+    /**
+     * 获得一个 Vertx 实例。所有异步任务均基于此 Vertx 实例进行。
+     *
+     * @return 用于一切异步逻辑的 Vertx 实例。
+     */
     Vertx getVertx();
 
     /**
-     * Asynchronously sleeps for a specified amount of time.
+     * 非阻塞地{@code 睡眠}一段时间。
+     * <p>
+     * 注意，这并不是真正意义上的线程睡眠，而是通过定时回调机制实现的，因此并不会阻塞线程，也不会阻止进程退出。
      *
-     * @param time the duration to sleep in milliseconds
-     * @return a Future that completes after the specified time has elapsed
+     * @param time 以毫秒计的时间，有效值最小为 1 毫秒；如果值无效会强制置为 1毫秒。
+     * @return 一个{@link Future}，表示设定时间已到
      */
     default Future<Void> asyncSleep(long time) {
         return asyncSleep(time, null);
     }
 
     /**
-     * Asynchronously sleeps for a specified amount of time, with an optional
-     * interrupter.
+     * 非阻塞地{@code 睡眠}一段时间，并允许（提前）主动中断。
      *
-     * @param time        the duration to sleep in milliseconds. If less than 1, it
-     *                    will be set to 1.
-     * @param interrupter an optional Promise that, when completed, will cancel the
-     *                    sleep and complete the returned
-     *                    Future.
-     * @return a Future that completes after the specified time has elapsed, or is
-     *         interrupted by the interrupter.
+     * @param time        以毫秒计的时间，有效值最小为 1 毫秒；如果值无效会强制置为 1毫秒。
+     * @param interrupter 一个可选的{@link Promise}，供异步中断
+     * @return 一个{@link Future}，表示设定时间已到，或设置的中断被触发。
      */
     default Future<Void> asyncSleep(long time, @Nullable Promise<Void> interrupter) {
         Promise<Void> promise = Promise.promise();

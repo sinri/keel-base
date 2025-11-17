@@ -8,20 +8,34 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.function.Function;
 
+/**
+ * 异步并行逻辑
+ *
+ * @since 5.0.0
+ */
 interface KeelAsyncMixinParallel extends KeelAsyncMixinCore {
+    @NotNull
+    private <T> List<Future<Void>> buildFutures(@NotNull Iterator<T> iterator, @NotNull Function<T, Future<Void>> itemProcessor) {
+        List<Future<Void>> futures = new ArrayList<>();
+        while (iterator.hasNext()) {
+            Future<Void> f = itemProcessor.apply(iterator.next());
+            futures.add(f);
+        }
+        return futures;
+    }
+
+    @NotNull
+    private <T> List<Future<Void>> buildFutures(@NotNull Iterable<T> iterable, @NotNull Function<T, Future<Void>> itemProcessor) {
+        return buildFutures(iterable.iterator(), itemProcessor);
+    }
+
     /**
-     * Executes a given function in parallel for all items in the provided
-     * collection, returning a future that completes
-     * when all individual futures produced by the function have successfully
-     * completed.
+     * 基于一个可迭代物，迭代触发异步逻辑进行并行执行；各异步任务均成功才视为本次调用成功。
      *
-     * @param <T>           the type of elements in the collection
-     * @param collection    the iterable collection of items to process
-     * @param itemProcessor the function to apply to each item, which returns a
-     *                      future
-     * @return a Future that completes with Void when all the futures returned by
-     *         the itemProcessor have succeeded
-     * @since 4.0.2
+     * @param <T>           可迭代物的迭代对象的类型
+     * @param collection    可迭代物
+     * @param itemProcessor 针对迭代对象的异步处理逻辑
+     * @return 一个异步结果，各异步任务均成功才返回成功，否则返回失败
      */
     default <T> Future<Void> parallelForAllSuccess(@NotNull Iterable<T> collection,
                                                    @NotNull Function<T, Future<Void>> itemProcessor) {
@@ -29,26 +43,16 @@ interface KeelAsyncMixinParallel extends KeelAsyncMixinCore {
     }
 
     /**
-     * Executes a given function in parallel for all items in the provided iterator,
-     * returning a future that completes
-     * when all individual futures produced by the function have successfully
-     * completed.
+     * 基于一个迭代器，迭代触发异步逻辑进行并行执行；各异步任务均成功才视为本次调用成功。
      *
-     * @param <T>           the type of elements in the iterator
-     * @param iterator      the iterator of items to process
-     * @param itemProcessor the function to apply to each item, which returns a
-     *                      future
-     * @return a Future that completes with Void when all the futures returned by
-     *         the itemProcessor have succeeded
-     * @since 4.0.2
+     * @param <T>           迭代器的迭代对象的类型
+     * @param iterator      迭代器
+     * @param itemProcessor 针对迭代对象的异步处理逻辑
+     * @return 一个异步结果，各异步任务均成功才返回成功，否则返回失败
      */
     default <T> Future<Void> parallelForAllSuccess(@NotNull Iterator<T> iterator,
                                                    @NotNull Function<T, Future<Void>> itemProcessor) {
-        List<Future<Void>> futures = new ArrayList<>();
-        while (iterator.hasNext()) {
-            Future<Void> f = itemProcessor.apply(iterator.next());
-            futures.add(f);
-        }
+        List<Future<Void>> futures = buildFutures(iterator, itemProcessor);
         if (futures.isEmpty()) {
             return Future.succeededFuture();
         }
@@ -57,18 +61,12 @@ interface KeelAsyncMixinParallel extends KeelAsyncMixinCore {
     }
 
     /**
-     * Executes a given function in parallel for all items in the provided
-     * collection, returning a future that completes
-     * when any of the individual futures produced by the function has successfully
-     * completed.
+     * 基于一个可迭代物，迭代触发异步逻辑进行并行执行；有一个异步任务成功即视为本次调用成功。
      *
-     * @param <T>           the type of elements in the collection
-     * @param collection    the iterable collection of items to process
-     * @param itemProcessor the function to apply to each item, which returns a
-     *                      future
-     * @return a Future that completes with Void when any of the futures returned by
-     *         the itemProcessor have succeeded
-     * @since 4.0.2
+     * @param <T>           可迭代物的迭代对象的类型
+     * @param collection    可迭代物
+     * @param itemProcessor 针对迭代对象的异步处理逻辑
+     * @return 一个异步结果，有一个异步任务成功即返回成功，否则返回失败
      */
     default <T> Future<Void> parallelForAnySuccess(@NotNull Iterable<T> collection,
                                                    @NotNull Function<T, Future<Void>> itemProcessor) {
@@ -76,26 +74,17 @@ interface KeelAsyncMixinParallel extends KeelAsyncMixinCore {
     }
 
     /**
-     * Executes a given function in parallel for all items in the provided iterator,
-     * returning a future that completes
-     * when any of the individual futures produced by the function has successfully
-     * completed.
+     * 基于一个迭代器，迭代触发异步逻辑进行并行执行；有一个异步任务成功即视为本次调用成功。
      *
-     * @param <T>           the type of elements in the iterator
-     * @param iterator      the iterator of items to process
-     * @param itemProcessor the function to apply to each item, which returns a
-     *                      future
-     * @return a Future that completes with Void when any of the futures returned by
-     *         the itemProcessor have succeeded
+     * @param <T>           迭代器的迭代对象的类型
+     * @param iterator      迭代器
+     * @param itemProcessor 针对迭代对象的异步处理逻辑
+     * @return 一个异步结果，有一个异步任务成功即返回成功，否则返回失败
      * @since 4.0.2
      */
     default <T> Future<Void> parallelForAnySuccess(@NotNull Iterator<T> iterator,
                                                    @NotNull Function<T, Future<Void>> itemProcessor) {
-        List<Future<Void>> futures = new ArrayList<>();
-        while (iterator.hasNext()) {
-            Future<Void> f = itemProcessor.apply(iterator.next());
-            futures.add(f);
-        }
+        List<Future<Void>> futures = buildFutures(iterator, itemProcessor);
         if (futures.isEmpty()) {
             return Future.succeededFuture();
         }
@@ -104,18 +93,12 @@ interface KeelAsyncMixinParallel extends KeelAsyncMixinCore {
     }
 
     /**
-     * Executes a given function in parallel for all items in the provided
-     * collection, returning a future that completes
-     * when all individual futures produced by the function have completed,
-     * regardless of success or failure.
+     * 基于一个可迭代物，迭代触发异步逻辑进行并行执行；所有一个异步任务都执行完毕后视为本次调用成功。
      *
-     * @param <T>           the type of elements in the collection
-     * @param collection    the iterable collection of items to process
-     * @param itemProcessor the function to apply to each item, which returns a
-     *                      future
-     * @return a Future that completes with Void when all the futures returned by
-     *         the itemProcessor have completed
-     * @since 4.0.2
+     * @param <T>           可迭代物的迭代对象的类型
+     * @param collection    可迭代物
+     * @param itemProcessor 针对迭代对象的异步处理逻辑
+     * @return 一个异步结果，所有一个异步任务都执行完毕后返回成功，否则返回失败
      */
     default <T> Future<Void> parallelForAllComplete(@NotNull Iterable<T> collection,
                                                     @NotNull Function<T, Future<Void>> itemProcessor) {
@@ -123,26 +106,17 @@ interface KeelAsyncMixinParallel extends KeelAsyncMixinCore {
     }
 
     /**
-     * Executes a given function in parallel for all items in the provided iterator,
-     * returning a future that completes
-     * when all individual futures produced by the function have completed,
-     * regardless of success or failure.
+     * 基于一个迭代器，迭代触发异步逻辑进行并行执行；所有一个异步任务都执行完毕后视为本次调用成功。
      *
-     * @param <T>           the type of elements in the iterator
-     * @param iterator      the iterator of items to process
-     * @param itemProcessor the function to apply to each item, which returns a
-     *                      future
-     * @return a Future that completes with Void when all the futures returned by
-     *         the itemProcessor have completed
+     * @param <T>           迭代器的迭代对象的类型
+     * @param iterator      迭代器
+     * @param itemProcessor 针对迭代对象的异步处理逻辑
+     * @return 一个异步结果，所有一个异步任务都执行完毕后返回成功，否则返回失败
      * @since 4.0.2
      */
     default <T> Future<Void> parallelForAllComplete(@NotNull Iterator<T> iterator,
                                                     @NotNull Function<T, Future<Void>> itemProcessor) {
-        List<Future<Void>> futures = new ArrayList<>();
-        while (iterator.hasNext()) {
-            Future<Void> f = itemProcessor.apply(iterator.next());
-            futures.add(f);
-        }
+        List<Future<Void>> futures = buildFutures(iterator, itemProcessor);
         if (futures.isEmpty()) {
             return Future.succeededFuture();
         }

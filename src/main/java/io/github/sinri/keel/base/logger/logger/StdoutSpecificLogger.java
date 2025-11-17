@@ -8,9 +8,9 @@ import org.jetbrains.annotations.NotNull;
 import java.util.function.Supplier;
 
 /**
- * Keel 体系下的面向标准输出的特定问题记录器。
+ * 面向标准输出的特定日志记录器。
  *
- * @param <T> 特定问题记录的类型
+ * @param <T> 特定日志的类型
  * @since 5.0.0
  */
 public class StdoutSpecificLogger<T extends SpecificLog<T>> extends BaseSpecificLogger<T> {

@@ -4,9 +4,9 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
 /**
- * An interface for those entities could be read and write as an JSON object.
+ * 本接口定义了一类可作为 JSON 对象写入的实体。
  *
- * @since 4.1.1
+ * @since 5.0.0
  */
 public interface JsonObjectWritable extends JsonObjectReadable {
     /**

@@ -1,8 +1,7 @@
 package io.github.sinri.keel.base;
 
-import io.github.sinri.keel.base.annotations.TechnicalPreview;
 import io.github.sinri.keel.base.async.KeelAsyncMixin;
-import io.github.sinri.keel.base.configuration.KeelConfigElement;
+import io.github.sinri.keel.base.configuration.ConfigElement;
 import io.github.sinri.keel.base.logger.factory.StdoutLoggerFactory;
 import io.github.sinri.keel.logger.api.factory.LoggerFactory;
 import io.vertx.core.Future;
@@ -13,47 +12,28 @@ import io.vertx.core.spi.cluster.ClusterManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
 
 /**
- * As of 4.0.0, make it final and implement KeelAsyncMixin.
+ * Keel 体系的运行时锚点。
  *
- * @since 3.1.0
- *
+ * @since 5.0.0
  */
 public final class KeelInstance implements KeelAsyncMixin {
     public final static KeelInstance Keel;
-    public static final Set<String> IgnorableCallStackPackage;
 
     static {
-        // As of 4.1.3
         String loggingProperty = System.getProperty("vertx.logger-delegate-factory-class-name");
         if (loggingProperty == null) {
             // 显式设置 Vert.x 日志提供者，避免自动探测失败导致 LoggerFactory 初始化异常
             // 必须在任何 Vert.x 类被加载之前设置此属性
             System.setProperty("vertx.logger-delegate-factory-class-name", "io.vertx.core.logging.JULLogDelegateFactory");
         }
-
-        IgnorableCallStackPackage = new HashSet<>(Set.of(
-                "io.github.sinri.keel.facade.async.",
-                "io.github.sinri.keel.facade.tesuto.",
-                "io.vertx.core.",
-                "io.vertx.ext.web",
-                "io.netty.",
-                "java.lang.",
-                "jdk.internal.",
-                "io.vertx.mysqlclient",
-                "io.vertx.sqlclient"
-        ));
-
         Keel = new KeelInstance();
     }
 
     @NotNull
-    private final KeelConfigElement configuration;
-    //private final Map<String, Object> register = new ConcurrentHashMap<>();
+    private final ConfigElement configuration;
     @Nullable
     private ClusterManager clusterManager;
     @Nullable
@@ -62,12 +42,12 @@ public final class KeelInstance implements KeelAsyncMixin {
     private LoggerFactory loggerFactory;
 
     private KeelInstance() {
-        this.configuration = new KeelConfigElement("");
+        this.configuration = new ConfigElement("");
         this.loggerFactory = StdoutLoggerFactory.getInstance();
     }
 
     @NotNull
-    public KeelConfigElement getConfiguration() {
+    public ConfigElement getConfiguration() {
         return configuration;
     }
 
@@ -84,11 +64,11 @@ public final class KeelInstance implements KeelAsyncMixin {
     @Nullable
     public String config(@NotNull String dotJoinedKeyChain) {
         String[] split = dotJoinedKeyChain.split("\\.");
-        KeelConfigElement keelConfigElement = this.getConfiguration().extract(split);
-        if (keelConfigElement == null) {
+        ConfigElement configElement = this.getConfiguration().extract(split);
+        if (configElement == null) {
             return null;
         }
-        return keelConfigElement.getValueAsString();
+        return configElement.getValueAsString();
     }
 
     @Override
@@ -142,10 +122,7 @@ public final class KeelInstance implements KeelAsyncMixin {
      * This method is designed for Unit Test with JUnit5, in {@code @BeforeEach} methods or constructor.
      * <p>
      * Do not call this method in your own code!
-     *
-     * @since 4.1.1
      */
-    @TechnicalPreview(since = "4.1.1")
     public void initializeVertx(@NotNull Vertx vertx) {
         if (this.vertx != null && !Objects.equals(vertx, this.vertx)) {
             // Keel.getLogger().info("Re-initialize Vertx from " + this.vertx + " to " + vertx + ".");
@@ -157,20 +134,6 @@ public final class KeelInstance implements KeelAsyncMixin {
     public boolean isRunningInVertxCluster() {
         return getVertx().isClustered();
     }
-
-    //    /**
-    //     * @since 4.0.2 To acquire an instant logger for those logs without designed topic. By default, it is print to
-    //     *         stdout and only WARNING and above may be recorded. If you want to debug locally, just get it and reset
-    //     *         its visible level.
-    //     */
-    //    @Nonnull
-    //    public EventRecorder<String> getLogger() {
-    //        return Objects.requireNonNull(logger);
-    //    }
-    //
-    //    public void setLogger(@Nonnull EventRecorder<String> logger) {
-    //        this.logger = logger;
-    //    }
 
     public Future<Void> gracefullyClose(@NotNull io.vertx.core.Handler<Promise<Void>> promiseHandler) {
         Promise<Void> promise = Promise.promise();
@@ -187,20 +150,4 @@ public final class KeelInstance implements KeelAsyncMixin {
     public Future<Void> close() {
         return gracefullyClose(Promise::complete);
     }
-
-    //    public void saveToRegister(@Nonnull String name, @Nullable Object anything) {
-    //        if (anything == null) {
-    //            register.remove(name);
-    //        } else {
-    //            register.put(name, anything);
-    //        }
-    //    }
-    //
-    //    @Nullable
-    //    @SuppressWarnings("unchecked")
-    //    public <R> R getFromRegister(String name) {
-    //        var r = register.get(name);
-    //        if (r == null) return null;
-    //        return (R) r;
-    //    }
 }

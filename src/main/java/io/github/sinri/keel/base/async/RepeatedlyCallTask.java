@@ -9,18 +9,15 @@ import java.util.function.Function;
 
 
 /**
- * A utility class designed to repeatedly execute a task until it is explicitly
- * stopped.
- * The task is represented by a {@link Function} that takes an instance of this
- * class and
- * returns a {@code Future<Void>}. The task will continue to be executed with a
- * delay of 1 millisecond
- * between each execution, unless the stop method is called or the task itself
- * fails.
+ * 异步循环任务。
+ * <p>
+ * 包含一个异步的循环体，以间隔 1 毫秒的节奏循环执行；
+ * 每次任务循环结束时，检查任务结束标记确认是否结束循环；
+ * 当循环执行任务中抛出异常引发异步失败，则循环强制结束并向外抛出该根因异常。
  *
  * @see #start(Vertx, RepeatedlyCallTask, Promise)
  * @see #stop()
- * @since 4.1.0
+ * @since 5.0.0
  */
 public final class RepeatedlyCallTask {
     @NotNull

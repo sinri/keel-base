@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static io.github.sinri.keel.base.KeelInstance.Keel;
 
 /**
- * 一个基于队列处理的主题化日志记录持久处理器实现。
+ * 一个基于队列处理的持久性日志写入适配器实现。
  *
  * @since 5.0.0
  */

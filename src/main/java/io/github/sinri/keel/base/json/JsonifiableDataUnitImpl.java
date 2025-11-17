@@ -4,7 +4,11 @@ import io.vertx.core.json.JsonObject;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * @since 4.1.1
+ * 接口 {@link JsonifiableDataUnit} 的基本实现。
+ * <p>
+ * 自定义数据类可通过继承本类快速实现。
+ *
+ * @since 5.0.0
  */
 public class JsonifiableDataUnitImpl implements JsonifiableDataUnit {
     @NotNull

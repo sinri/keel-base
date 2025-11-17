@@ -12,16 +12,17 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+/**
+ * 异步逻辑封装。
+ *
+ * @since 5.0.0
+ */
 interface KeelAsyncMixinLogic extends KeelAsyncMixinCore {
     /**
-     * Initiates a task that will be called repeatedly until the task itself signals
-     * to stop.
+     * 执行基于给定的异步循环任务的异步循环调用。
      *
-     * @param repeatedlyCallTask the task to be executed repeatedly, which includes
-     *                           a processor function and a stopping
-     *                           condition
-     * @return a Future that completes with Void when the repeatedly called task has
-     *         finished its execution
+     * @param repeatedlyCallTask 给定的异步循环任务
+     * @return 异步循环执行结果
      */
     private Future<Void> asyncCallRepeatedly(@NotNull RepeatedlyCallTask repeatedlyCallTask) {
         Promise<Void> promise = Promise.promise();
@@ -30,39 +31,23 @@ interface KeelAsyncMixinLogic extends KeelAsyncMixinCore {
     }
 
     /**
-     * Initiates a task that will be called repeatedly until the task itself signals
-     * to stop.
+     * 执行基于给定的异步循环任务的异步循环调用。
      *
-     * @param processor the function that defines the task to be executed and
-     *                  returns a future. The function is provided
-     *                  with
-     *                  a {@link RepeatedlyCallTask} instance, which can be used to
-     *                  signal the task to stop by calling
-     *                  its
-     *                  {@code stop()} method.
-     * @return a Future that completes with Void when the repeatedly called task has
-     *         finished its execution.
+     * @param processor 用于构建异步循环任务的循环逻辑
+     * @return 异步循环执行结果
      */
     default Future<Void> asyncCallRepeatedly(@NotNull Function<RepeatedlyCallTask, Future<Void>> processor) {
         return asyncCallRepeatedly(new RepeatedlyCallTask(processor));
     }
 
     /**
-     * Processes items from the given iterator in batches, invoking a provided
-     * processor function for each batch.
-     * The method continues to process items until the iterator is exhausted. The
-     * size of each batch is determined
-     * by the batchSize parameter. If the iterator has fewer items than the
-     * specified batch size, the remaining items
-     * are processed as the final batch.
+     * 针对一个迭代器，基于异步循环调用，进行异步批量迭代执行，并可以按需在迭代执行方法体里提前中断任务。
      *
-     * @param <T>            the type of elements in the iterator
-     * @param iterator       the iterator of items to process
-     * @param itemsProcessor the function to apply to each batch of items, which
-     *                       returns a future
-     * @param batchSize      the number of items to process in each batch
-     * @return a Future that completes with Void when all the futures returned by
-     *         the itemsProcessor have completed
+     * @param <T>            迭代器内的迭代对象类型
+     * @param iterator       迭代器
+     * @param itemsProcessor 批量迭代执行逻辑
+     * @param batchSize      批量执行量
+     * @return 异步循环执行结果
      */
     default <T> Future<Void> asyncCallIteratively(
             @NotNull Iterator<T> iterator,
@@ -92,14 +77,12 @@ interface KeelAsyncMixinLogic extends KeelAsyncMixinCore {
     }
 
     /**
-     * Asynchronously processes items from the provided iterator in batches.
+     * 针对一个迭代器，基于异步循环调用，进行异步批量迭代执行。
      *
-     * @param iterator       the iterator that provides the items to be processed
-     * @param itemsProcessor a function that takes a list of items and returns a
-     *                       future representing the asynchronous
-     *                       processing of these items
-     * @param batchSize      the number of items to process in each batch
-     * @return a future that completes when all items have been processed
+     * @param iterator       迭代器
+     * @param itemsProcessor 批量迭代执行逻辑
+     * @param batchSize      批量执行量
+     * @return 异步循环执行结果
      */
     default <T> Future<Void> asyncCallIteratively(
             @NotNull Iterator<T> iterator,
@@ -112,14 +95,13 @@ interface KeelAsyncMixinLogic extends KeelAsyncMixinCore {
     }
 
     /**
-     * Asynchronously processes items from the given iterable in batches.
+     * 针对一个可迭代物，基于异步循环调用，进行异步批量迭代执行。
      *
-     * @param <T>            the type of elements in the iterable
-     * @param iterable       the iterable containing items to be processed
-     * @param itemsProcessor a function that takes a list of items and a task, and
-     *                       returns a {@code Future<Void>}
-     * @param batchSize      the size of each batch to process
-     * @return a Future representing the completion of the processing
+     * @param <T>            可迭代物的迭代对象的类型
+     * @param iterable       可迭代物
+     * @param itemsProcessor 批量迭代执行逻辑
+     * @param batchSize      批量执行量
+     * @return 异步循环执行结果
      */
     default <T> Future<Void> asyncCallIteratively(
             @NotNull Iterable<T> iterable,
@@ -129,19 +111,12 @@ interface KeelAsyncMixinLogic extends KeelAsyncMixinCore {
     }
 
     /**
-     * Asynchronously processes items from an iterator using a provided item
-     * processor function.
-     * The processing continues until the iterator is exhausted.
+     * 针对一个迭代器，基于异步循环调用，进行异步迭代执行，并可以按需在迭代执行方法体里提前中断任务。
      *
-     * @param <T>           the type of elements in the iterator
-     * @param iterator      the iterator to process items from
-     * @param itemProcessor a function that takes an item from the iterator and a
-     *                      RepeatedlyCallTask,
-     *                      and returns a {@link Future<Void>} representing the
-     *                      asynchronous processing of the item
-     * @return a {@link Future<Void>} that completes when all items have been
-     *         processed or fails if any processing step
-     *         fails
+     * @param <T>           迭代器内的迭代对象类型
+     * @param iterator      迭代器
+     * @param itemProcessor 迭代执行逻辑
+     * @return 异步循环执行结果
      */
     default <T> Future<Void> asyncCallIteratively(
             @NotNull Iterator<T> iterator,
@@ -158,15 +133,12 @@ interface KeelAsyncMixinLogic extends KeelAsyncMixinCore {
     }
 
     /**
-     * Processes each item in the given iterator asynchronously and iteratively.
+     * 针对一个迭代器，基于异步循环调用，进行异步迭代执行。
      *
-     * @param <T>           the type of elements in the iterator
-     * @param iterator      the iterator containing items to be processed
-     * @param itemProcessor a function that takes an item from the iterator and
-     *                      returns a Future representing the
-     *                      asynchronous processing of that item
-     * @return a Future that completes when all items have been processed, or fails
-     *         if any item processing fails
+     * @param <T>           迭代器内的迭代对象类型
+     * @param iterator      迭代器
+     * @param itemProcessor 迭代执行逻辑
+     * @return 异步循环执行结果
      */
     default <T> Future<Void> asyncCallIteratively(
             @NotNull Iterator<T> iterator,
@@ -177,18 +149,11 @@ interface KeelAsyncMixinLogic extends KeelAsyncMixinCore {
     }
 
     /**
-     * Asynchronously processes each item in the provided iterable using the
-     * specified item processor function.
-     * The items are processed sequentially, ensuring that the next item is only
-     * processed after the current one has
-     * completed.
+     * 针对一个可迭代物，基于异步循环调用，进行异步迭代执行。
      *
-     * @param iterable      an iterable containing the items to be processed
-     * @param itemProcessor a function that takes an item from the iterable and
-     *                      returns a Future representing the
-     *                      asynchronous processing of the item
-     * @return a Future that completes when all items in the iterable have been
-     *         processed
+     * @param iterable      可迭代物
+     * @param itemProcessor 迭代执行逻辑
+     * @return 异步循环执行结果
      */
     default <T> Future<Void> asyncCallIteratively(
             @NotNull Iterable<T> iterable,
@@ -197,15 +162,12 @@ interface KeelAsyncMixinLogic extends KeelAsyncMixinCore {
     }
 
     /**
-     * Asynchronously processes each item in the given iterable using the provided
-     * item processor function.
+     * 针对一个可迭代物，基于异步循环调用，进行异步迭代执行，并可以按需在迭代执行方法体里提前中断任务
      *
-     * @param <T>           the type of elements in the iterable
-     * @param iterable      the iterable containing items to be processed
-     * @param itemProcessor a function that takes an item and a task, and returns a
-     *                      Future representing the asynchronous
-     *                      processing of the item
-     * @return a Future that completes when all items have been processed
+     * @param <T>           迭代器内的迭代对象类型
+     * @param iterable      可迭代物
+     * @param itemProcessor 迭代执行逻辑
+     * @return 异步循环执行结果
      */
     default <T> Future<Void> asyncCallIteratively(
             @NotNull Iterable<T> iterable,
@@ -214,21 +176,16 @@ interface KeelAsyncMixinLogic extends KeelAsyncMixinCore {
     }
 
     /**
-     * Executes a series of asynchronous calls in a stepwise manner, from the start
-     * value to the end value, with a
-     * specified step.
-     * As of 4.0.9, fix the bug about range break.
+     * 基于给定的起始、终止、步长数值，基于异步循环调用，进行异步步进循环。
+     * <p>
+     * 步进方向要求是增量且可达的；因此，如果起始数值大于终止数值，或步进数值小于等于 0，将抛出异常。
      *
-     * @param start     the starting value for the stepwise execution
-     * @param end       the ending value for the stepwise execution, must be equal
-     *                  to or greater than `start`; if the pointer is stepped to be
-     *                  equal to or greater than `end`, the task will be stopped.
-     * @param step      the step size to increment or decrement at each call, must
-     *                  be greater than 0.
-     * @param processor a function that processes the current value and a task,
-     *                  returning a Future
-     * @return a Future that completes when all stepwise calls have been processed
-     * @throws IllegalArgumentException if the step is 0
+     * @param start     起始数值。
+     * @param end       终止数值
+     * @param step      步长数值
+     * @param processor 异步步进循环逻辑
+     * @return 异步循环执行结果
+     * @throws IllegalArgumentException 当步进不满足增量且可达时抛出
      */
     default Future<Void> asyncCallStepwise(long start, long end, long step,
                                            BiFunction<Long, RepeatedlyCallTask, Future<Void>> processor) {
@@ -249,13 +206,13 @@ interface KeelAsyncMixinLogic extends KeelAsyncMixinCore {
     }
 
     /**
-     * Executes a given processor function stepwise for a specified number of times.
+     * 基于异步循环调用，进行异步的指定次数步进循环，可以提前中断。
+     * <p>
+     * 基于{@link KeelAsyncMixinLogic#asyncCallStepwise(long, long, long, BiFunction)}，起始数值设定为 0、步长数值设定为 1。
      *
-     * @param times     the total number of times to execute the processor function
-     * @param processor the function to be executed, which takes the current step
-     *                  and a task as arguments and returns a
-     *                  Future
-     * @return a Future that completes when all steps have been processed
+     * @param times     循环次数。即终止数值。当循环次数小于等于 0 时，将直接返回成功结果。
+     * @param processor 异步步进循环逻辑
+     * @return 异步循环执行结果
      */
     default Future<Void> asyncCallStepwise(long times, BiFunction<Long, RepeatedlyCallTask, Future<Void>> processor) {
         if (times <= 0) {
@@ -265,13 +222,11 @@ interface KeelAsyncMixinLogic extends KeelAsyncMixinCore {
     }
 
     /**
-     * Executes a given asynchronous task multiple times in a stepwise manner.
+     * 基于异步循环调用，进行异步的指定次数步进循环。
      *
-     * @param times     the number of times to execute the task
-     * @param processor the function that returns a future, representing the
-     *                  asynchronous task to be executed
-     * @return a Future that completes when all invocations of the processor have
-     *         completed
+     * @param times     循环次数。即终止数值。当循环次数小于等于 0 时，将直接返回成功结果。
+     * @param processor 异步步进循环逻辑
+     * @return 异步循环执行结果
      */
     default Future<Void> asyncCallStepwise(long times, Function<Long, Future<Void>> processor) {
         if (times <= 0) {
@@ -281,28 +236,16 @@ interface KeelAsyncMixinLogic extends KeelAsyncMixinCore {
     }
 
     /**
-     * Repeatedly calls the given supplier to execute an asynchronous job.
-     * The job is executed in a loop until it is manually stopped.
-     * Each call to the supplier should return a {@code Future<Void>} which
-     * represents the completion of the asynchronous task.
-     *
+     * 无限循环执行一个异步逻辑，即时循环体抛出异常也不停止。
      * <p>
-     * <strong>Note:</strong> This method will continue executing even if the
-     * supplier
-     * fails, as failures are converted to success to keep the loop running.
-     * If you need to stop on failure, use {@link #asyncCallRepeatedly(Function)}
-     * instead.
+     * 使用本方法之前，应确保该逻辑符合要求且没有副作用。
      *
-     * @param supplier An async job handler that provides a {@code Future<Void>}.
-     * @since 3.0.1
+     * @param supplier 异步循环逻辑
      */
     default void asyncCallEndlessly(@NotNull Supplier<Future<Void>> supplier) {
         asyncCallRepeatedly(routineResult -> Future.succeededFuture()
                                                    .compose(v -> supplier.get())
-                                                   .eventually(() -> {
-                                                       // Convert failures to success to keep the loop running
-                                                       return Future.succeededFuture();
-                                                   }));
+                                                   .eventually(Future::succeededFuture));
     }
 
 }

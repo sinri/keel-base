@@ -1,6 +1,5 @@
 package io.github.sinri.keel.base.logger.adapter;
 
-import io.github.sinri.keel.base.internal.StackKit;
 import io.github.sinri.keel.logger.api.adapter.BaseLogWriter;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -10,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Keel 体系下的面向标准输出的主题化日志记录即时处理器。
+ * 面向标准输出的即时性日志写入适配器。。
  *
  * @since 5.0.0
  */
@@ -22,11 +21,6 @@ public final class StdoutLogWriter extends BaseLogWriter {
 
     public static StdoutLogWriter getInstance() {
         return instance;
-    }
-
-    @Override
-    public String renderThrowable(@NotNull Throwable throwable) {
-        return StackKit.renderThrowableChain(throwable);
     }
 
     @Override

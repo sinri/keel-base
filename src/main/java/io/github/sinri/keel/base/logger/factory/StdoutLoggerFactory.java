@@ -14,7 +14,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.function.Supplier;
 
 /**
- * Keel 体系下的面向标准输出的日志记录器工厂。
+ * 面向标准输出的日志记录器工厂。
  *
  * @since 5.0.0
  */
