@@ -3,7 +3,7 @@ package io.github.sinri.keel.base;
 import io.github.sinri.keel.base.annotations.TechnicalPreview;
 import io.github.sinri.keel.base.async.KeelAsyncMixin;
 import io.github.sinri.keel.base.configuration.KeelConfigElement;
-import io.github.sinri.keel.base.internal.logger.KeelStdoutLoggingFactory;
+import io.github.sinri.keel.base.logger.factory.StdoutRecorderFactory;
 import io.github.sinri.keel.logger.api.factory.LoggerFactory;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
@@ -48,7 +48,7 @@ public final class KeelInstance implements KeelAsyncMixin {
 
     private KeelInstance() {
         this.configuration = new KeelConfigElement("");
-        this.loggerFactory = new KeelStdoutLoggingFactory();
+        this.loggerFactory = StdoutRecorderFactory.getInstance();
     }
 
     @NotNull
