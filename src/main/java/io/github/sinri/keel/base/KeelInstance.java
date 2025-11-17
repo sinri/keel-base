@@ -91,6 +91,7 @@ public final class KeelInstance implements KeelAsyncMixin {
         return keelConfigElement.getValueAsString();
     }
 
+    @Override
     @NotNull
     public Vertx getVertx() {
         return Objects.requireNonNull(vertx);
