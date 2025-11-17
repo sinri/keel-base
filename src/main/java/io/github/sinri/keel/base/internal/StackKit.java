@@ -1,4 +1,4 @@
-package io.github.sinri.keel.base.utils;
+package io.github.sinri.keel.base.internal;
 
 import io.github.sinri.keel.base.KeelInstance;
 import org.jetbrains.annotations.NotNull;
@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Objects;
 import java.util.Set;
 
-public class StackUtils {
+public class StackKit {
 
     @NotNull
     public static String renderThrowableChain(@Nullable Throwable throwable) {

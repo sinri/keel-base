@@ -1,6 +1,6 @@
 package io.github.sinri.keel.base.logger.adapter;
 
-import io.github.sinri.keel.base.utils.StringUtils;
+import io.github.sinri.keel.base.internal.StackKit;
 import io.github.sinri.keel.logger.api.adapter.BaseLogWriter;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -26,7 +26,7 @@ public final class StdoutLogWriter extends BaseLogWriter {
 
     @Override
     public String renderThrowable(@NotNull Throwable throwable) {
-        return StringUtils.renderThrowableChain(throwable);
+        return StackKit.renderThrowableChain(throwable);
     }
 
     @Override
