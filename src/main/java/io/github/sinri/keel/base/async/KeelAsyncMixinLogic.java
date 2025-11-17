@@ -25,7 +25,7 @@ interface KeelAsyncMixinLogic extends KeelAsyncMixinCore {
      */
     private Future<Void> asyncCallRepeatedly(@NotNull RepeatedlyCallTask repeatedlyCallTask) {
         Promise<Void> promise = Promise.promise();
-        RepeatedlyCallTask.start(repeatedlyCallTask, promise);
+        RepeatedlyCallTask.start(getVertx(), repeatedlyCallTask, promise);
         return promise.future();
     }
 

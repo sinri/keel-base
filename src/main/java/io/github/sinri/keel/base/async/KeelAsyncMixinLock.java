@@ -5,7 +5,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Supplier;
 
-import static io.github.sinri.keel.base.KeelInstance.Keel;
 
 
 interface KeelAsyncMixinLock extends KeelAsyncMixinCore {
@@ -24,7 +23,7 @@ interface KeelAsyncMixinLock extends KeelAsyncMixinCore {
      */
     default <T> Future<T> asyncCallExclusively(@NotNull String lockName, long waitTimeForLock,
                                                @NotNull Supplier<Future<T>> exclusiveSupplier) {
-        return Keel.getVertx().sharedData()
+        return getVertx().sharedData()
                        .getLockWithTimeout(lockName, waitTimeForLock)
                        .compose(lock -> Future.succeededFuture()
                                           .compose(v -> exclusiveSupplier.get())

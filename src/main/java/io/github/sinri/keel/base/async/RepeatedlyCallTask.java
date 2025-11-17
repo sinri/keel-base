@@ -2,11 +2,10 @@ package io.github.sinri.keel.base.async;
 
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
+import io.vertx.core.Vertx;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Function;
-
-import static io.github.sinri.keel.base.KeelInstance.Keel;
 
 
 /**
@@ -19,7 +18,7 @@ import static io.github.sinri.keel.base.KeelInstance.Keel;
  * between each execution, unless the stop method is called or the task itself
  * fails.
  *
- * @see #start(RepeatedlyCallTask, Promise)
+ * @see #start(Vertx, RepeatedlyCallTask, Promise)
  * @see #stop()
  * @since 4.1.0
  */
@@ -32,7 +31,7 @@ public final class RepeatedlyCallTask {
         this.processor = processor;
     }
 
-    public static void start(@NotNull RepeatedlyCallTask thisTask, @NotNull Promise<Void> finalPromise) {
+    public static void start(@NotNull Vertx vertx, @NotNull RepeatedlyCallTask thisTask, @NotNull Promise<Void> finalPromise) {
         Future.succeededFuture()
               .compose(v -> {
                   if (thisTask.toStop) {
@@ -45,7 +44,7 @@ public final class RepeatedlyCallTask {
                       if (thisTask.toStop) {
                           finalPromise.complete();
                       } else {
-                          Keel.getVertx().setTimer(1L, x -> start(thisTask, finalPromise));
+                          vertx.setTimer(1L, x -> start(vertx, thisTask, finalPromise));
                       }
                   } else {
                       finalPromise.fail(shouldStopAR.cause());

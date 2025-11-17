@@ -9,7 +9,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Supplier;
 
-import static io.github.sinri.keel.base.KeelInstance.Keel;
 
 interface KeelAsyncMixinBlock extends KeelAsyncMixinLogic {
     private boolean isInNonBlockContext() {
@@ -61,7 +60,7 @@ interface KeelAsyncMixinBlock extends KeelAsyncMixinLogic {
 
     default <R> Future<R> asyncTransformRawFuture(@NotNull java.util.concurrent.Future<R> rawFuture) {
         if (isInNonBlockContext()) {
-            return Keel.getVertx().executeBlocking(rawFuture::get);
+            return getVertx().executeBlocking(rawFuture::get);
         } else {
             try {
                 var r = rawFuture.get();

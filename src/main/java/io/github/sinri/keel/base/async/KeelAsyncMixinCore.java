@@ -2,12 +2,13 @@ package io.github.sinri.keel.base.async;
 
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
+import io.vertx.core.Vertx;
 import org.jetbrains.annotations.Nullable;
-
-import static io.github.sinri.keel.base.KeelInstance.Keel;
 
 
 interface KeelAsyncMixinCore {
+    Vertx getVertx();
+
     /**
      * Asynchronously sleeps for a specified amount of time.
      *
@@ -33,12 +34,12 @@ interface KeelAsyncMixinCore {
     default Future<Void> asyncSleep(long time, @Nullable Promise<Void> interrupter) {
         Promise<Void> promise = Promise.promise();
         time = Math.max(1, time);
-        long timer_id = Keel.getVertx().setTimer(time, timerID -> {
+        long timer_id = getVertx().setTimer(time, timerID -> {
             promise.complete();
         });
         if (interrupter != null) {
             interrupter.future().onSuccess(interrupted -> {
-                Keel.getVertx().cancelTimer(timer_id);
+                getVertx().cancelTimer(timer_id);
                 promise.tryComplete();
             });
         }
