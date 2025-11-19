@@ -2,11 +2,10 @@ package io.github.sinri.keel.base.logger.adapter;
 
 import io.github.sinri.keel.base.verticles.AbstractKeelVerticle;
 import io.github.sinri.keel.logger.api.adapter.PersistentLogWriterAdapter;
-import io.github.sinri.keel.logger.api.log.Log;
+import io.github.sinri.keel.logger.api.log.SpecificLog;
 import io.vertx.core.Future;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.SynchronousQueue;
@@ -21,7 +20,7 @@ import static io.github.sinri.keel.base.KeelInstance.Keel;
  * @since 5.0.0
  */
 public abstract class QueuedLogWriterAdapter extends AbstractKeelVerticle implements PersistentLogWriterAdapter {
-    private final Map<String, Queue<Log>> queueMap = new ConcurrentHashMap<>();
+    private final Map<String, Queue<SpecificLog<?>>> queueMap = new ConcurrentHashMap<>();
     private final AtomicBoolean closeFlag = new AtomicBoolean(false);
 
     public QueuedLogWriterAdapter() {
@@ -33,7 +32,7 @@ public abstract class QueuedLogWriterAdapter extends AbstractKeelVerticle implem
     }
 
     @NotNull
-    abstract protected Future<Void> processLogRecords(@NotNull String topic, @NotNull List<Log> batch);
+    abstract protected Future<Void> processLogRecords(@NotNull String topic, @NotNull List<SpecificLog<?>> batch);
 
     @Override
     protected Future<Void> startVerticle() {
@@ -41,10 +40,10 @@ public abstract class QueuedLogWriterAdapter extends AbstractKeelVerticle implem
                 Set<String> topics = this.queueMap.keySet();
                 AtomicInteger counter = new AtomicInteger(0);
                 return Keel.asyncCallIteratively(topics, topic -> {
-                               Queue<Log> queue = this.queueMap.get(topic);
-                               List<Log> bufferOfTopic = new ArrayList<>();
+                               Queue<SpecificLog<?>> queue = this.queueMap.get(topic);
+                               List<SpecificLog<?>> bufferOfTopic = new ArrayList<>();
                                while (true) {
-                                   Log r = queue.poll();
+                                   SpecificLog<?> r = queue.poll();
                                    if (r == null) break;
                                    bufferOfTopic.add(r);
                                    counter.incrementAndGet();
@@ -76,13 +75,13 @@ public abstract class QueuedLogWriterAdapter extends AbstractKeelVerticle implem
     }
 
     @Override
-    public void accept(@NotNull String topic, @NotNull Log loggingEntity) {
+    public void accept(@NotNull String topic, @NotNull SpecificLog<?> log) {
         this.queueMap.computeIfAbsent(topic, k -> new SynchronousQueue<>())
-                     .add(loggingEntity);
+                     .add(log);
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         closeFlag.set(true);
     }
 }
