@@ -1,7 +1,7 @@
 package io.github.sinri.keel.base;
 
 import io.github.sinri.keel.base.async.KeelAsyncMixin;
-import io.github.sinri.keel.base.configuration.ConfigElement;
+import io.github.sinri.keel.base.configuration.ConfigTree;
 import io.github.sinri.keel.base.logger.factory.StdoutLoggerFactory;
 import io.github.sinri.keel.logger.api.factory.LoggerFactory;
 import io.vertx.core.Future;
@@ -12,6 +12,7 @@ import io.vertx.core.spi.cluster.ClusterManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -20,6 +21,7 @@ import java.util.Objects;
  * @since 5.0.0
  */
 public final class KeelInstance implements KeelAsyncMixin {
+    @NotNull
     public final static KeelInstance Keel;
 
     static {
@@ -33,21 +35,21 @@ public final class KeelInstance implements KeelAsyncMixin {
     }
 
     @NotNull
-    private final ConfigElement configuration;
-    @Nullable
-    private ClusterManager clusterManager;
+    private final ConfigTree configuration;
+    //    @Nullable
+    //    private ClusterManager clusterManager;
     @Nullable
     private Vertx vertx;
     @NotNull
     private LoggerFactory loggerFactory;
 
     private KeelInstance() {
-        this.configuration = new ConfigElement("");
+        this.configuration = new ConfigTree();
         this.loggerFactory = StdoutLoggerFactory.getInstance();
     }
 
     @NotNull
-    public ConfigElement getConfiguration() {
+    public ConfigTree getConfiguration() {
         return configuration;
     }
 
@@ -56,6 +58,7 @@ public final class KeelInstance implements KeelAsyncMixin {
         return loggerFactory;
     }
 
+    @NotNull
     public KeelInstance setLoggerFactory(@NotNull LoggerFactory loggerFactory) {
         this.loggerFactory = loggerFactory;
         return this;
@@ -64,11 +67,11 @@ public final class KeelInstance implements KeelAsyncMixin {
     @Nullable
     public String config(@NotNull String dotJoinedKeyChain) {
         String[] split = dotJoinedKeyChain.split("\\.");
-        ConfigElement configElement = this.getConfiguration().extract(split);
-        if (configElement == null) {
+        try {
+            return this.getConfiguration().readString(List.of(split));
+        } catch (ConfigTree.NotConfiguredException e) {
             return null;
         }
-        return configElement.getValueAsString();
     }
 
     @Override
@@ -77,19 +80,21 @@ public final class KeelInstance implements KeelAsyncMixin {
         return Objects.requireNonNull(vertx);
     }
 
-    @Nullable
-    public ClusterManager getClusterManager() {
-        return clusterManager;
-    }
+    //    @Nullable
+    //    public ClusterManager getClusterManager() {
+    //        return clusterManager;
+    //    }
 
     public boolean isVertxInitialized() {
         return vertx != null;
     }
 
+    @NotNull
     public Future<Void> initializeVertx(@NotNull VertxOptions vertxOptions) {
         return initializeVertx(vertxOptions, null);
     }
 
+    @NotNull
     public Future<Void> initializeVertx(
             @NotNull VertxOptions vertxOptions,
             @Nullable ClusterManager clusterManager
@@ -97,12 +102,15 @@ public final class KeelInstance implements KeelAsyncMixin {
         if (isVertxInitialized()) {
             throw new IllegalStateException("Vertx has been initialized!");
         }
-        this.clusterManager = clusterManager;
-        if (this.clusterManager == null) {
+        //        this.clusterManager = clusterManager;
+        if (clusterManager == null) {
             this.vertx = Vertx.builder().with(vertxOptions).withClusterManager(null).build();
             return Future.succeededFuture();
         } else {
-            return Vertx.builder().with(vertxOptions).withClusterManager(clusterManager).buildClustered()
+            return Vertx.builder()
+                        .with(vertxOptions)
+                        .withClusterManager(clusterManager)
+                        .buildClustered()
                         .compose(vertx -> {
                             this.vertx = vertx;
                             return Future.succeededFuture();
@@ -114,18 +122,20 @@ public final class KeelInstance implements KeelAsyncMixin {
         if (isVertxInitialized()) {
             throw new IllegalStateException("Vertx has been initialized!");
         }
-        this.clusterManager = null;
+        //        this.clusterManager = null;
         this.vertx = Vertx.builder().with(vertxOptions).build();
     }
 
     /**
-     * This method is designed for Unit Test with JUnit5, in {@code @BeforeEach} methods or constructor.
+     * This method is designed for certain automatic usage,
+     * such as,
+     * Unit Test with JUnit5, in {@code @BeforeEach} methods or constructor;
+     * Vert.x Application Launcher, in life cycle hooks.
      * <p>
      * Do not call this method in your own code!
      */
     public void initializeVertx(@NotNull Vertx vertx) {
         if (this.vertx != null && !Objects.equals(vertx, this.vertx)) {
-            // Keel.getLogger().info("Re-initialize Vertx from " + this.vertx + " to " + vertx + ".");
             this.vertx.close();
         }
         this.vertx = vertx;
@@ -135,6 +145,7 @@ public final class KeelInstance implements KeelAsyncMixin {
         return getVertx().isClustered();
     }
 
+    @NotNull
     public Future<Void> gracefullyClose(@NotNull io.vertx.core.Handler<Promise<Void>> promiseHandler) {
         Promise<Void> promise = Promise.promise();
         promiseHandler.handle(promise);
@@ -142,11 +153,12 @@ public final class KeelInstance implements KeelAsyncMixin {
                       .compose(v -> getVertx().close())
                       .compose(closed -> {
                           this.vertx = null;
-                          this.clusterManager = null;
+                          //                          this.clusterManager = null;
                           return Future.succeededFuture();
                       });
     }
 
+    @NotNull
     public Future<Void> close() {
         return gracefullyClose(Promise::complete);
     }
