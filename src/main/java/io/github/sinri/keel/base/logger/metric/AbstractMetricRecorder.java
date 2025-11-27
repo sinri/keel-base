@@ -26,6 +26,11 @@ abstract public class AbstractMetricRecorder extends AbstractKeelVerticle implem
         this.metricRecordQueue.add(metricRecord);
     }
 
+    /**
+     * 按需重载以改写缓冲区大小。
+     *
+     * @return 缓冲区大小，即每次处理多少条定量指标。
+     */
     protected int bufferSize() {
         return 1000;
     }
@@ -33,7 +38,6 @@ abstract public class AbstractMetricRecorder extends AbstractKeelVerticle implem
     /**
      * Override this to change the topic of metric recorder.
      *
-     * @since 4.0.0
      */
     protected String topic() {
         return "metric";
@@ -77,7 +81,6 @@ abstract public class AbstractMetricRecorder extends AbstractKeelVerticle implem
      * <p>
      * The override method should call the super method to ensure proper resource closure.
      *
-     * @since 4.1.3
      */
     @Override
     public void close() {

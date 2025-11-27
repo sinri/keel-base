@@ -12,8 +12,6 @@ import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static io.github.sinri.keel.base.KeelInstance.Keel;
-
 /**
  * 一个基于队列处理的持久性日志写入适配器实现。
  *
@@ -27,6 +25,11 @@ public abstract class QueuedLogWriterAdapter extends AbstractKeelVerticle implem
 
     }
 
+    /**
+     * 按需重载以改写缓冲区大小。
+     *
+     * @return 缓冲区大小，即每次处理多少条日志记录。
+     */
     protected int bufferSize() {
         return 128;
     }

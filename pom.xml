@@ -6,8 +6,8 @@
 
     <groupId>io.github.sinri</groupId>
     <artifactId>keel-base</artifactId>
-    <version>5.0.0-rc.14</version>
-    <!--    <version>5.0.0-SNAPSHOT</version>-->
+    <!--    <version>5.0.0-rc.14</version>-->
+    <version>5.0.0-SNAPSHOT</version>
 
     <name>Keel-Base</name>
     <description>
@@ -48,6 +48,7 @@
         <nexusStagingMavenPluginVersion>1.7.0</nexusStagingMavenPluginVersion>
         <vertxVersion>5.0.5</vertxVersion>
         <jacksonVersion>2.18.2</jacksonVersion>
+        <keelLoggerApiVersion>5.0.0-rc.15</keelLoggerApiVersion>
     </properties>
 
     <build>
@@ -187,7 +188,7 @@
         <dependency>
             <groupId>io.github.sinri</groupId>
             <artifactId>keel-logger-api</artifactId>
-            <version>5.0.0-rc.14</version>
+            <version>${keelLoggerApiVersion}</version>
         </dependency>
         <dependency>
             <groupId>io.vertx</groupId>

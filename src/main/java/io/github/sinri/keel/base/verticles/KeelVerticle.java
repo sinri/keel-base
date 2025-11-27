@@ -1,15 +1,15 @@
 package io.github.sinri.keel.base.verticles;
 
+import io.github.sinri.keel.base.KeelInstance;
+import io.github.sinri.keel.base.annotations.TechnicalPreview;
 import io.vertx.core.*;
 import io.vertx.core.json.JsonObject;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Supplier;
-
-import static io.github.sinri.keel.base.KeelInstance.Keel;
-
 
 /**
  * Keel 体系下的 {@link Verticle} 强化标准接口。
@@ -20,8 +20,10 @@ import static io.github.sinri.keel.base.KeelInstance.Keel;
  */
 public interface KeelVerticle extends Verticle {
 
-
     String CONFIG_KEY_OF_VERTICLE_IDENTITY = "verticle_identity";
+
+    @TechnicalPreview(since = "5.0.0")
+    KeelInstance Keel = KeelInstance.Keel;
 
     /**
      * 根据给定的启动逻辑创建一个 {@link KeelVerticle} 实例。
@@ -43,44 +45,52 @@ public interface KeelVerticle extends Verticle {
         return new InstantKeelVerticle(starter);
     }
 
+    /**
+     * 仅在本类对应 Verticle 部署后能有效返回 Vertx 实例。
+     * <p>
+     * 如果尚未部署，则抛出空指针异常。如果已经解除部署，则返回此前部署所在的 Vertx 实例。
+     *
+     * @return Vertx 实例。
+     * @throws NullPointerException 如果尚未部署，则抛出异常。
+     */
     @NotNull
     Vertx vertx();
 
     /**
-     * Retrieves the threading model associated with the current execution context of the verticle.
+     * 获取当前 verticle 的线程模型。
      *
-     * @return the threading model of the current context, or {@code null} if not deployed yet.
+     * @return 当前上下文的线程模型，或 {@code null} 如果尚未部署。
      */
     @Nullable
     ThreadingModel contextThreadModel();
 
     /**
-     * Returns the unique identifier for the deployment of this verticle.
+     * 获取当前 verticle 的部署唯一标识。
      *
-     * @return the deployment ID as a string, or {@code null} if not deployed yet.
+     * @return 部署唯一标识，或 {@code null} 如果尚未部署。
      */
     @Nullable
     String deploymentID();
 
     /**
-     * Retrieves the configuration for this verticle.
+     * 获取当前 verticle 的配置。
      * <p>
-     * As a declaration of {@link AbstractVerticle#config()}.
+     * 作为 {@link AbstractVerticle#config()} 的声明。
      *
-     * @return a {@link JsonObject} containing the configuration settings for the verticle, might be null.
+     * @return 包含当前 verticle 配置的 {@link JsonObject}，可能为 null。
      */
     @Nullable
     JsonObject config();
 
     /**
-     * Returns a JSON object containing information about the verticle.
+     * 获取当前 verticle 的信息。
      *
-     * @return a {@link JsonObject} with the following fields:
+     * @return 包含当前 verticle 信息的 {@link JsonObject}，包含以下字段：
      *         <ul>
-     *             <li>class: the fully qualified name of the class implementing this verticle</li>
-     *             <li>config: the configuration settings for the verticle as a {@link JsonObject}</li>
-     *             <li>deployment_id: the unique identifier for the deployment of this verticle</li>
-     *             <li>thread_model: the threading model of the current context, or {@code null} if not deployed yet</li>
+     *         <li>class: 当前 verticle 的完全限定类名</li>
+     *         <li>config: 当前 verticle 的配置，作为 {@link JsonObject}</li>
+     *         <li>deployment_id: 当前 verticle 的部署唯一标识</li>
+     *         <li>thread_model: 当前上下文的线程模型，或 {@code null} 如果尚未部署</li>
      *         </ul>
      */
     default JsonObject getVerticleInfo() {
@@ -93,11 +103,10 @@ public interface KeelVerticle extends Verticle {
     }
 
     /**
-     * Deploys the current verticle with the specified deployment options.
+     * 部署当前 verticle 并使用指定的部署选项。
      *
-     * @param deploymentOptions the options to use for deploying the verticle
-     * @return a future that completes with the deployment ID if the deployment is successful, or fails with an
-     *         exception if the deployment fails
+     * @param deploymentOptions 部署选项
+     * @return 一个异步完成，如果部署成功则返回部署唯一标识，如果部署失败则返回异常
      */
     default Future<String> deployMe(DeploymentOptions deploymentOptions) {
         String deploymentID = deploymentID();
@@ -108,10 +117,9 @@ public interface KeelVerticle extends Verticle {
     }
 
     /**
-     * Undeploy the current verticle from the Vert.x instance.
+     * 从 Vert.x 实例中解除部署当前 verticle。
      *
-     * @return a future that completes when the undeployment is successful, or fails with an exception if the
-     *         undeployment fails
+     * @return 一个异步完成，如果解除部署成功则返回，如果解除部署失败则返回异常
      */
     default Future<Void> undeployMe() {
         String deploymentID = deploymentID();
@@ -122,27 +130,26 @@ public interface KeelVerticle extends Verticle {
     }
 
     /**
-     * Retrieves the unique identifier or "identity" of the current verticle instance.
-     * The identity is determined by checking the configuration for a specific key, and if not found,
-     * it constructs a default identity string combining the fully qualified class name of the verticle
-     * and its deployment ID.
+     * 获取当前 verticle 实例的唯一标识或 "身份"。
+     * 身份由检查配置中的特定键（{@link KeelVerticle#CONFIG_KEY_OF_VERTICLE_IDENTITY}）确定，如果未找到，则构造一个默认身份字符串，结合 verticle
+     * 的完全限定类名和部署唯一标识。
      *
-     * @return the identity of the verticle as a string. If the configuration key is absent or null,
-     *         a string in the format of "className@deploymentID" is returned.
+     * @return 当前 verticle 实例的身份，或 {@code null} 如果配置键不存在或为 null。
      */
     @NotNull
     default String verticleIdentity() {
-        String mark = this.getClass().getName();
-        JsonObject config = config();
-        if (config != null) {
-            String s = config.getString(CONFIG_KEY_OF_VERTICLE_IDENTITY);
-            if (s != null) {
-                mark = s;
-            }
-        }
-
+        String mark = Objects.requireNonNullElseGet(
+                Objects.requireNonNullElse(config(), new JsonObject())
+                       .getString(CONFIG_KEY_OF_VERTICLE_IDENTITY),
+                () -> this.getClass().getName()
+        );
         return String.format("%s@%s", mark, deploymentID());
     }
 
+    /**
+     * 获取当前 verticle 的运行状态。
+     *
+     * @return 当前 verticle 的运行状态。
+     */
     KeelVerticleRunningStateEnum getRunningState();
 }

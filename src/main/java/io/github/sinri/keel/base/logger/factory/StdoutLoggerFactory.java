@@ -29,17 +29,17 @@ public final class StdoutLoggerFactory extends BaseLoggerFactory {
     }
 
     @Override
-    public LogWriterAdapter sharedAdapter() {
+    public @NotNull LogWriterAdapter sharedAdapter() {
         return StdoutLogWriter.getInstance();
     }
 
     @Override
-    public Logger createLogger(@NotNull String topic) {
+    public @NotNull Logger createLogger(@NotNull String topic) {
         return new StdoutLogger(topic);
     }
 
     @Override
-    public <L extends SpecificLog<L>> SpecificLogger<L> createLogger(@NotNull String topic, @NotNull Supplier<L> specificLogSupplier) {
+    public <L extends SpecificLog<L>> @NotNull SpecificLogger<L> createLogger(@NotNull String topic, @NotNull Supplier<L> specificLogSupplier) {
         return new StdoutSpecificLogger<>(topic, specificLogSupplier);
     }
 }

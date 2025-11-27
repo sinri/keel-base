@@ -18,7 +18,9 @@ import java.util.UUID;
  */
 public abstract class AbstractKeelVerticle extends AbstractVerticle implements KeelVerticle {
 
+    @NotNull
     private KeelVerticleRunningStateEnum runningState;
+    @Nullable
     private String deploymentInstanceCode;
 
     public AbstractKeelVerticle() {
@@ -65,12 +67,9 @@ public abstract class AbstractKeelVerticle extends AbstractVerticle implements K
      */
     @Override
     public final void start(Promise<Void> startPromise) {
+        deploymentInstanceCode = UUID.randomUUID().toString();
         Future.succeededFuture()
-              .compose(v -> {
-                  // start();
-                  deploymentInstanceCode = UUID.randomUUID().toString();
-                  return startVerticle();
-              })
+              .compose(v -> startVerticle())
               .andThen(ar -> {
                   if (ar.succeeded()) {
                       runningState = KeelVerticleRunningStateEnum.RUNNING;
@@ -125,7 +124,7 @@ public abstract class AbstractKeelVerticle extends AbstractVerticle implements K
     }
 
     @Override
-    public KeelVerticleRunningStateEnum getRunningState() {
+    public @NotNull KeelVerticleRunningStateEnum getRunningState() {
         return runningState;
     }
 }

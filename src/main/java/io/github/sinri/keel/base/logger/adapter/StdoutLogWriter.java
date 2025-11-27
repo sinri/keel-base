@@ -19,17 +19,17 @@ public final class StdoutLogWriter extends BaseLogWriter {
     private StdoutLogWriter() {
     }
 
-    public static StdoutLogWriter getInstance() {
+    public static @NotNull StdoutLogWriter getInstance() {
         return instance;
     }
 
     @Override
-    public String renderClassification(@NotNull List<String> classification) {
+    public @NotNull String renderClassification(@NotNull List<String> classification) {
         return new JsonArray(classification).encode();
     }
 
     @Override
-    public String renderContext(@NotNull Map<String, Object> context) {
+    public @NotNull String renderContext(@NotNull Map<String, Object> context) {
         return new JsonObject(context).encodePrettily();
     }
 }
