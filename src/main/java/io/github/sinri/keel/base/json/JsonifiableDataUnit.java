@@ -35,12 +35,12 @@ public interface JsonifiableDataUnit
     }
 
     @Override
-    default void ensureEntry(String key, Object value) {
+    default void ensureEntry(@NotNull String key, Object value) {
         toJsonObject().put(key, value);
     }
 
     @Override
-    default void removeEntry(String key) {
+    default void removeEntry(@NotNull String key) {
         this.toJsonObject().remove(key);
     }
 
@@ -76,11 +76,13 @@ public interface JsonifiableDataUnit
         return pos + length + 4;
     }
 
+    @NotNull
     @Override
     default String toFormattedJsonExpression() {
         return toJsonObject().encodePrettily();
     }
 
+    @NotNull
     @Override
     default String toJsonExpression() {
         return toJsonObject().encode();

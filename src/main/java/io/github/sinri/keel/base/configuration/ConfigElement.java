@@ -281,12 +281,12 @@ public class ConfigElement implements JsonObjectConvertible, JsonObjectReloadabl
     }
 
     @Override
-    public String toJsonExpression() {
+    public @NotNull String toJsonExpression() {
         return toJsonObject().encode();
     }
 
     @Override
-    public String toFormattedJsonExpression() {
+    public @NotNull String toFormattedJsonExpression() {
         return toJsonObject().encodePrettily();
     }
 

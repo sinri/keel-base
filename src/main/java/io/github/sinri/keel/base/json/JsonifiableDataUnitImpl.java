@@ -34,12 +34,12 @@ public class JsonifiableDataUnitImpl implements JsonifiableDataUnit {
     }
 
     @Override
-    public String toJsonExpression() {
+    public @NotNull String toJsonExpression() {
         return jsonObject.encode();
     }
 
     @Override
-    public String toFormattedJsonExpression() {
+    public @NotNull String toFormattedJsonExpression() {
         return jsonObject.encodePrettily();
     }
 

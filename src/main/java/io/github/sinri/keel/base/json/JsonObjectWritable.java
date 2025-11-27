@@ -2,6 +2,8 @@ package io.github.sinri.keel.base.json;
 
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * 本接口定义了一类可作为 JSON 对象写入的实体。
@@ -12,9 +14,9 @@ public interface JsonObjectWritable extends JsonObjectReadable {
     /**
      * Create or replace the Key-Value pair in this class wrapped JSON Object.
      */
-    void ensureEntry(String key, Object value);
+    void ensureEntry(@NotNull String key, @Nullable Object value);
 
-    void removeEntry(String key);
+    void removeEntry(@NotNull String key);
 
     /**
      * Retrieves the JSON object associated with the specified key from the entity's
@@ -28,7 +30,7 @@ public interface JsonObjectWritable extends JsonObjectReadable {
      * @return the existing or newly created JSON object associated with the
      *         specified key
      */
-    default JsonObject ensureJsonObject(String key) {
+    default JsonObject ensureJsonObject(@NotNull String key) {
         JsonObject x = this.readJsonObject(key);
         if (x == null) {
             x = new JsonObject();
@@ -49,7 +51,7 @@ public interface JsonObjectWritable extends JsonObjectReadable {
      * @return the existing or newly created JSON array associated with the
      *         specified key
      */
-    default JsonArray ensureJsonArray(String key) {
+    default JsonArray ensureJsonArray(@NotNull String key) {
         JsonArray x = this.readJsonArray(key);
         if (x == null) {
             x = new JsonArray();

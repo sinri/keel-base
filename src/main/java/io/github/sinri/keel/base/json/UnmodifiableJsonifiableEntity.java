@@ -33,10 +33,12 @@ public interface UnmodifiableJsonifiableEntity
      * @throws IllegalAccessException    if the constructor is not accessible
      * @since 4.1.5
      */
+    @NotNull
     static <U extends UnmodifiableJsonifiableEntity> U wrap(@NotNull JsonObject jsonObject, Class<U> clazz) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         return clazz.getConstructor(JsonObject.class).newInstance(jsonObject);
     }
 
+    @NotNull
     static UnmodifiableJsonifiableEntity wrap(@NotNull JsonObject jsonObject) {
         return new UnmodifiableJsonifiableEntityImpl(jsonObject);
     }

@@ -27,37 +27,28 @@ public class UnmodifiableJsonifiableEntityImpl implements UnmodifiableJsonifiabl
     /**
      * @param raw the raw JsonObject.
      * @return the JsonObject that be purified, such as create a copy, remove some fields, and so on.
-     * @since 4.1.0
      */
-    protected JsonObject purify(JsonObject raw) {
+    @NotNull
+    protected JsonObject purify(@NotNull JsonObject raw) {
         return raw;
     }
 
     @Override
-    public final String toJsonExpression() {
+    public final @NotNull String toJsonExpression() {
         return jsonObject.encode();
     }
 
     @Override
-    public String toFormattedJsonExpression() {
+    public @NotNull String toFormattedJsonExpression() {
         return jsonObject.encodePrettily();
     }
 
-    /**
-     * As of 4.1.0, it is final.
-     *
-     * @since 3.2.17
-     */
+    @NotNull
     @Override
     public final String toString() {
         return toJsonExpression();
     }
 
-    /**
-     * @since 2.7
-     * @since 2.8 If java.lang.ClassCastException occurred, return null instead.
-     * @since 3.1.10 make it abstract.
-     */
     @Override
     public @Nullable <T> T read(@NotNull Function<JsonPointer, Class<T>> func) {
         try {
@@ -88,9 +79,9 @@ public class UnmodifiableJsonifiableEntityImpl implements UnmodifiableJsonifiabl
      * Creates and returns a deep copy of the current instance.
      *
      * @return A new {@link UnmodifiableJsonifiableEntityImpl} instance that is a deep copy of this object.
-     * @since 4.0.0
      */
     @Override
+    @NotNull
     public UnmodifiableJsonifiableEntityImpl copy() {
         return new UnmodifiableJsonifiableEntityImpl(cloneAsJsonObject());
     }

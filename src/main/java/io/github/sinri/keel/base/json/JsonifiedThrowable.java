@@ -27,6 +27,7 @@ public class JsonifiedThrowable extends JsonifiableDataUnitImpl {
         super();
     }
 
+    @NotNull
     public static JsonifiedThrowable wrap(@NotNull Throwable throwable) {
         return wrap(throwable, LoggingStackSpecification.IgnorableCallStackPackage, true);
     }
@@ -85,19 +86,19 @@ public class JsonifiedThrowable extends JsonifiableDataUnitImpl {
         return items;
     }
 
-    public static void main(String[] args) {
-        JsonifiableSerializer.register();
-        try {
-            try {
-                throw new NullPointerException("1");
-            } catch (Exception e) {
-                throw new Exception("2", e);
-            }
-        } catch (Throwable throwable) {
-            var jt = JsonifiedThrowable.wrap(throwable);
-            System.out.println(jt.toJsonObject().encodePrettily());
-        }
-    }
+    //    public static void main(String[] args) {
+    //        JsonifiableSerializer.register();
+    //        try {
+    //            try {
+    //                throw new NullPointerException("1");
+    //            } catch (Exception e) {
+    //                throw new Exception("2", e);
+    //            }
+    //        } catch (Throwable throwable) {
+    //            var jt = JsonifiedThrowable.wrap(throwable);
+    //            System.out.println(jt.toJsonObject().encodePrettily());
+    //        }
+    //    }
 
     private static void filterStackTrace(
             @Nullable StackTraceElement[] stackTrace,
@@ -147,10 +148,12 @@ public class JsonifiedThrowable extends JsonifiableDataUnitImpl {
         }
     }
 
+    @NotNull
     public String getThrowableClass() {
-        return readString("class");
+        return Objects.requireNonNull(readString("class"));
     }
 
+    @Nullable
     public String getThrowableMessage() {
         return readString("message");
     }
@@ -171,6 +174,7 @@ public class JsonifiedThrowable extends JsonifiableDataUnitImpl {
         return items;
     }
 
+    @Nullable
     public JsonifiedThrowable getThrowableCause() {
         Object cause = readValue("cause");
         if (cause instanceof JsonifiedThrowable) {
@@ -184,18 +188,18 @@ public class JsonifiedThrowable extends JsonifiableDataUnitImpl {
     }
 
     public static class JsonifiedCallStackItem extends JsonifiableDataUnitImpl {
-        private JsonifiedCallStackItem(JsonObject jsonObject) {
+        private JsonifiedCallStackItem(@NotNull JsonObject jsonObject) {
             super(jsonObject);
         }
 
-        private JsonifiedCallStackItem(String ignoringClassPackage, Integer ignoringCount) {
+        private JsonifiedCallStackItem(@NotNull String ignoringClassPackage, int ignoringCount) {
             super(new JsonObject()
                     .put("type", "ignored")
                     .put("package", ignoringClassPackage)
                     .put("count", ignoringCount));
         }
 
-        private JsonifiedCallStackItem(StackTraceElement stackTranceItem) {
+        private JsonifiedCallStackItem(@NotNull StackTraceElement stackTranceItem) {
             super(new JsonObject()
                     .put("type", "call")
                     .put("class", stackTranceItem.getClassName())
