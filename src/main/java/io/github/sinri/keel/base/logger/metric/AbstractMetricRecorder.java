@@ -19,7 +19,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @since 5.0.0
  */
 abstract public class AbstractMetricRecorder extends AbstractKeelVerticle implements MetricRecorder, Closeable {
+    @NotNull
     private final AtomicBoolean endSwitch = new AtomicBoolean(false);
+    @NotNull
     private final Queue<MetricRecord> metricRecordQueue = new ConcurrentLinkedQueue<>();
 
     public void recordMetric(@NotNull MetricRecord metricRecord) {
@@ -36,9 +38,10 @@ abstract public class AbstractMetricRecorder extends AbstractKeelVerticle implem
     }
 
     /**
-     * Override this to change the topic of metric recorder.
-     *
+     * 重载以改变指标记录的主题。
+     * @return 指标记录的主题
      */
+    @NotNull
     protected String topic() {
         return "metric";
     }
@@ -51,10 +54,12 @@ abstract public class AbstractMetricRecorder extends AbstractKeelVerticle implem
 
                   while (true) {
                       MetricRecord metricRecord = metricRecordQueue.poll();
-                      if (metricRecord == null) break;
+                      if (metricRecord == null)
+                          break;
 
                       buffer.add(metricRecord);
-                      if (buffer.size() >= bufferSize()) break;
+                      if (buffer.size() >= bufferSize())
+                          break;
                   }
 
                   if (!buffer.isEmpty()) {
@@ -72,20 +77,23 @@ abstract public class AbstractMetricRecorder extends AbstractKeelVerticle implem
     }
 
     /**
-     * Closes the metric recorder by marking the end of metric recording operations.
-     * Once this method is invoked, the recorder will stop processing and no additional
-     * metrics will be recorded.
+     * 标记结束，停止记录。
      * <p>
-     * This method should be called to properly terminate the recorder's lifecycle
-     * and release associated resources.
+     * 一旦调用此方法，记录器将停止处理，并且不会记录额外的指标。
      * <p>
-     * The override method should call the super method to ensure proper resource closure.
-     *
+     * 应该调用此方法来正确终止记录器的生命周期并释放相关资源，如有必要则重载以完善。
      */
     @Override
     public void close() {
         endSwitch.set(true);
     }
 
+    /**
+     * 处理指定主题下的一批指标记录。
+     *
+     * @param topic  主题
+     * @param buffer 指标记录缓冲区
+     * @return 处理结果
+     */
     abstract protected Future<Void> handleForTopic(String topic, List<MetricRecord> buffer);
 }

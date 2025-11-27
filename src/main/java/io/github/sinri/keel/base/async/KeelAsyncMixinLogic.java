@@ -24,6 +24,7 @@ interface KeelAsyncMixinLogic extends KeelAsyncMixinCore {
      * @param repeatedlyCallTask 给定的异步循环任务
      * @return 异步循环执行结果
      */
+    @NotNull
     private Future<Void> asyncCallRepeatedly(@NotNull RepeatedlyCallTask repeatedlyCallTask) {
         Promise<Void> promise = Promise.promise();
         RepeatedlyCallTask.start(getVertx(), repeatedlyCallTask, promise);
@@ -36,6 +37,7 @@ interface KeelAsyncMixinLogic extends KeelAsyncMixinCore {
      * @param processor 用于构建异步循环任务的循环逻辑
      * @return 异步循环执行结果
      */
+    @NotNull
     default Future<Void> asyncCallRepeatedly(@NotNull Function<RepeatedlyCallTask, Future<Void>> processor) {
         return asyncCallRepeatedly(new RepeatedlyCallTask(processor));
     }
@@ -49,6 +51,7 @@ interface KeelAsyncMixinLogic extends KeelAsyncMixinCore {
      * @param batchSize      批量执行量
      * @return 异步循环执行结果
      */
+    @NotNull
     default <T> Future<Void> asyncCallIteratively(
             @NotNull Iterator<T> iterator,
             @NotNull BiFunction<List<T>, RepeatedlyCallTask, Future<Void>> itemsProcessor,
@@ -84,6 +87,7 @@ interface KeelAsyncMixinLogic extends KeelAsyncMixinCore {
      * @param batchSize      批量执行量
      * @return 异步循环执行结果
      */
+    @NotNull
     default <T> Future<Void> asyncCallIteratively(
             @NotNull Iterator<T> iterator,
             @NotNull Function<List<T>, Future<Void>> itemsProcessor,
@@ -103,6 +107,7 @@ interface KeelAsyncMixinLogic extends KeelAsyncMixinCore {
      * @param batchSize      批量执行量
      * @return 异步循环执行结果
      */
+    @NotNull
     default <T> Future<Void> asyncCallIteratively(
             @NotNull Iterable<T> iterable,
             @NotNull BiFunction<List<T>, RepeatedlyCallTask, Future<Void>> itemsProcessor,
@@ -118,6 +123,7 @@ interface KeelAsyncMixinLogic extends KeelAsyncMixinCore {
      * @param itemProcessor 迭代执行逻辑
      * @return 异步循环执行结果
      */
+    @NotNull
     default <T> Future<Void> asyncCallIteratively(
             @NotNull Iterator<T> iterator,
             @NotNull BiFunction<T, RepeatedlyCallTask, Future<Void>> itemProcessor) {
@@ -140,6 +146,7 @@ interface KeelAsyncMixinLogic extends KeelAsyncMixinCore {
      * @param itemProcessor 迭代执行逻辑
      * @return 异步循环执行结果
      */
+    @NotNull
     default <T> Future<Void> asyncCallIteratively(
             @NotNull Iterator<T> iterator,
             @NotNull Function<T, Future<Void>> itemProcessor) {
@@ -155,6 +162,7 @@ interface KeelAsyncMixinLogic extends KeelAsyncMixinCore {
      * @param itemProcessor 迭代执行逻辑
      * @return 异步循环执行结果
      */
+    @NotNull
     default <T> Future<Void> asyncCallIteratively(
             @NotNull Iterable<T> iterable,
             @NotNull Function<T, Future<Void>> itemProcessor) {
@@ -169,6 +177,7 @@ interface KeelAsyncMixinLogic extends KeelAsyncMixinCore {
      * @param itemProcessor 迭代执行逻辑
      * @return 异步循环执行结果
      */
+    @NotNull
     default <T> Future<Void> asyncCallIteratively(
             @NotNull Iterable<T> iterable,
             @NotNull BiFunction<T, RepeatedlyCallTask, Future<Void>> itemProcessor) {
@@ -187,6 +196,7 @@ interface KeelAsyncMixinLogic extends KeelAsyncMixinCore {
      * @return 异步循环执行结果
      * @throws IllegalArgumentException 当步进不满足增量且可达时抛出
      */
+    @NotNull
     default Future<Void> asyncCallStepwise(long start, long end, long step,
                                            BiFunction<Long, RepeatedlyCallTask, Future<Void>> processor) {
         if (step <= 0)
@@ -214,6 +224,7 @@ interface KeelAsyncMixinLogic extends KeelAsyncMixinCore {
      * @param processor 异步步进循环逻辑
      * @return 异步循环执行结果
      */
+    @NotNull
     default Future<Void> asyncCallStepwise(long times, BiFunction<Long, RepeatedlyCallTask, Future<Void>> processor) {
         if (times <= 0) {
             return Future.succeededFuture();
@@ -228,6 +239,7 @@ interface KeelAsyncMixinLogic extends KeelAsyncMixinCore {
      * @param processor 异步步进循环逻辑
      * @return 异步循环执行结果
      */
+    @NotNull
     default Future<Void> asyncCallStepwise(long times, Function<Long, Future<Void>> processor) {
         if (times <= 0) {
             return Future.succeededFuture();

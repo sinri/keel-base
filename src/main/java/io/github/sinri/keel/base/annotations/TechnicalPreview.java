@@ -13,16 +13,16 @@ import java.lang.annotation.*;
 })
 public @interface TechnicalPreview {
     /**
-     * Specifies the version since when this feature or component is in technical preview.
+     * 指定该特性或组件从哪个版本开始处于技术预览阶段。
      *
-     * @return the version string indicating when the technical preview started
+     * @return 表示技术预览开始时的版本字符串
      */
     String since() default "";
 
     /**
-     * Provides a notice or additional information about the technical preview feature.
+     * 提供关于技术预览特性的通知或附加信息。
      *
-     * @return a string containing the notice or additional information; an empty string if no notice is provided
+     * @return 包含通知或附加信息的字符串；如果未提供通知则返回空字符串
      */
     String notice() default "";
 }

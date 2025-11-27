@@ -19,11 +19,13 @@ import java.util.function.Supplier;
  * @since 5.0.0
  */
 public final class StdoutLoggerFactory extends BaseLoggerFactory {
+    @NotNull
     private static final StdoutLoggerFactory instance = new StdoutLoggerFactory();
 
     private StdoutLoggerFactory() {
     }
 
+    @NotNull
     public static StdoutLoggerFactory getInstance() {
         return instance;
     }

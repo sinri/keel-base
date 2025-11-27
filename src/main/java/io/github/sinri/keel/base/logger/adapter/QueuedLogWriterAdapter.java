@@ -18,7 +18,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @since 5.0.0
  */
 public abstract class QueuedLogWriterAdapter extends AbstractKeelVerticle implements PersistentLogWriterAdapter {
+    @NotNull
     private final Map<String, Queue<SpecificLog<?>>> queueMap = new ConcurrentHashMap<>();
+    @NotNull
     private final AtomicBoolean closeFlag = new AtomicBoolean(false);
 
     public QueuedLogWriterAdapter() {

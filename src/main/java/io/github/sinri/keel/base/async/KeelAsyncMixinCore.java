@@ -3,6 +3,7 @@ package io.github.sinri.keel.base.async;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -16,6 +17,7 @@ interface KeelAsyncMixinCore {
      *
      * @return 用于一切异步逻辑的 Vertx 实例。
      */
+    @NotNull
     Vertx getVertx();
 
     /**
@@ -26,6 +28,7 @@ interface KeelAsyncMixinCore {
      * @param time 以毫秒计的时间，有效值最小为 1 毫秒；如果值无效会强制置为 1毫秒。
      * @return 一个{@link Future}，表示设定时间已到
      */
+    @NotNull
     default Future<Void> asyncSleep(long time) {
         return asyncSleep(time, null);
     }
@@ -37,6 +40,7 @@ interface KeelAsyncMixinCore {
      * @param interrupter 一个可选的{@link Promise}，供异步中断
      * @return 一个{@link Future}，表示设定时间已到，或设置的中断被触发。
      */
+    @NotNull
     default Future<Void> asyncSleep(long time, @Nullable Promise<Void> interrupter) {
         Promise<Void> promise = Promise.promise();
         time = Math.max(1, time);

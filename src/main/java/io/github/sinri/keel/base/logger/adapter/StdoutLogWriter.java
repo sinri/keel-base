@@ -14,6 +14,7 @@ import java.util.Map;
  * @since 5.0.0
  */
 public final class StdoutLogWriter extends BaseLogWriter {
+    @NotNull
     private static final StdoutLogWriter instance = new StdoutLogWriter();
 
     private StdoutLogWriter() {

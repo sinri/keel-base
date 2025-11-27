@@ -37,6 +37,7 @@ interface KeelAsyncMixinParallel extends KeelAsyncMixinCore {
      * @param itemProcessor 针对迭代对象的异步处理逻辑
      * @return 一个异步结果，各异步任务均成功才返回成功，否则返回失败
      */
+    @NotNull
     default <T> Future<Void> parallelForAllSuccess(@NotNull Iterable<T> collection,
                                                    @NotNull Function<T, Future<Void>> itemProcessor) {
         return parallelForAllSuccess(collection.iterator(), itemProcessor);
@@ -50,6 +51,7 @@ interface KeelAsyncMixinParallel extends KeelAsyncMixinCore {
      * @param itemProcessor 针对迭代对象的异步处理逻辑
      * @return 一个异步结果，各异步任务均成功才返回成功，否则返回失败
      */
+    @NotNull
     default <T> Future<Void> parallelForAllSuccess(@NotNull Iterator<T> iterator,
                                                    @NotNull Function<T, Future<Void>> itemProcessor) {
         List<Future<Void>> futures = buildFutures(iterator, itemProcessor);
@@ -68,6 +70,7 @@ interface KeelAsyncMixinParallel extends KeelAsyncMixinCore {
      * @param itemProcessor 针对迭代对象的异步处理逻辑
      * @return 一个异步结果，有一个异步任务成功即返回成功，否则返回失败
      */
+    @NotNull
     default <T> Future<Void> parallelForAnySuccess(@NotNull Iterable<T> collection,
                                                    @NotNull Function<T, Future<Void>> itemProcessor) {
         return parallelForAnySuccess(collection.iterator(), itemProcessor);
@@ -80,8 +83,8 @@ interface KeelAsyncMixinParallel extends KeelAsyncMixinCore {
      * @param iterator      迭代器
      * @param itemProcessor 针对迭代对象的异步处理逻辑
      * @return 一个异步结果，有一个异步任务成功即返回成功，否则返回失败
-     * @since 4.0.2
      */
+    @NotNull
     default <T> Future<Void> parallelForAnySuccess(@NotNull Iterator<T> iterator,
                                                    @NotNull Function<T, Future<Void>> itemProcessor) {
         List<Future<Void>> futures = buildFutures(iterator, itemProcessor);
@@ -100,6 +103,7 @@ interface KeelAsyncMixinParallel extends KeelAsyncMixinCore {
      * @param itemProcessor 针对迭代对象的异步处理逻辑
      * @return 一个异步结果，所有一个异步任务都执行完毕后返回成功，否则返回失败
      */
+    @NotNull
     default <T> Future<Void> parallelForAllComplete(@NotNull Iterable<T> collection,
                                                     @NotNull Function<T, Future<Void>> itemProcessor) {
         return parallelForAllComplete(collection.iterator(), itemProcessor);
@@ -112,15 +116,14 @@ interface KeelAsyncMixinParallel extends KeelAsyncMixinCore {
      * @param iterator      迭代器
      * @param itemProcessor 针对迭代对象的异步处理逻辑
      * @return 一个异步结果，所有一个异步任务都执行完毕后返回成功，否则返回失败
-     * @since 4.0.2
      */
+    @NotNull
     default <T> Future<Void> parallelForAllComplete(@NotNull Iterator<T> iterator,
                                                     @NotNull Function<T, Future<Void>> itemProcessor) {
         List<Future<Void>> futures = buildFutures(iterator, itemProcessor);
         if (futures.isEmpty()) {
             return Future.succeededFuture();
         }
-        return Future.join(futures)
-                     .mapEmpty();
+        return Future.join(futures).mapEmpty();
     }
 }

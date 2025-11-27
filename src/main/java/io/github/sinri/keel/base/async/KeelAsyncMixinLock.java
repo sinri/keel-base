@@ -23,6 +23,7 @@ interface KeelAsyncMixinLock extends KeelAsyncMixinCore {
      * @param exclusiveSupplier 需要独占运行的异步逻辑
      * @return 异步逻辑的结果；如果锁获取失败，则会异步返回相应失败。
      */
+    @NotNull
     default <T> Future<T> asyncCallExclusively(@NotNull String lockName, long waitTimeForLock,
                                                @NotNull Supplier<Future<T>> exclusiveSupplier) {
         return getVertx().sharedData()
@@ -37,6 +38,7 @@ interface KeelAsyncMixinLock extends KeelAsyncMixinCore {
      * <p>
      * 和 {@link KeelAsyncMixinLock#asyncCallExclusively(String, long, Supplier)} 逻辑一致，锁等待时间默认 1 秒。
      */
+    @NotNull
     default <T> Future<T> asyncCallExclusively(@NotNull String lockName,
                                                @NotNull Supplier<Future<T>> exclusiveSupplier) {
         return asyncCallExclusively(lockName, 1_000L, exclusiveSupplier);

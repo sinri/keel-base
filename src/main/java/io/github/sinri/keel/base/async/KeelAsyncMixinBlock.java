@@ -4,6 +4,7 @@ import io.github.sinri.keel.base.annotations.TechnicalPreview;
 import io.github.sinri.keel.base.verticles.KeelVerticle;
 import io.vertx.core.*;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -41,6 +42,7 @@ interface KeelAsyncMixinBlock extends KeelAsyncMixinLogic {
      * @param <R>               异步返回值的类型
      * @return 转换好的 {@link Future}
      */
+    @NotNull
     default <R> Future<R> asyncTransformCompletableFuture(@NotNull CompletableFuture<R> completableFuture) {
         Promise<R> promise = Promise.promise();
         Context currentContext = Vertx.currentContext();
@@ -79,6 +81,7 @@ interface KeelAsyncMixinBlock extends KeelAsyncMixinLogic {
      * @param <R>       异步返回值的类型
      * @return 转换好的 {@link Future}
      */
+    @NotNull
     default <R> Future<R> asyncTransformRawFuture(@NotNull java.util.concurrent.Future<R> rawFuture) {
         if (isInNonBlockContext()) {
             return getVertx().executeBlocking(rawFuture::get);
@@ -100,6 +103,7 @@ interface KeelAsyncMixinBlock extends KeelAsyncMixinLogic {
      * @param <R>       异步返回值的类型
      * @return 转换好的 {@link Future}
      */
+    @NotNull
     default <R> Future<R> asyncTransformRawFuture(@NotNull java.util.concurrent.Future<R> rawFuture, long sleepTime) {
         return asyncCallRepeatedly(repeatedlyCallTask -> {
             if (rawFuture.isDone()) {
@@ -131,7 +135,8 @@ interface KeelAsyncMixinBlock extends KeelAsyncMixinLogic {
      * @param <T>                        异步任务返回的值的类型
      * @return 异步任务返回的值
      */
-    default <T> T blockAwait(Future<T> longTermAsyncProcessFuture) {
+    @Nullable
+    default <T> T blockAwait(@NotNull Future<T> longTermAsyncProcessFuture) {
         if (isInNonBlockContext()) {
             throw new IllegalThreadStateException("Cannot call blockAwait in event loop context");
         }
