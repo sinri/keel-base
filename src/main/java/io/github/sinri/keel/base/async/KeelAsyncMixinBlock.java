@@ -29,10 +29,7 @@ interface KeelAsyncMixinBlock extends KeelAsyncMixinLogic {
     @TechnicalPreview(notice = "Require JDK 21+")
     @NotNull
     default Future<Void> runInVerticleOnVirtualThread(@NotNull Supplier<Future<Void>> function) {
-        return KeelVerticle.instant(promise -> Future.succeededFuture()
-                                                     .compose(v -> function.get())
-                                                     .onComplete(promise)
-                           )
+        return KeelVerticle.instant(keelVerticle -> function.get().onComplete(ar -> keelVerticle.undeployMe()))
                            .deployMe(new DeploymentOptions().setThreadingModel(ThreadingModel.VIRTUAL_THREAD))
                            .compose(s -> Future.succeededFuture());
     }

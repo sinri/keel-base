@@ -1,11 +1,12 @@
 package io.github.sinri.keel.base.verticles;
 
+import io.github.sinri.keel.base.KeelInstance;
+import io.github.sinri.keel.base.annotations.TechnicalPreview;
 import io.vertx.core.*;
 import io.vertx.core.json.JsonObject;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -17,7 +18,8 @@ import java.util.UUID;
  * @since 5.0.0
  */
 public abstract class AbstractKeelVerticle extends AbstractVerticle implements KeelVerticle {
-
+    @TechnicalPreview(since = "5.0.0")
+    protected static final KeelInstance Keel = KeelInstance.Keel;
     @NotNull
     private KeelVerticleRunningStateEnum runningState;
     @Nullable
@@ -30,8 +32,8 @@ public abstract class AbstractKeelVerticle extends AbstractVerticle implements K
     @Override
     @NotNull
     public Vertx vertx() {
-        Objects.requireNonNull(context);
-        return context.owner();
+        if (context == null) return Keel.getVertx();
+        else return context.owner();
     }
 
     @Override
@@ -85,6 +87,7 @@ public abstract class AbstractKeelVerticle extends AbstractVerticle implements K
      *
      * @return 如果正常异步返回则部署正常运作；否则部署失败。
      */
+    @NotNull
     protected abstract Future<Void> startVerticle();
 
     /**
@@ -112,6 +115,7 @@ public abstract class AbstractKeelVerticle extends AbstractVerticle implements K
      *
      * @return 如果正常异步返回则解除部署正常结束；否则解除部署失败。
      */
+    @NotNull
     protected Future<Void> stopVerticle() {
         return Future.succeededFuture();
     }
@@ -119,8 +123,7 @@ public abstract class AbstractKeelVerticle extends AbstractVerticle implements K
     @NotNull
     @Override
     public String verticleIdentity() {
-        return KeelVerticle.super.verticleIdentity()
-                + ":" + deploymentInstanceCode;
+        return "%s:%s".formatted(KeelVerticle.super.verticleIdentity(), deploymentInstanceCode);
     }
 
     @Override

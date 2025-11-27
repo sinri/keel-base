@@ -1,7 +1,6 @@
 package io.github.sinri.keel.base.verticles;
 
 import io.github.sinri.keel.base.KeelInstance;
-import io.github.sinri.keel.base.annotations.TechnicalPreview;
 import io.vertx.core.*;
 import io.vertx.core.json.JsonObject;
 import org.jetbrains.annotations.NotNull;
@@ -9,7 +8,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.function.Function;
-import java.util.function.Supplier;
+
+import static io.github.sinri.keel.base.KeelInstance.Keel;
 
 /**
  * Keel 体系下的 {@link Verticle} 强化标准接口。
@@ -22,36 +22,17 @@ public interface KeelVerticle extends Verticle {
 
     String CONFIG_KEY_OF_VERTICLE_IDENTITY = "verticle_identity";
 
-    @TechnicalPreview(since = "5.0.0")
-    KeelInstance Keel = KeelInstance.Keel;
-
-    /**
-     * 根据给定的启动逻辑创建一个 {@link KeelVerticle} 实例。
-     *
-     * @param startFutureSupplier 启动逻辑，返回一个异步完成
-     */
     @NotNull
-    static KeelVerticle instant(@NotNull Supplier<Future<Void>> startFutureSupplier) {
-        return new InstantKeelVerticle(startFutureSupplier);
-    }
-
-    /**
-     * 根据给定的启动逻辑创建一个 {@link KeelVerticle} 实例，并提供外部中断的异步操作透出。
-     *
-     * @param starter 启动逻辑，给定一个停止用的{@link Promise}，返回一个异步完成
-     */
-    @NotNull
-    static KeelVerticle instant(@NotNull Function<Promise<Void>, Future<Void>> starter) {
-        return new InstantKeelVerticle(starter);
+    static KeelVerticle instant(@NotNull Function<KeelVerticle, Future<Void>> verticleStartFunc) {
+        return new InstantKeelVerticle(verticleStartFunc);
     }
 
     /**
      * 仅在本类对应 Verticle 部署后能有效返回 Vertx 实例。
      * <p>
-     * 如果尚未部署，则抛出空指针异常。如果已经解除部署，则返回此前部署所在的 Vertx 实例。
+     * 如果尚未部署，则通过{@link KeelInstance#getVertx()}返回Keel框架维护的 Vertx实例。如果已经解除部署，则返回此前部署所在的 Vertx 实例。
      *
      * @return Vertx 实例。
-     * @throws NullPointerException 如果尚未部署，则抛出异常。
      */
     @NotNull
     Vertx vertx();
@@ -103,7 +84,7 @@ public interface KeelVerticle extends Verticle {
     }
 
     /**
-     * 部署当前 verticle 并使用指定的部署选项。
+     * 在Keel框架维护的 Vertx实例下部署当前 verticle 并使用指定的部署选项。
      *
      * @param deploymentOptions 部署选项
      * @return 一个异步完成，如果部署成功则返回部署唯一标识，如果部署失败则返回异常
@@ -117,7 +98,7 @@ public interface KeelVerticle extends Verticle {
     }
 
     /**
-     * 从 Vert.x 实例中解除部署当前 verticle。
+     * 在Keel框架维护的 Vertx实例下解除部署当前 verticle。
      *
      * @return 一个异步完成，如果解除部署成功则返回，如果解除部署失败则返回异常
      */

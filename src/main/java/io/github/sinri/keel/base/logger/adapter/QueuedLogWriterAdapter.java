@@ -38,7 +38,7 @@ public abstract class QueuedLogWriterAdapter extends AbstractKeelVerticle implem
     abstract protected Future<Void> processLogRecords(@NotNull String topic, @NotNull List<SpecificLog<?>> batch);
 
     @Override
-    protected Future<Void> startVerticle() {
+    protected @NotNull Future<Void> startVerticle() {
         Keel.asyncCallRepeatedly(repeatedlyCallTask -> {
                 Set<String> topics = this.queueMap.keySet();
                 AtomicInteger counter = new AtomicInteger(0);

@@ -44,7 +44,7 @@ abstract public class AbstractMetricRecorder extends AbstractKeelVerticle implem
     }
 
     @Override
-    protected Future<Void> startVerticle() {
+    protected @NotNull Future<Void> startVerticle() {
         Future.succeededFuture()
               .compose(v -> {
                   List<MetricRecord> buffer = new ArrayList<>();
