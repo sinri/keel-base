@@ -466,7 +466,6 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
      *               object within a larger structure.
      * @param <C>    The type of the entity to be read.
      * @return The entity read from the JSON Object.
-     * @since 4.0.13
      */
     default @Nullable <C> C readEntity(@NotNull Class<C> cClass, String... args) {
         JsonObject jsonObject = readJsonObject(args);
@@ -483,9 +482,6 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
 
     boolean isEmpty();
 
-    /**
-     * @since 3.0.0
-     */
     @Override
     @NotNull
     Iterator<Map.Entry<String, Object>> iterator();
