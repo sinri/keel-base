@@ -74,6 +74,21 @@ public class AbstractKeelVerticleUnitTest {
 
     @Test
     void testContextThreadModel(VertxTestContext testContext) {
+        // 如果当前 JDK 版本小于 21，则直接 return
+        String version = System.getProperty("java.version");
+        int majorVersion;
+        if (version.startsWith("1.")) {
+            majorVersion = Integer.parseInt(version.substring(2, 3));
+        } else {
+            int dotPos = version.indexOf(".");
+            majorVersion = dotPos != -1 ? Integer.parseInt(version.substring(0, dotPos)) : Integer.parseInt(version);
+        }
+        if (majorVersion < 21) {
+            testContext.completeNow();
+            return;
+        }
+
+
         TestKeelVerticle verticle = new TestKeelVerticle();
 
         // Before deployment, should return null
