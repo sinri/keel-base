@@ -21,6 +21,11 @@ import java.util.Objects;
  * @since 5.0.0
  */
 public final class KeelInstance implements KeelAsyncMixin {
+    /**
+     * Keel 框架的全局单例实例。
+     * <p>
+     * 在类加载时自动初始化，提供对 Keel 框架核心功能的访问。
+     */
     @NotNull
     public final static KeelInstance Keel;
 
@@ -36,34 +41,62 @@ public final class KeelInstance implements KeelAsyncMixin {
 
     @NotNull
     private final ConfigTree configuration;
-    //    @Nullable
-    //    private ClusterManager clusterManager;
     @Nullable
     private Vertx vertx;
     @NotNull
     private LoggerFactory loggerFactory;
 
+    /**
+     * 私有构造函数，用于创建单例实例。
+     * <p>
+     * 初始化配置树和默认的日志工厂。
+     */
     private KeelInstance() {
         this.configuration = new ConfigTree();
         this.loggerFactory = StdoutLoggerFactory.getInstance();
     }
 
+    /**
+     * 获取配置树。
+     *
+     * @return 配置树实例
+     */
     @NotNull
     public ConfigTree getConfiguration() {
         return configuration;
     }
 
+    /**
+     * 获取日志工厂。
+     *
+     * @return 当前使用的日志工厂实例
+     */
     @NotNull
     public LoggerFactory getLoggerFactory() {
         return loggerFactory;
     }
 
+    /**
+     * 设置日志工厂。
+     *
+     * @param loggerFactory 要设置的日志工厂
+     * @return 当前实例，支持链式调用
+     */
     @NotNull
     public KeelInstance setLoggerFactory(@NotNull LoggerFactory loggerFactory) {
         this.loggerFactory = loggerFactory;
         return this;
     }
 
+    /**
+     * 通过点分隔的键链读取配置值。
+     * <p>
+     * 此方法将点分隔的字符串拆分为键链，然后从配置树中读取字符串值。
+     * 如果配置不存在，返回 null。
+     *
+     * @param dotJoinedKeyChain 点分隔的键链，例如 "database.host"
+     * @return 配置项的字符串值，如果配置不存在则返回 null
+     */
     @Nullable
     public String config(@NotNull String dotJoinedKeyChain) {
         String[] split = dotJoinedKeyChain.split("\\.");
@@ -74,26 +107,52 @@ public final class KeelInstance implements KeelAsyncMixin {
         }
     }
 
+    /**
+     * 获取 Vert.x 实例。
+     * <p>
+     * 如果 Vert.x 尚未初始化，将抛出 NullPointerException。
+     *
+     * @return Vert.x 实例
+     * @throws NullPointerException 如果 Vert.x 尚未初始化
+     */
     @Override
     @NotNull
     public Vertx getVertx() {
         return Objects.requireNonNull(vertx);
     }
 
-    //    @Nullable
-    //    public ClusterManager getClusterManager() {
-    //        return clusterManager;
-    //    }
 
+    /**
+     * 检查 Vert.x 是否已初始化。
+     *
+     * @return 如果 Vert.x 已初始化则返回 true，否则返回 false
+     */
     public boolean isVertxInitialized() {
         return vertx != null;
     }
 
+    /**
+     * 初始化 Vert.x 实例（非集群模式）。
+     *
+     * @param vertxOptions Vert.x 配置选项
+     * @return 异步完成结果，表示初始化操作的完成状态
+     * @throws IllegalStateException 如果 Vert.x 已经被初始化
+     */
     @NotNull
     public Future<Void> initializeVertx(@NotNull VertxOptions vertxOptions) {
         return initializeVertx(vertxOptions, null);
     }
 
+    /**
+     * 初始化 Vert.x 实例（支持集群模式）。
+     * <p>
+     * 如果提供了集群管理器，将创建集群模式的 Vert.x 实例；否则创建单机模式的实例。
+     *
+     * @param vertxOptions   Vert.x 配置选项
+     * @param clusterManager 集群管理器，如果为 null 则创建单机模式实例
+     * @return 异步完成结果，表示初始化操作的完成状态
+     * @throws IllegalStateException 如果 Vert.x 已经被初始化
+     */
     @NotNull
     public Future<Void> initializeVertx(
             @NotNull VertxOptions vertxOptions,
@@ -102,7 +161,6 @@ public final class KeelInstance implements KeelAsyncMixin {
         if (isVertxInitialized()) {
             throw new IllegalStateException("Vertx has been initialized!");
         }
-        //        this.clusterManager = clusterManager;
         if (clusterManager == null) {
             this.vertx = Vertx.builder().with(vertxOptions).withClusterManager(null).build();
             return Future.succeededFuture();
@@ -118,21 +176,35 @@ public final class KeelInstance implements KeelAsyncMixin {
         }
     }
 
+    /**
+     * 同步初始化单机模式的 Vert.x 实例。
+     * <p>
+     * 此方法会阻塞当前线程直到 Vert.x 实例创建完成。
+     *
+     * @param vertxOptions Vert.x 配置选项
+     * @throws IllegalStateException 如果 Vert.x 已经被初始化
+     */
     public void initializeVertxStandalone(@NotNull VertxOptions vertxOptions) {
         if (isVertxInitialized()) {
             throw new IllegalStateException("Vertx has been initialized!");
         }
-        //        this.clusterManager = null;
         this.vertx = Vertx.builder().with(vertxOptions).build();
     }
 
     /**
-     * This method is designed for certain automatic usage,
-     * such as,
-     * Unit Test with JUnit5, in {@code @BeforeEach} methods or constructor;
-     * Vert.x Application Launcher, in life cycle hooks.
+     * 使用已存在的 Vert.x 实例进行初始化。
      * <p>
-     * Do not call this method in your own code!
+     * 此方法设计用于特定的自动使用场景，例如：
+     * <ul>
+     *   <li>JUnit5 单元测试中的 {@code @BeforeEach} 方法或构造函数</li>
+     *   <li>Vert.x Application Launcher 的生命周期钩子</li>
+     * </ul>
+     * <p>
+     * 如果已存在不同的 Vert.x 实例，将先关闭旧实例再设置新实例。
+     * <p>
+     * <strong>警告：不要在自己的代码中调用此方法！</strong>
+     *
+     * @param vertx 要使用的 Vert.x 实例
      */
     public void initializeVertx(@NotNull Vertx vertx) {
         if (this.vertx != null && !Objects.equals(vertx, this.vertx)) {
@@ -141,10 +213,24 @@ public final class KeelInstance implements KeelAsyncMixin {
         this.vertx = vertx;
     }
 
+    /**
+     * 检查当前是否运行在 Vert.x 集群模式中。
+     *
+     * @return 如果运行在集群模式中则返回 true，否则返回 false
+     */
     public boolean isRunningInVertxCluster() {
         return getVertx().isClustered();
     }
 
+    /**
+     * 优雅地关闭 Keel 实例。
+     * <p>
+     * 此方法先执行提供的清理处理程序，然后关闭 Vert.x 实例。
+     * 清理处理程序可以用于执行应用特定的清理逻辑。
+     *
+     * @param promiseHandler 清理处理程序，用于执行应用特定的清理逻辑
+     * @return 异步完成结果，表示关闭操作的完成状态
+     */
     @NotNull
     public Future<Void> gracefullyClose(@NotNull io.vertx.core.Handler<Promise<Void>> promiseHandler) {
         Promise<Void> promise = Promise.promise();
@@ -153,11 +239,17 @@ public final class KeelInstance implements KeelAsyncMixin {
                       .compose(v -> getVertx().close())
                       .compose(closed -> {
                           this.vertx = null;
-                          //                          this.clusterManager = null;
                           return Future.succeededFuture();
                       });
     }
 
+    /**
+     * 关闭 Keel 实例。
+     * <p>
+     * 此方法会立即关闭 Vert.x 实例，不执行额外的清理逻辑。
+     *
+     * @return 异步完成结果，表示关闭操作的完成状态
+     */
     @NotNull
     public Future<Void> close() {
         return gracefullyClose(Promise::complete);

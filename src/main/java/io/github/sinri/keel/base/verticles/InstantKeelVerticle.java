@@ -14,10 +14,22 @@ import java.util.function.Function;
 public final class InstantKeelVerticle extends AbstractKeelVerticle {
     private final @NotNull Function<KeelVerticle, Future<Void>> verticleStartFunc;
 
+    /**
+     * 使用指定的启动函数构造即时执行的 Keel Verticle 实例。
+     *
+     * @param verticleStartFunc 在 verticle 启动时执行的函数，接收当前 verticle 实例并返回异步完成结果
+     */
     InstantKeelVerticle(@NotNull Function<KeelVerticle, Future<Void>> verticleStartFunc) {
         this.verticleStartFunc = verticleStartFunc;
     }
 
+    /**
+     * 启动 verticle。
+     * <p>
+     * 此方法会调用构造函数中提供的启动函数来执行实际的启动逻辑。
+     *
+     * @return 异步完成结果，表示启动操作的完成状态
+     */
     @Override
     protected @NotNull Future<Void> startVerticle() {
         return this.verticleStartFunc.apply(this);

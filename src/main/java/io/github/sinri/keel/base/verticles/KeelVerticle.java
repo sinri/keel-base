@@ -22,6 +22,14 @@ public interface KeelVerticle extends Verticle {
 
     String CONFIG_KEY_OF_VERTICLE_IDENTITY = "verticle_identity";
 
+    /**
+     * 创建一个即时执行的 Keel Verticle 实例。
+     * <p>
+     * 此方法创建一个 {@link InstantKeelVerticle} 实例，该实例在启动时会执行提供的函数。
+     *
+     * @param verticleStartFunc 在 verticle 启动时执行的函数
+     * @return 即时执行的 Keel Verticle 实例
+     */
     @NotNull
     static KeelVerticle instant(@NotNull Function<KeelVerticle, Future<Void>> verticleStartFunc) {
         return new InstantKeelVerticle(verticleStartFunc);
@@ -112,10 +120,12 @@ public interface KeelVerticle extends Verticle {
 
     /**
      * 获取当前 verticle 实例的唯一标识或 "身份"。
-     * 身份由检查配置中的特定键（{@link KeelVerticle#CONFIG_KEY_OF_VERTICLE_IDENTITY}）确定，如果未找到，则构造一个默认身份字符串，结合 verticle
-     * 的完全限定类名和部署唯一标识。
+     * <p>
+     * 身份由检查配置中的特定键（{@link #CONFIG_KEY_OF_VERTICLE_IDENTITY}）确定。
+     * 如果配置中未找到该键或值为 null，则使用 verticle 的完全限定类名作为标识。
+     * 最终返回的格式为：{标识}@{部署唯一标识}。
      *
-     * @return 当前 verticle 实例的身份，或 {@code null} 如果配置键不存在或为 null。
+     * @return 当前 verticle 实例的身份，格式为 "标识@部署ID"
      */
     @NotNull
     default String verticleIdentity() {
