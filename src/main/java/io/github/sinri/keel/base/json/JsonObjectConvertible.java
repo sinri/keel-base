@@ -10,14 +10,14 @@ import org.jetbrains.annotations.NotNull;
  */
 public interface JsonObjectConvertible extends JsonSerializable {
     /**
-     * Converts the current state of this entity into a {@link JsonObject};
-     * If the class is a wrapper of one {@link JsonObject} instance, it may return the wrapped instance.
+     * 将当前实体的状态转换为 {@link JsonObject}。
      * <p>
-     * Commonly, this method should not rely on {@link JsonSerializable#toJsonExpression()},
-     * {@link JsonSerializable#toFormattedJsonExpression()}, nor {@code toString()}.
+     * 如果该类是对某个 {@link JsonObject} 实例的包装，则可能直接返回被包装的实例。
+     * <p>
+     * 通常，此方法不应依赖于 {@link JsonSerializable#toJsonExpression()}、
+     * {@link JsonSerializable#toFormattedJsonExpression()} 或 {@code toString()} 方法。
      *
-     * @return a non-null {@link JsonObject} representing the current state of the
-     *         entity.
+     * @return 表示当前实体状态的非空 {@link JsonObject}
      */
     @NotNull
     JsonObject toJsonObject();

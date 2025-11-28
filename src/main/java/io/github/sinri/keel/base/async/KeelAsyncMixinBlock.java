@@ -7,6 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Supplier;
 
@@ -127,13 +128,38 @@ interface KeelAsyncMixinBlock extends KeelAsyncMixinLogic {
     }
 
     /**
-     * 阻塞等待一个异步任务完成。
+     * 阻塞等待一个异步任务完成，并返回其结果。
      * <p>
-     * 本方法不应该在 EventLoop 里执行。
+     * 本方法使用 {@link CountDownLatch} 实现阻塞等待，避免 CPU 空转。
+     * 方法会阻塞当前线程直到异步任务完成（成功或失败）。
+     * <p>
+     * <strong>重要限制：</strong>
+     * <ul>
+     *   <li>本方法<strong>严禁</strong>在 EventLoop 线程中调用，否则会抛出 {@link IllegalThreadStateException}</li>
+     *   <li>本方法只能在 Worker 线程、虚拟线程或普通线程中调用</li>
+     *   <li>建议在 {@link ThreadingModel#WORKER} 或 {@link ThreadingModel#VIRTUAL_THREAD} 的 Verticle 中使用</li>
+     * </ul>
+     * <p>
+     * <strong>异常处理：</strong>
+     * <ul>
+     *   <li>如果异步任务失败，本方法会抛出 {@link RuntimeException}，原始异常会被包装或直接抛出（如果已经是 RuntimeException）</li>
+     *   <li>如果当前线程在等待过程中被中断，会抛出 {@link RuntimeException}，并恢复线程的中断状态</li>
+     *   <li>如果在 EventLoop 线程中调用，会立即抛出 {@link IllegalThreadStateException}</li>
+     * </ul>
+     * <p>
+     * <strong>返回值：</strong>
+     * <ul>
+     *   <li>如果异步任务成功完成，返回任务的结果（可能为 {@code null}）</li>
+     *   <li>如果异步任务失败，抛出异常而不是返回 {@code null}</li>
+     * </ul>
+     * <p>
+     *     非必要不使用此方法，使用前需要确认符合场景。
      *
-     * @param longTermAsyncProcessFuture 一个耗时的异步任务所返回的 {@link Future}
+     * @param longTermAsyncProcessFuture 一个耗时的异步任务所返回的 {@link Future}，不能为 {@code null}
      * @param <T>                        异步任务返回的值的类型
-     * @return 异步任务返回的值
+     * @return 异步任务返回的值，如果任务成功完成但结果为 {@code null}，则返回 {@code null}
+     * @throws IllegalThreadStateException 如果在 EventLoop 线程中调用本方法
+     * @throws RuntimeException            如果异步任务失败，或当前线程在等待过程中被中断
      */
     @Nullable
     default <T> T blockAwait(@NotNull Future<T> longTermAsyncProcessFuture) {
@@ -141,23 +167,26 @@ interface KeelAsyncMixinBlock extends KeelAsyncMixinLogic {
             throw new IllegalThreadStateException("Cannot call blockAwait in event loop context");
         }
 
-        CompletableFuture<T> cf = new CompletableFuture<>();
-        longTermAsyncProcessFuture.onComplete(ar -> {
-            if (ar.succeeded()) {
-                cf.complete(ar.result());
-            } else {
-                cf.completeExceptionally(ar.cause());
-            }
-        });
+        // 使用 CountDownLatch 替代忙等待，避免 CPU 空转
+        CountDownLatch latch = new CountDownLatch(1);
+        longTermAsyncProcessFuture.onComplete(ar -> latch.countDown());
+
         try {
-            return cf.get(); // 阻塞等待
-        } catch (ExecutionException e) {
-            throw new RuntimeException("Error occurred while executing", e.getCause());
+            latch.await();
         } catch (InterruptedException e) {
-            // Thread.currentThread().interrupt();
-            throw new RuntimeException("Interrupted while waiting", e);
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("Interrupted while waiting for async task", e);
         }
+
+        // 检查任务是否失败，如果有异常则抛出，而不是返回 null
+        if (longTermAsyncProcessFuture.failed()) {
+            Throwable cause = longTermAsyncProcessFuture.cause();
+            if (cause instanceof RuntimeException) {
+                throw (RuntimeException) cause;
+            }
+            throw new RuntimeException(cause);
+        }
+
+        return longTermAsyncProcessFuture.result();
     }
-
-
 }

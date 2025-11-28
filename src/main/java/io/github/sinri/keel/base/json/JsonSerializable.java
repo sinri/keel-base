@@ -1,5 +1,6 @@
 package io.github.sinri.keel.base.json;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -7,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
  *
  * @since 5.0.0
  */
+@JsonSerialize(using = JsonifiableSerializer.class)
 public interface JsonSerializable {
     @NotNull
     String toJsonExpression();

@@ -21,4 +21,5 @@ module io.github.sinri.keel.base {
 
     // Open packages for reflection-based serialization (Jackson or others)
     opens io.github.sinri.keel.base.json;
+    opens io.github.sinri.keel.base.verticles;
 }
