@@ -59,8 +59,7 @@ public class ConfigTree extends ConfigElement {
      * @return 配置项的布尔值
      * @throws NotConfiguredException 如果配置不存在或值为 null
      */
-    @NotNull
-    public Boolean readBoolean(@NotNull List<String> keychain) throws NotConfiguredException {
+    public boolean readBoolean(@NotNull List<String> keychain) throws NotConfiguredException {
         String value = readString(keychain);
         return "YES".equalsIgnoreCase(value) || "TRUE".equalsIgnoreCase(value);
     }
@@ -73,8 +72,7 @@ public class ConfigTree extends ConfigElement {
      * @throws NotConfiguredException 如果配置不存在或值为 null
      * @throws NumberFormatException  如果字符串无法解析为整数
      */
-    @NotNull
-    public Integer readInteger(@NotNull List<String> keychain) throws NotConfiguredException {
+    public int readInteger(@NotNull List<String> keychain) throws NotConfiguredException {
         String value = readString(keychain);
         return Integer.parseInt(value);
     }
@@ -87,8 +85,7 @@ public class ConfigTree extends ConfigElement {
      * @throws NotConfiguredException 如果配置不存在或值为 null
      * @throws NumberFormatException  如果字符串无法解析为长整数
      */
-    @NotNull
-    public Long readLong(@NotNull List<String> keychain) throws NotConfiguredException {
+    public long readLong(@NotNull List<String> keychain) throws NotConfiguredException {
         String value = readString(keychain);
         return Long.parseLong(value);
     }
@@ -101,8 +98,7 @@ public class ConfigTree extends ConfigElement {
      * @throws NotConfiguredException 如果配置不存在或值为 null
      * @throws NumberFormatException  如果字符串无法解析为浮点数
      */
-    @NotNull
-    public Float readFloat(@NotNull List<String> keychain) throws NotConfiguredException {
+    public float readFloat(@NotNull List<String> keychain) throws NotConfiguredException {
         String value = readString(keychain);
         return Float.parseFloat(value);
     }
@@ -115,8 +111,7 @@ public class ConfigTree extends ConfigElement {
      * @throws NotConfiguredException 如果配置不存在或值为 null
      * @throws NumberFormatException  如果字符串无法解析为双精度浮点数
      */
-    @NotNull
-    public Double readDouble(@NotNull List<String> keychain) throws NotConfiguredException {
+    public double readDouble(@NotNull List<String> keychain) throws NotConfiguredException {
         String value = readString(keychain);
         return Double.parseDouble(value);
     }
