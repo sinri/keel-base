@@ -11,6 +11,11 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
+/**
+ * 需要被运行时实例初始化（比如在 keel-app 中）以发挥作用。
+ *
+ * @since 5.0.0
+ */
 public interface Keel extends KeelAsyncMixin {
 
     @NotNull
@@ -39,6 +44,8 @@ public interface Keel extends KeelAsyncMixin {
     }
 
     @NotNull
-    Future<Void> close();
+    default Future<Void> close() {
+        return getVertx().close();
+    }
 }
 
