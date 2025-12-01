@@ -1,8 +1,10 @@
 package io.github.sinri.keel.base.verticles;
 
-import io.github.sinri.keel.base.KeelInstance;
-import io.github.sinri.keel.base.annotations.TechnicalPreview;
-import io.vertx.core.*;
+import io.github.sinri.keel.base.Keel;
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Future;
+import io.vertx.core.Promise;
+import io.vertx.core.ThreadingModel;
 import io.vertx.core.json.JsonObject;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -18,22 +20,20 @@ import java.util.UUID;
  * @since 5.0.0
  */
 public abstract class AbstractKeelVerticle extends AbstractVerticle implements KeelVerticle {
-    @TechnicalPreview(since = "5.0.0")
-    protected static final KeelInstance Keel = KeelInstance.Keel;
+    private final @NotNull Keel keel;
     @NotNull
     private KeelVerticleRunningStateEnum runningState;
     @Nullable
     private String deploymentInstanceCode;
 
-    public AbstractKeelVerticle() {
+    public AbstractKeelVerticle(@NotNull Keel keel) {
         this.runningState = KeelVerticleRunningStateEnum.BEFORE_RUNNING;
+        this.keel = keel;
     }
 
     @Override
-    @NotNull
-    public Vertx vertx() {
-        if (context == null) return Keel.getVertx();
-        else return context.owner();
+    public @NotNull Keel keel() {
+        return keel;
     }
 
     @Override

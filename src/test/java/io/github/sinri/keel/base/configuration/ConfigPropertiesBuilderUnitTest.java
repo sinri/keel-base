@@ -1,13 +1,13 @@
 package io.github.sinri.keel.base.configuration;
 
-import io.github.sinri.keel.base.KeelInstance;
-import io.vertx.core.Vertx;
-import io.vertx.junit5.VertxExtension;
-import io.vertx.junit5.VertxTestContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -17,15 +17,12 @@ import static org.junit.jupiter.api.Assertions.*;
  *
  * @since 5.0.0
  */
-@ExtendWith(VertxExtension.class)
 class ConfigPropertiesBuilderUnitTest {
     private ConfigPropertiesBuilder builder;
 
     @BeforeEach
-    void setUp(Vertx vertx, VertxTestContext testContext) {
-        KeelInstance.Keel.initializeVertx(vertx);
+    void setUp() {
         builder = new ConfigPropertiesBuilder();
-        testContext.completeNow();
     }
 
     @Test
@@ -107,63 +104,48 @@ class ConfigPropertiesBuilderUnitTest {
     }
 
     @Test
-    void testWriteToFile(Vertx vertx, VertxTestContext testContext) {
+    void testWriteToFile() throws IOException {
         builder.add("app.name", "TestApp");
         String testFile = "/tmp/test-config-" + System.currentTimeMillis() + ".properties";
 
-        builder.writeToFile(testFile)
-               .onComplete(ar -> {
-                   if (ar.succeeded()) {
-                       vertx.fileSystem().readFile(testFile)
-                            .onComplete(readAr -> {
-                                if (readAr.succeeded()) {
-                                    String content = readAr.result().toString();
-                                    assertTrue(content.contains("app.name=TestApp"));
-                                    // Clean up
-                                    vertx.fileSystem().delete(testFile)
-                                         .onComplete(deleteAr -> testContext.completeNow());
-                                } else {
-                                    testContext.failNow(readAr.cause());
-                                }
-                            });
-                   } else {
-                       testContext.failNow(ar.cause());
-                   }
-               });
+        try {
+            builder.writeToFile(testFile);
+            Path path = Paths.get(testFile);
+            String content = Files.readString(path, StandardCharsets.US_ASCII);
+            assertTrue(content.contains("app.name=TestApp"));
+        } finally {
+            // Clean up
+            Path path = Paths.get(testFile);
+            if (Files.exists(path)) {
+                Files.delete(path);
+            }
+        }
     }
 
     @Test
-    void testAppendToFile(Vertx vertx, VertxTestContext testContext) {
+    void testAppendToFile() throws IOException {
         builder.add("app.name", "TestApp");
         String testFile = "/tmp/test-config-append-" + System.currentTimeMillis() + ".properties";
 
-        // First write
-        builder.writeToFile(testFile)
-               .compose(v -> {
-                   // Then append
-                   ConfigPropertiesBuilder builder2 = new ConfigPropertiesBuilder();
-                   builder2.add("app.version", "1.0.0");
-                   return builder2.appendToFile(testFile);
-               })
-               .onComplete(ar -> {
-                   if (ar.succeeded()) {
-                       vertx.fileSystem().readFile(testFile)
-                            .onComplete(readAr -> {
-                                if (readAr.succeeded()) {
-                                    String content = readAr.result().toString();
-                                    assertTrue(content.contains("app.name=TestApp"));
-                                    assertTrue(content.contains("app.version=1.0.0"));
-                                    // Clean up
-                                    vertx.fileSystem().delete(testFile)
-                                         .onComplete(deleteAr -> testContext.completeNow());
-                                } else {
-                                    testContext.failNow(readAr.cause());
-                                }
-                            });
-                   } else {
-                       testContext.failNow(ar.cause());
-                   }
-               });
+        try {
+            // First write
+            builder.writeToFile(testFile);
+            // Then append
+            ConfigPropertiesBuilder builder2 = new ConfigPropertiesBuilder();
+            builder2.add("app.version", "1.0.0");
+            builder2.appendToFile(testFile);
+
+            Path path = Paths.get(testFile);
+            String content = Files.readString(path, StandardCharsets.US_ASCII);
+            assertTrue(content.contains("app.name=TestApp"));
+            assertTrue(content.contains("app.version=1.0.0"));
+        } finally {
+            // Clean up
+            Path path = Paths.get(testFile);
+            if (Files.exists(path)) {
+                Files.delete(path);
+            }
+        }
     }
 }
 

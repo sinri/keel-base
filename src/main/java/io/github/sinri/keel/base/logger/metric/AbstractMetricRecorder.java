@@ -1,5 +1,6 @@
 package io.github.sinri.keel.base.logger.metric;
 
+import io.github.sinri.keel.base.Keel;
 import io.github.sinri.keel.base.verticles.AbstractKeelVerticle;
 import io.github.sinri.keel.logger.api.metric.MetricRecord;
 import io.github.sinri.keel.logger.api.metric.MetricRecorder;
@@ -23,6 +24,10 @@ abstract public class AbstractMetricRecorder extends AbstractKeelVerticle implem
     private final AtomicBoolean endSwitch = new AtomicBoolean(false);
     @NotNull
     private final Queue<MetricRecord> metricRecordQueue = new ConcurrentLinkedQueue<>();
+
+    public AbstractMetricRecorder(@NotNull Keel keel) {
+        super(keel);
+    }
 
     public void recordMetric(@NotNull MetricRecord metricRecord) {
         this.metricRecordQueue.add(metricRecord);

@@ -1,5 +1,6 @@
 package io.github.sinri.keel.base.verticles;
 
+import io.github.sinri.keel.base.Keel;
 import io.vertx.core.Future;
 import org.jetbrains.annotations.NotNull;
 
@@ -19,7 +20,8 @@ public final class InstantKeelVerticle extends AbstractKeelVerticle {
      *
      * @param verticleStartFunc 在 verticle 启动时执行的函数，接收当前 verticle 实例并返回异步完成结果
      */
-    InstantKeelVerticle(@NotNull Function<KeelVerticle, Future<Void>> verticleStartFunc) {
+    InstantKeelVerticle(@NotNull Keel keel, @NotNull Function<KeelVerticle, Future<Void>> verticleStartFunc) {
+        super(keel);
         this.verticleStartFunc = verticleStartFunc;
     }
 

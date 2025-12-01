@@ -6,6 +6,7 @@ import io.github.sinri.keel.base.logger.factory.StdoutLoggerFactory;
 import io.vertx.config.ConfigRetriever;
 import io.vertx.config.ConfigRetrieverOptions;
 import io.vertx.core.Future;
+import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.jetbrains.annotations.NotNull;
@@ -19,8 +20,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-
-import static io.github.sinri.keel.base.KeelInstance.Keel;
 
 
 /**
@@ -113,9 +112,9 @@ public class ConfigElement implements JsonObjectConvertible, JsonObjectReloadabl
      * @see <a href="https://vertx.io/docs/vertx-config/java/">Vert.x Config</a>
      */
     @NotNull
-    public static Future<ConfigElement> retrieve(@NotNull ConfigRetrieverOptions configRetrieverOptions) {
-        ConfigRetriever configRetriever = ConfigRetriever.create(Keel.getVertx(), configRetrieverOptions);
-        return ConfigRetriever.create(Keel.getVertx(), configRetrieverOptions).getConfig()
+    public static Future<ConfigElement> retrieve(@NotNull Vertx vertx, @NotNull ConfigRetrieverOptions configRetrieverOptions) {
+        ConfigRetriever configRetriever = ConfigRetriever.create(vertx, configRetrieverOptions);
+        return ConfigRetriever.create(vertx, configRetrieverOptions).getConfig()
                               .compose(jsonObject -> Future.succeededFuture(decodeJsonObject(jsonObject)))
                               .andThen(ar -> configRetriever.close());
     }

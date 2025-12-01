@@ -20,12 +20,14 @@ import java.util.Objects;
  *
  * @since 5.0.0
  */
+@Deprecated(since = "5.0.0", forRemoval = true)
 public final class KeelInstance implements KeelAsyncMixin {
     /**
      * Keel 框架的全局单例实例。
      * <p>
      * 在类加载时自动初始化，提供对 Keel 框架核心功能的访问。
      */
+    @Deprecated(since = "5.0.0", forRemoval = true)
     @NotNull
     public final static KeelInstance Keel;
 

@@ -7,6 +7,7 @@ import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -93,7 +94,7 @@ class QueuedLogWriterAdapterUnitTest {
         private final AtomicInteger processedCount = new AtomicInteger(0);
 
         @Override
-        protected Future<Void> processLogRecords(String topic, List<SpecificLog<?>> batch) {
+        protected @NotNull Future<Void> processLogRecords(@NotNull String topic, @NotNull List<SpecificLog<?>> batch) {
             processedCount.addAndGet(batch.size());
             return Future.succeededFuture();
         }

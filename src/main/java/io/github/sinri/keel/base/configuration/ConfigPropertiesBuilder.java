@@ -1,14 +1,17 @@
 package io.github.sinri.keel.base.configuration;
 
-import io.vertx.core.Future;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static io.github.sinri.keel.base.KeelInstance.Keel;
 
 
 /**
@@ -86,21 +89,21 @@ public class ConfigPropertiesBuilder {
         return String.join("\n", collect);
     }
 
-    public Future<Void> writeToFile(String filePath) {
-        return Keel.getVertx()
-                   .fileSystem()
-                   .writeFile(
-                           filePath,
-                           io.vertx.core.buffer.Buffer.buffer(writeToString().getBytes(StandardCharsets.US_ASCII))
-                   );
+    public void writeToFile(String filePath) throws IOException {
+        Path path = Paths.get(filePath);
+        Files.writeString(
+                path,
+                writeToString(), StandardCharsets.US_ASCII
+        );
     }
 
-    public Future<Void> appendToFile(String filePath) {
-        return Keel.getVertx().fileSystem()
-                   .open(filePath, new io.vertx.core.file.OpenOptions().setAppend(true))
-                   .compose(file -> file.write(io.vertx.core.buffer.Buffer.buffer(writeToString().getBytes(StandardCharsets.US_ASCII)))
-                                        .compose(v -> file.close())
-                                        .onFailure(err -> file.close())); // Ensure file is closed even on failure
-
+    public void appendToFile(String filePath) throws IOException {
+        Path path = Paths.get(filePath);
+        Files.writeString(
+                path,
+                writeToString(), StandardCharsets.US_ASCII,
+                StandardOpenOption.CREATE,
+                StandardOpenOption.APPEND
+        );
     }
 }

@@ -1,5 +1,6 @@
 package io.github.sinri.keel.base.logger.adapter;
 
+import io.github.sinri.keel.base.Keel;
 import io.github.sinri.keel.base.verticles.AbstractKeelVerticle;
 import io.github.sinri.keel.logger.api.adapter.PersistentLogWriterAdapter;
 import io.github.sinri.keel.logger.api.log.SpecificLog;
@@ -23,8 +24,8 @@ public abstract class QueuedLogWriterAdapter extends AbstractKeelVerticle implem
     @NotNull
     private final AtomicBoolean closeFlag = new AtomicBoolean(false);
 
-    public QueuedLogWriterAdapter() {
-
+    public QueuedLogWriterAdapter(@NotNull Keel keel) {
+        super(keel);
     }
 
     /**
@@ -41,10 +42,10 @@ public abstract class QueuedLogWriterAdapter extends AbstractKeelVerticle implem
 
     @Override
     protected @NotNull Future<Void> startVerticle() {
-        Keel.asyncCallRepeatedly(repeatedlyCallTask -> {
+        keel().asyncCallRepeatedly(repeatedlyCallTask -> {
                 Set<String> topics = this.queueMap.keySet();
                 AtomicInteger counter = new AtomicInteger(0);
-                return Keel.asyncCallIteratively(topics, topic -> {
+                  return keel().asyncCallIteratively(topics, topic -> {
                                Queue<SpecificLog<?>> queue = this.queueMap.get(topic);
                                List<SpecificLog<?>> bufferOfTopic = new ArrayList<>();
                                while (true) {
@@ -67,7 +68,7 @@ public abstract class QueuedLogWriterAdapter extends AbstractKeelVerticle implem
                                        repeatedlyCallTask.stop();
                                        return Future.succeededFuture();
                                    }
-                                   return Keel.asyncSleep(100L);
+                                   return keel().asyncSleep(100L);
                                } else {
                                    return Future.succeededFuture();
                                }

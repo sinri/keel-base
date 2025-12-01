@@ -1,6 +1,6 @@
 package io.github.sinri.keel.base.verticles;
 
-import io.github.sinri.keel.base.KeelInstance;
+import io.github.sinri.keel.base.Keel;
 import io.vertx.core.*;
 import io.vertx.core.json.JsonObject;
 import org.jetbrains.annotations.NotNull;
@@ -8,8 +8,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.function.Function;
-
-import static io.github.sinri.keel.base.KeelInstance.Keel;
 
 /**
  * Keel 体系下的 {@link Verticle} 强化标准接口。
@@ -31,19 +29,21 @@ public interface KeelVerticle extends Verticle {
      * @return 即时执行的 Keel Verticle 实例
      */
     @NotNull
-    static KeelVerticle instant(@NotNull Function<KeelVerticle, Future<Void>> verticleStartFunc) {
-        return new InstantKeelVerticle(verticleStartFunc);
+    static KeelVerticle instant(@NotNull Keel keel, @NotNull Function<KeelVerticle, Future<Void>> verticleStartFunc) {
+        return new InstantKeelVerticle(keel, verticleStartFunc);
     }
+
+    @NotNull Keel keel();
 
     /**
      * 仅在本类对应 Verticle 部署后能有效返回 Vertx 实例。
      * <p>
-     * 如果尚未部署，则通过{@link KeelInstance#getVertx()}返回Keel框架维护的 Vertx实例。如果已经解除部署，则返回此前部署所在的 Vertx 实例。
+     * 如果尚未部署，则通过{@link KeelVerticle#keel()}返回Keel框架维护的 Vertx实例。如果已经解除部署，则返回此前部署所在的 Vertx 实例。
      *
      * @return Vertx 实例。
      */
     @NotNull
-    Vertx vertx();
+    Vertx getVertx();
 
     /**
      * 获取当前 verticle 的线程模型。
@@ -97,12 +97,12 @@ public interface KeelVerticle extends Verticle {
      * @param deploymentOptions 部署选项
      * @return 一个异步完成，如果部署成功则返回部署唯一标识，如果部署失败则返回异常
      */
-    default Future<String> deployMe(DeploymentOptions deploymentOptions) {
+    default Future<String> deployMe(@NotNull DeploymentOptions deploymentOptions) {
         String deploymentID = deploymentID();
         if (deploymentID != null) {
             throw new IllegalStateException("This verticle has been deployed already!");
         }
-        return Keel.getVertx().deployVerticle(this, deploymentOptions);
+        return keel().getVertx().deployVerticle(this, deploymentOptions);
     }
 
     /**
@@ -115,7 +115,7 @@ public interface KeelVerticle extends Verticle {
         if (deploymentID == null) {
             throw new IllegalStateException("This verticle has not been deployed yet!");
         }
-        return Keel.getVertx().undeploy(deploymentID);
+        return getVertx().undeploy(deploymentID);
     }
 
     /**
