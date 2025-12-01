@@ -166,6 +166,10 @@ public class KeelVerticleUnitTest {
      * 测试用的KeelVerticle实现。
      */
     private static class TestKeelVerticle extends AbstractKeelVerticle {
+        TestKeelVerticle() {
+            super(io.github.sinri.keel.base.KeelInstance.Keel);
+        }
+
         @Override
         protected io.vertx.core.@NotNull Future<Void> startVerticle() {
             return io.vertx.core.Future.succeededFuture();

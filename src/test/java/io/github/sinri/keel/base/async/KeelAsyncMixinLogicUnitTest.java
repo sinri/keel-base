@@ -1,5 +1,6 @@
 package io.github.sinri.keel.base.async;
 
+import io.github.sinri.keel.base.Keel;
 import io.github.sinri.keel.base.KeelInstance;
 import io.vertx.core.Vertx;
 import io.vertx.junit5.VertxExtension;
@@ -22,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 @ExtendWith(VertxExtension.class)
 class KeelAsyncMixinLogicUnitTest {
-    private KeelInstance asyncMixin;
+    private Keel asyncMixin;
 
     @BeforeEach
     void setUp(Vertx vertx) {

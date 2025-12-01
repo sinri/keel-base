@@ -56,12 +56,12 @@ public class AbstractKeelVerticleUnitTest {
         TestKeelVerticle verticle = new TestKeelVerticle();
 
         // Before deployment, should return Keel's vertx
-        assertEquals(vertx, verticle.vertx());
+        assertEquals(vertx, verticle.getVertx());
 
         vertx.deployVerticle(verticle)
              .compose(deploymentId -> {
                  // After deployment, should return context's vertx
-                 assertEquals(vertx, verticle.vertx());
+                 assertEquals(vertx, verticle.getVertx());
                  return vertx.undeploy(deploymentId);
              })
              .onComplete(ar -> {
@@ -215,6 +215,10 @@ public class AbstractKeelVerticleUnitTest {
      * 测试用的KeelVerticle实现。
      */
     private static class TestKeelVerticle extends AbstractKeelVerticle {
+        TestKeelVerticle() {
+            super(io.github.sinri.keel.base.KeelInstance.Keel);
+        }
+
         @Override
         protected @NotNull Future<Void> startVerticle() {
             return Future.succeededFuture();

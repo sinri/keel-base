@@ -1,5 +1,6 @@
 package io.github.sinri.keel.base.async;
 
+import io.github.sinri.keel.base.Keel;
 import io.github.sinri.keel.base.KeelInstance;
 import io.github.sinri.keel.base.logger.logger.StdoutLogger;
 import io.github.sinri.keel.base.verticles.KeelVerticle;
@@ -25,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 @ExtendWith(VertxExtension.class)
 public class KeelAsyncMixinBlockUnitTest {
-    private KeelInstance asyncMixin;
+    private Keel asyncMixin;
 
     @BeforeEach
     public void setUp(Vertx vertx) {
@@ -118,9 +119,9 @@ public class KeelAsyncMixinBlockUnitTest {
     public void testBlockAwait(VertxTestContext testContext) {
         // This test needs to run in a worker thread context
         Future<String> future = asyncMixin.asyncSleep(50).map(v -> "success");
-        var verticle = KeelVerticle.instant(keelVerticle -> {
+        var verticle = KeelVerticle.instant(KeelInstance.Keel, keelVerticle -> {
 
-            keelVerticle.vertx().setTimer(100L, id -> {
+            keelVerticle.getVertx().setTimer(100L, id -> {
                 try {
                     ThreadingModel threadingModel = Vertx.currentContext().threadingModel();
                     System.out.println("Current thread is " + threadingModel.toString());

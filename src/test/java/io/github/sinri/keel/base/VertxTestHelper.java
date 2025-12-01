@@ -6,8 +6,6 @@ import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import static io.github.sinri.keel.base.KeelInstance.Keel;
-
 /**
  * Vertx测试辅助类，提供Vertx测试环境设置和清理。
  *
@@ -21,7 +19,7 @@ public class VertxTestHelper {
      * @param vertx Vertx实例
      */
     public static void setupVertx(Vertx vertx) {
-        Keel.initializeVertx(vertx);
+        KeelInstance.Keel.initializeVertx(vertx);
     }
 
     /**
@@ -30,8 +28,8 @@ public class VertxTestHelper {
      * @param testContext 测试上下文
      */
     public static void cleanupVertx(VertxTestContext testContext) {
-        if (Keel.isVertxInitialized()) {
-            Keel.close()
+        if (KeelInstance.Keel.isVertxInitialized()) {
+            KeelInstance.Keel.close()
                 .onComplete(ar -> {
                     if (ar.succeeded()) {
                         testContext.completeNow();

@@ -1,6 +1,5 @@
 package io.github.sinri.keel.base;
 
-import io.github.sinri.keel.base.async.KeelAsyncMixin;
 import io.github.sinri.keel.base.configuration.ConfigTree;
 import io.github.sinri.keel.base.logger.factory.StdoutLoggerFactory;
 import io.github.sinri.keel.logger.api.factory.LoggerFactory;
@@ -20,16 +19,7 @@ import java.util.Objects;
  *
  * @since 5.0.0
  */
-@Deprecated(since = "5.0.0", forRemoval = true)
-public final class KeelInstance implements KeelAsyncMixin {
-    /**
-     * Keel 框架的全局单例实例。
-     * <p>
-     * 在类加载时自动初始化，提供对 Keel 框架核心功能的访问。
-     */
-    @Deprecated(since = "5.0.0", forRemoval = true)
-    @NotNull
-    public final static KeelInstance Keel;
+public final class KeelInstance implements Keel {
 
     static {
         String loggingProperty = System.getProperty("vertx.logger-delegate-factory-class-name");
@@ -38,8 +28,13 @@ public final class KeelInstance implements KeelAsyncMixin {
             // 必须在任何 Vert.x 类被加载之前设置此属性
             System.setProperty("vertx.logger-delegate-factory-class-name", "io.vertx.core.logging.JULLogDelegateFactory");
         }
-        Keel = new KeelInstance();
     }
+
+    /**
+     * 测试用的单例 Keel 实例。
+     */
+    @NotNull
+    public static final KeelInstance Keel = new KeelInstance();
 
     @NotNull
     private final ConfigTree configuration;
@@ -53,7 +48,7 @@ public final class KeelInstance implements KeelAsyncMixin {
      * <p>
      * 初始化配置树和默认的日志工厂。
      */
-    private KeelInstance() {
+    public KeelInstance() {
         this.configuration = new ConfigTree();
         this.loggerFactory = StdoutLoggerFactory.getInstance();
     }
@@ -84,10 +79,8 @@ public final class KeelInstance implements KeelAsyncMixin {
      * @param loggerFactory 要设置的日志工厂
      * @return 当前实例，支持链式调用
      */
-    @NotNull
-    public KeelInstance setLoggerFactory(@NotNull LoggerFactory loggerFactory) {
+    public void setLoggerFactory(@NotNull LoggerFactory loggerFactory) {
         this.loggerFactory = loggerFactory;
-        return this;
     }
 
     /**

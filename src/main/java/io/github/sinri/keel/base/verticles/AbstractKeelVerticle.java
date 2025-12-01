@@ -1,10 +1,7 @@
 package io.github.sinri.keel.base.verticles;
 
 import io.github.sinri.keel.base.Keel;
-import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Future;
-import io.vertx.core.Promise;
-import io.vertx.core.ThreadingModel;
+import io.vertx.core.*;
 import io.vertx.core.json.JsonObject;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -34,6 +31,15 @@ public abstract class AbstractKeelVerticle extends AbstractVerticle implements K
     @Override
     public @NotNull Keel keel() {
         return keel;
+    }
+
+    @Override
+    public @NotNull Vertx getVertx() {
+        Vertx v = super.getVertx();
+        if (v == null) {
+            return keel.getVertx();
+        }
+        return v;
     }
 
     @Override

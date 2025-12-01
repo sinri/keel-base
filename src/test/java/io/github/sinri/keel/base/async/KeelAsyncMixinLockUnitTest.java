@@ -1,5 +1,6 @@
 package io.github.sinri.keel.base.async;
 
+import io.github.sinri.keel.base.Keel;
 import io.github.sinri.keel.base.KeelInstance;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
@@ -11,7 +12,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 /**
  * KeelAsyncMixinLock单元测试。
@@ -20,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 @ExtendWith(VertxExtension.class)
 class KeelAsyncMixinLockUnitTest {
-    private KeelInstance asyncMixin;
+    private Keel asyncMixin;
 
     @BeforeEach
     void setUp(Vertx vertx) {

@@ -101,6 +101,10 @@ class AbstractMetricRecorderUnitTest {
         private final AtomicInteger processedCount = new AtomicInteger(0);
         private final List<MetricRecord> processedRecords = new ArrayList<>();
 
+        TestMetricRecorder() {
+            super(io.github.sinri.keel.base.KeelInstance.Keel);
+        }
+
         @Override
         protected Future<Void> handleForTopic(String topic, List<MetricRecord> buffer) {
             processedCount.addAndGet(buffer.size());

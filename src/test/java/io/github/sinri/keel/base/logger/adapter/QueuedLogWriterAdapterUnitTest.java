@@ -93,6 +93,10 @@ class QueuedLogWriterAdapterUnitTest {
     private static class TestQueuedLogWriterAdapter extends QueuedLogWriterAdapter {
         private final AtomicInteger processedCount = new AtomicInteger(0);
 
+        TestQueuedLogWriterAdapter() {
+            super(io.github.sinri.keel.base.KeelInstance.Keel);
+        }
+
         @Override
         protected @NotNull Future<Void> processLogRecords(@NotNull String topic, @NotNull List<SpecificLog<?>> batch) {
             processedCount.addAndGet(batch.size());

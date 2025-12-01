@@ -1,5 +1,6 @@
 package io.github.sinri.keel.base.async;
 
+import io.github.sinri.keel.base.Keel;
 import io.github.sinri.keel.base.KeelInstance;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
@@ -23,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 @ExtendWith(VertxExtension.class)
 class KeelAsyncMixinParallelUnitTest {
-    private KeelInstance asyncMixin;
+    private Keel asyncMixin;
 
     @BeforeEach
     void setUp(Vertx vertx) {
