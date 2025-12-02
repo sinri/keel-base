@@ -42,10 +42,10 @@ public abstract class QueuedLogWriterAdapter extends AbstractKeelVerticle implem
 
     @Override
     protected @NotNull Future<Void> startVerticle() {
-        keel().asyncCallRepeatedly(repeatedlyCallTask -> {
+        getKeel().asyncCallRepeatedly(repeatedlyCallTask -> {
                 Set<String> topics = this.queueMap.keySet();
                 AtomicInteger counter = new AtomicInteger(0);
-                  return keel().asyncCallIteratively(topics, topic -> {
+                     return getKeel().asyncCallIteratively(topics, topic -> {
                                Queue<SpecificLog<?>> queue = this.queueMap.get(topic);
                                List<SpecificLog<?>> bufferOfTopic = new ArrayList<>();
                                while (true) {
@@ -62,19 +62,19 @@ public abstract class QueuedLogWriterAdapter extends AbstractKeelVerticle implem
 
                                return processLogRecords(topic, bufferOfTopic);
                            })
-                           .eventually(() -> {
+                                     .eventually(() -> {
                                if (counter.get() == 0) {
                                    if (closeFlag.get()) {
                                        repeatedlyCallTask.stop();
                                        return Future.succeededFuture();
                                    }
-                                   return keel().asyncSleep(100L);
+                                   return getKeel().asyncSleep(100L);
                                } else {
                                    return Future.succeededFuture();
                                }
                            });
             })
-            .onComplete(ar -> {
+                 .onComplete(ar -> {
                 this.undeployMe();
             });
         return Future.succeededFuture();

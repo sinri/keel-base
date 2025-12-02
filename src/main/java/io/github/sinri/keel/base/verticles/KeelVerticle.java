@@ -1,6 +1,7 @@
 package io.github.sinri.keel.base.verticles;
 
 import io.github.sinri.keel.base.Keel;
+import io.github.sinri.keel.base.KeelHolder;
 import io.vertx.core.*;
 import io.vertx.core.json.JsonObject;
 import org.jetbrains.annotations.NotNull;
@@ -16,7 +17,7 @@ import java.util.function.Function;
  *
  * @since 5.0.0
  */
-public interface KeelVerticle extends Verticle {
+public interface KeelVerticle extends Verticle, KeelHolder {
 
     String CONFIG_KEY_OF_VERTICLE_IDENTITY = "verticle_identity";
 
@@ -33,12 +34,10 @@ public interface KeelVerticle extends Verticle {
         return new InstantKeelVerticle(keel, verticleStartFunc);
     }
 
-    @NotNull Keel keel();
-
     /**
      * 仅在本类对应 Verticle 部署后能有效返回 Vertx 实例。
      * <p>
-     * 如果尚未部署，则通过{@link KeelVerticle#keel()}返回Keel框架维护的 Vertx实例。如果已经解除部署，则返回此前部署所在的 Vertx 实例。
+     * 如果尚未部署，则通过{@link KeelVerticle#getKeel()}返回Keel框架维护的 Vertx实例。如果已经解除部署，则返回此前部署所在的 Vertx 实例。
      *
      * @return Vertx 实例。
      */
@@ -102,7 +101,7 @@ public interface KeelVerticle extends Verticle {
         if (deploymentID != null) {
             throw new IllegalStateException("This verticle has been deployed already!");
         }
-        return keel().getVertx().deployVerticle(this, deploymentOptions);
+        return getKeel().getVertx().deployVerticle(this, deploymentOptions);
     }
 
     /**

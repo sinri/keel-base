@@ -29,7 +29,7 @@ public abstract class AbstractKeelVerticle extends AbstractVerticle implements K
     }
 
     @Override
-    public @NotNull Keel keel() {
+    public @NotNull Keel getKeel() {
         return keel;
     }
 

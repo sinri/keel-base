@@ -1,5 +1,6 @@
 package io.github.sinri.keel.base.async;
 
+import io.github.sinri.keel.base.VertxHolder;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
@@ -11,7 +12,7 @@ import org.jetbrains.annotations.Nullable;
  *
  * @since 5.0.0
  */
-interface KeelAsyncMixinCore {
+interface KeelAsyncMixinCore extends VertxHolder {
     /**
      * 获得一个 Vertx 实例。所有异步任务均基于此 Vertx 实例进行。
      *
