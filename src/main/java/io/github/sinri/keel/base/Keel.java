@@ -24,9 +24,6 @@ public interface Keel extends KeelAsyncMixin {
     @NotNull
     LoggerFactory getLoggerFactory();
 
-    @Deprecated(since = "5.0.0", forRemoval = true)
-    void setLoggerFactory(@NotNull LoggerFactory loggerFactory);
-
     @Nullable
     default String config(@NotNull String dotJoinedKeyChain) {
         String[] split = dotJoinedKeyChain.split("\\.");
