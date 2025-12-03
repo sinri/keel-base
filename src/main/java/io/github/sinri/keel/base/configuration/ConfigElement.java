@@ -12,10 +12,7 @@ import io.vertx.core.json.JsonObject;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringReader;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -378,13 +375,14 @@ public class ConfigElement implements JsonObjectConvertible, JsonObjectReloadabl
     @NotNull
     public ConfigElement loadPropertiesFile(@NotNull String propertiesFileName, @NotNull Charset charset)
             throws IOException {
+        File file = new File(propertiesFileName);
         Properties properties = new Properties();
         try {
             // here, the file named as `propertiesFileName` should be put along with JAR
-            properties.load(new FileReader(propertiesFileName, charset));
+            properties.load(new FileReader(file, charset));
         } catch (IOException e) {
             StdoutLoggerFactory.getInstance().createLogger(getClass().getName())
-                               .warning("Cannot read the file %s. Use the embedded one.".formatted(propertiesFileName));
+                               .warning("Cannot read the file %s. Use the embedded one.".formatted(file.getAbsolutePath()));
             InputStream resourceAsStream = getClass().getClassLoader().getResourceAsStream(propertiesFileName);
             if (resourceAsStream == null) {
                 // if the embedded file is not found, throw an IOException
