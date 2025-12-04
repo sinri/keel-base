@@ -34,9 +34,6 @@ public interface Keel extends KeelAsyncMixin {
         }
     }
 
-    @NotNull
-    Vertx getVertx();
-
     default boolean isRunningInVertxCluster() {
         return getVertx().isClustered();
     }
@@ -45,5 +42,8 @@ public interface Keel extends KeelAsyncMixin {
     default Future<Void> close() {
         return getVertx().close();
     }
+
+    @Override
+    @NotNull Vertx getVertx();
 }
 
