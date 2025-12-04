@@ -6,7 +6,7 @@
 
     <groupId>io.github.sinri</groupId>
     <artifactId>keel-base</artifactId>
-    <version>5.0.0-rc.20</version>
+    <version>5.0.0-rc.21</version>
     <!--        <version>5.0.0-SNAPSHOT</version>-->
 
     <name>Keel-Base</name>
@@ -48,7 +48,7 @@
         <nexusStagingMavenPluginVersion>1.7.0</nexusStagingMavenPluginVersion>
         <vertxVersion>5.0.5</vertxVersion>
         <jacksonVersion>2.18.2</jacksonVersion>
-        <keelLoggerApiVersion>5.0.0-rc.15</keelLoggerApiVersion>
+        <keelLoggerApiVersion>5.0.0-rc.16</keelLoggerApiVersion>
     </properties>
 
     <build>
