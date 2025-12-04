@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -43,46 +43,46 @@ public abstract class QueuedLogWriterAdapter extends AbstractKeelVerticle implem
     @Override
     protected @NotNull Future<Void> startVerticle() {
         getKeel().asyncCallRepeatedly(repeatedlyCallTask -> {
-                Set<String> topics = this.queueMap.keySet();
-                AtomicInteger counter = new AtomicInteger(0);
+                     Set<String> topics = this.queueMap.keySet();
+                     AtomicInteger counter = new AtomicInteger(0);
                      return getKeel().asyncCallIteratively(topics, topic -> {
-                               Queue<SpecificLog<?>> queue = this.queueMap.get(topic);
-                               List<SpecificLog<?>> bufferOfTopic = new ArrayList<>();
-                               while (true) {
-                                   SpecificLog<?> r = queue.poll();
-                                   if (r == null) break;
-                                   bufferOfTopic.add(r);
-                                   counter.incrementAndGet();
-                                   if (bufferOfTopic.size() >= this.bufferSize()) {
-                                       break;
-                                   }
-                               }
+                                         Queue<SpecificLog<?>> queue = this.queueMap.get(topic);
+                                         List<SpecificLog<?>> bufferOfTopic = new ArrayList<>();
+                                         while (true) {
+                                             SpecificLog<?> r = queue.poll();
+                                             if (r == null) break;
+                                             bufferOfTopic.add(r);
+                                             counter.incrementAndGet();
+                                             if (bufferOfTopic.size() >= this.bufferSize()) {
+                                                 break;
+                                             }
+                                         }
 
-                               if (bufferOfTopic.isEmpty()) return Future.succeededFuture();
+                                         if (bufferOfTopic.isEmpty()) return Future.succeededFuture();
 
-                               return processLogRecords(topic, bufferOfTopic);
-                           })
+                                         return processLogRecords(topic, bufferOfTopic);
+                                     })
                                      .eventually(() -> {
-                               if (counter.get() == 0) {
-                                   if (closeFlag.get()) {
-                                       repeatedlyCallTask.stop();
-                                       return Future.succeededFuture();
-                                   }
-                                   return getKeel().asyncSleep(100L);
-                               } else {
-                                   return Future.succeededFuture();
-                               }
-                           });
-            })
+                                         if (counter.get() == 0) {
+                                             if (closeFlag.get()) {
+                                                 repeatedlyCallTask.stop();
+                                                 return Future.succeededFuture();
+                                             }
+                                             return getKeel().asyncSleep(100L);
+                                         } else {
+                                             return Future.succeededFuture();
+                                         }
+                                     });
+                 })
                  .onComplete(ar -> {
-                this.undeployMe();
-            });
+                     this.undeployMe();
+                 });
         return Future.succeededFuture();
     }
 
     @Override
     public void accept(@NotNull String topic, @NotNull SpecificLog<?> log) {
-        this.queueMap.computeIfAbsent(topic, k -> new SynchronousQueue<>())
+        this.queueMap.computeIfAbsent(topic, k -> new ConcurrentLinkedQueue<>())
                      .add(log);
     }
 
