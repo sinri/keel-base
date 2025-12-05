@@ -36,14 +36,14 @@ public abstract class FileLogWriterAdapter extends QueuedLogWriterAdapter implem
     protected @NotNull Future<Void> processLogRecords(@NotNull String topic, @NotNull List<SpecificLog<?>> batch) {
         FileWriter fileWriterForTopic = getFileWriterForTopic(topic);
         if (fileWriterForTopic == null) {
-            System.err.println("Discarding logs for topic " + topic + " as fileWriter is null");
+            // System.err.println("Discarding logs for topic " + topic + " as fileWriter is null");
             return Future.succeededFuture();
         }
         try {
             for (var log : batch) {
                 String text = render(topic, log);
-                System.out.println(text);
-                fileWriterForTopic.append(text);
+                // System.out.println(text);
+                fileWriterForTopic.append(text).append("\n");
             }
             fileWriterForTopic.flush();
         } catch (IOException e) {
