@@ -1,6 +1,7 @@
 package io.github.sinri.keel.base.logger.adapter;
 
 import io.github.sinri.keel.base.Keel;
+import io.github.sinri.keel.logger.api.adapter.LogTextRender;
 import io.github.sinri.keel.logger.api.log.SpecificLog;
 import io.vertx.core.Future;
 import org.jetbrains.annotations.NotNull;
@@ -15,7 +16,7 @@ import java.util.List;
  *
  * @since 5.0.0
  */
-public abstract class FileLogWriterAdapter extends QueuedLogWriterAdapter {
+public abstract class FileLogWriterAdapter extends QueuedLogWriterAdapter implements LogTextRender {
     public FileLogWriterAdapter(@NotNull Keel keel) {
         super(keel);
     }
@@ -34,11 +35,17 @@ public abstract class FileLogWriterAdapter extends QueuedLogWriterAdapter {
     @Override
     protected @NotNull Future<Void> processLogRecords(@NotNull String topic, @NotNull List<SpecificLog<?>> batch) {
         FileWriter fileWriterForTopic = getFileWriterForTopic(topic);
-        if (fileWriterForTopic == null) return Future.succeededFuture();
+        if (fileWriterForTopic == null) {
+            System.err.println("Discarding logs for topic " + topic + " as fileWriter is null");
+            return Future.succeededFuture();
+        }
         try {
             for (var log : batch) {
-                fileWriterForTopic.append(log.toString());
+                String text = render(topic, log);
+                System.out.println(text);
+                fileWriterForTopic.append(text);
             }
+            fileWriterForTopic.flush();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
