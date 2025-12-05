@@ -75,14 +75,15 @@ public abstract class AbstractKeelVerticle extends AbstractVerticle implements K
      */
     @Override
     public final void start(Promise<Void> startPromise) {
+        runningState = KeelVerticleRunningStateEnum.RUNNING;
         deploymentInstanceCode = UUID.randomUUID().toString();
         Future.succeededFuture()
               .compose(v -> startVerticle())
               .andThen(ar -> {
                   if (ar.succeeded()) {
-                      runningState = KeelVerticleRunningStateEnum.RUNNING;
                       startPromise.complete();
                   } else {
+                      runningState = KeelVerticleRunningStateEnum.RUNNING_FAILED;
                       startPromise.fail(ar.cause());
                   }
               });
