@@ -15,7 +15,10 @@ import java.util.function.Function;
  */
 interface KeelAsyncMixinParallel extends KeelAsyncMixinCore {
     @NotNull
-    private <T> List<Future<Void>> buildFutures(@NotNull Iterator<T> iterator, @NotNull Function<T, Future<Void>> itemProcessor) {
+    private <T> List<@NotNull Future<Void>> buildFutures(
+            @NotNull Iterator<T> iterator,
+            @NotNull Function<T, @NotNull Future<Void>> itemProcessor
+    ) {
         List<Future<Void>> futures = new ArrayList<>();
         while (iterator.hasNext()) {
             Future<Void> f = itemProcessor.apply(iterator.next());
@@ -25,7 +28,7 @@ interface KeelAsyncMixinParallel extends KeelAsyncMixinCore {
     }
 
     @NotNull
-    private <T> List<Future<Void>> buildFutures(@NotNull Iterable<T> iterable, @NotNull Function<T, Future<Void>> itemProcessor) {
+    private <T> List<Future<Void>> buildFutures(@NotNull Iterable<T> iterable, @NotNull Function<T, @NotNull Future<Void>> itemProcessor) {
         return buildFutures(iterable.iterator(), itemProcessor);
     }
 
@@ -72,7 +75,7 @@ interface KeelAsyncMixinParallel extends KeelAsyncMixinCore {
      */
     @NotNull
     default <T> Future<Void> parallelForAnySuccess(@NotNull Iterable<T> collection,
-                                                   @NotNull Function<T, Future<Void>> itemProcessor) {
+                                                   @NotNull Function<T, @NotNull Future<Void>> itemProcessor) {
         return parallelForAnySuccess(collection.iterator(), itemProcessor);
     }
 
@@ -86,7 +89,7 @@ interface KeelAsyncMixinParallel extends KeelAsyncMixinCore {
      */
     @NotNull
     default <T> Future<Void> parallelForAnySuccess(@NotNull Iterator<T> iterator,
-                                                   @NotNull Function<T, Future<Void>> itemProcessor) {
+                                                   @NotNull Function<T, @NotNull Future<Void>> itemProcessor) {
         List<Future<Void>> futures = buildFutures(iterator, itemProcessor);
         if (futures.isEmpty()) {
             return Future.succeededFuture();
@@ -119,7 +122,7 @@ interface KeelAsyncMixinParallel extends KeelAsyncMixinCore {
      */
     @NotNull
     default <T> Future<Void> parallelForAllComplete(@NotNull Iterator<T> iterator,
-                                                    @NotNull Function<T, Future<Void>> itemProcessor) {
+                                                    @NotNull Function<T, @NotNull Future<Void>> itemProcessor) {
         List<Future<Void>> futures = buildFutures(iterator, itemProcessor);
         if (futures.isEmpty()) {
             return Future.succeededFuture();

@@ -90,7 +90,7 @@ public class UnmodifiableJsonifiableEntityImpl implements UnmodifiableJsonifiabl
      * @return 从 JSON Pointer 位置读取的值，如果值不存在或无法转换为指定类型则返回 null
      */
     @Override
-    public @Nullable <T> T read(@NotNull Function<JsonPointer, Class<T>> func) {
+    public @Nullable <T> T read(@NotNull Function<@NotNull JsonPointer, @NotNull Class<T>> func) {
         try {
             JsonPointer jsonPointer = JsonPointer.create();
             Class<T> tClass = func.apply(jsonPointer);

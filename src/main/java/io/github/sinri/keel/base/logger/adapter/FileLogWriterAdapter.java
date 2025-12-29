@@ -29,20 +29,18 @@ public abstract class FileLogWriterAdapter extends QueuedLogWriterAdapter implem
      * 从性能角度考虑，避免频繁打开和关闭文件，可以考虑使用缓冲区或线程安全的文件写入器。
      * 所使用的 FileWriter 应在本类的 close 方法内关闭。
      */
-    @Nullable
-    abstract protected FileWriter getFileWriterForTopic(@NotNull String topic);
+    abstract protected @Nullable FileWriter getFileWriterForTopic(@NotNull String topic);
 
     @Override
-    protected @NotNull Future<Void> processLogRecords(@NotNull String topic, @NotNull List<SpecificLog<?>> batch) {
+    protected @NotNull Future<Void> processLogRecords(@NotNull String topic, @NotNull List<@NotNull SpecificLog<?>> batch) {
         FileWriter fileWriterForTopic = getFileWriterForTopic(topic);
         if (fileWriterForTopic == null) {
             // System.err.println("Discarding logs for topic " + topic + " as fileWriter is null");
             return Future.succeededFuture();
         }
         try {
-            for (var log : batch) {
+            for (@NotNull SpecificLog<?> log : batch) {
                 String text = render(topic, log);
-                // System.out.println(text);
                 fileWriterForTopic.append(text).append("\n");
             }
             fileWriterForTopic.flush();

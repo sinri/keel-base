@@ -1,7 +1,11 @@
 package io.github.sinri.keel.base.json;
 
 import io.vertx.core.json.JsonObject;
+import io.vertx.core.json.pointer.JsonPointer;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.function.Function;
 
 /**
  * 接口 {@link JsonifiableDataUnit} 的基本实现。
@@ -89,5 +93,20 @@ public class JsonifiableDataUnitImpl implements JsonifiableDataUnit {
     @Override
     public String toString() {
         return toJsonExpression();
+    }
+
+    @Nullable
+    public final <T> T read(@NotNull Function<@NotNull JsonPointer, @NotNull Class<T>> func) {
+        try {
+            JsonPointer jsonPointer = JsonPointer.create();
+            Class<T> tClass = func.apply(jsonPointer);
+            Object o = jsonPointer.queryJson(jsonObject);
+            if (o == null) {
+                return null;
+            }
+            return tClass.cast(o);
+        } catch (ClassCastException castException) {
+            return null;
+        }
     }
 }

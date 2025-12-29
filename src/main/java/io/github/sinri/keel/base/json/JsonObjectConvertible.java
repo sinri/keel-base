@@ -19,6 +19,5 @@ public interface JsonObjectConvertible extends JsonSerializable {
      *
      * @return 表示当前实体状态的非空 {@link JsonObject}
      */
-    @NotNull
-    JsonObject toJsonObject();
+    @NotNull JsonObject toJsonObject();
 }

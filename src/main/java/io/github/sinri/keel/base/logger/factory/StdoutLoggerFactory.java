@@ -25,8 +25,7 @@ public final class StdoutLoggerFactory extends BaseLoggerFactory {
     private StdoutLoggerFactory() {
     }
 
-    @NotNull
-    public static StdoutLoggerFactory getInstance() {
+    public static @NotNull StdoutLoggerFactory getInstance() {
         return instance;
     }
 

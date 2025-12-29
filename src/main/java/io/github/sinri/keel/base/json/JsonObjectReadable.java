@@ -26,7 +26,7 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
      * @return 从 JSON Pointer 位置读取的值，如果值不存在或无法转换为指定类型则返回 null
      */
     @Nullable
-    <T> T read(@NotNull Function<JsonPointer, Class<T>> func);
+    <T> T read(@NotNull Function<@NotNull JsonPointer, @NotNull Class<T>> func);
 
     /**
      * 使用指定的 JSON Pointer 参数从 JSON 结构中读取字符串值。
@@ -36,7 +36,7 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
      * @param args 用于构建 JSON Pointer 的字符串参数序列，每个参数代表 JSON 路径中的一个步骤
      * @return 在 JSON Pointer 位置找到的字符串值，如果值不存在或无法读取为字符串则返回 null
      */
-    default @Nullable String readString(String... args) {
+    default @Nullable String readString(@NotNull String... args) {
         return read(jsonPointer -> {
             for (var arg : args) {
                 jsonPointer.append(arg);
@@ -52,7 +52,7 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
      * @return 非空的字符串值
      * @throws NullPointerException 如果值为 null
      */
-    default @NotNull String readStringRequired(String... args) {
+    default @NotNull String readStringRequired(@NotNull String... args) {
         var r = readString(args);
         Objects.requireNonNull(r);
         return r;
@@ -66,7 +66,7 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
      * @param args 用于构建 JSON Pointer 的字符串参数序列，每个参数代表 JSON 路径中的一个步骤
      * @return 在 JSON Pointer 位置找到的数值，如果值不存在或无法读取为数值则返回 null
      */
-    default @Nullable Number readNumber(String... args) {
+    default @Nullable Number readNumber(@NotNull String... args) {
         return read(jsonPointer -> {
             for (var arg : args) {
                 jsonPointer.append(arg);
@@ -82,7 +82,7 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
      * @return 非空的数值
      * @throws NullPointerException 如果值为 null
      */
-    default @NotNull Number readNumberRequired(String... args) {
+    default @NotNull Number readNumberRequired(@NotNull String... args) {
         var r = readNumber(args);
         Objects.requireNonNull(r);
         return r;
@@ -96,7 +96,7 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
      * @param args 用于构建 JSON Pointer 的字符串参数序列
      * @return 在 JSON Pointer 位置找到的 Long 值，如果值不存在或无法读取为数值则返回 null
      */
-    default @Nullable Long readLong(String... args) {
+    default @Nullable Long readLong(@NotNull String... args) {
         Number number = readNumber(args);
         if (number == null) return null;
         return number.longValue();
@@ -109,7 +109,7 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
      * @return 非空的 Long 值
      * @throws NullPointerException 如果值为 null
      */
-    default @NotNull Long readLongRequired(String... args) {
+    default @NotNull Long readLongRequired(@NotNull String... args) {
         var r = readLong(args);
         Objects.requireNonNull(r);
         return r;
@@ -123,7 +123,7 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
      * @param args 用于构建 JSON Pointer 的字符串参数序列
      * @return 在 JSON Pointer 位置找到的 Integer 值，如果值不存在或无法读取为数值则返回 null
      */
-    default @Nullable Integer readInteger(String... args) {
+    default @Nullable Integer readInteger(@NotNull String... args) {
         Number number = readNumber(args);
         if (number == null) return null;
         return number.intValue();
@@ -136,7 +136,7 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
      * @return 非空的 Integer 值
      * @throws NullPointerException 如果值为 null
      */
-    default @NotNull Integer readIntegerRequired(String... args) {
+    default @NotNull Integer readIntegerRequired(@NotNull String... args) {
         var r = readInteger(args);
         Objects.requireNonNull(r);
         return r;
@@ -150,7 +150,7 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
      * @param args 用于构建 JSON Pointer 的字符串参数序列
      * @return 在 JSON Pointer 位置找到的 Float 值，如果值不存在或无法读取为数值则返回 null
      */
-    default @Nullable Float readFloat(String... args) {
+    default @Nullable Float readFloat(@NotNull String... args) {
         Number number = readNumber(args);
         if (number == null) return null;
         return number.floatValue();
@@ -163,7 +163,7 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
      * @return 非空的 Float 值
      * @throws NullPointerException 如果值为 null
      */
-    default @NotNull Float readFloatRequired(String... args) {
+    default @NotNull Float readFloatRequired(@NotNull String... args) {
         var r = readFloat(args);
         Objects.requireNonNull(r);
         return r;
@@ -177,7 +177,7 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
      * @param args 用于构建 JSON Pointer 的字符串参数序列
      * @return 在 JSON Pointer 位置找到的 Double 值，如果值不存在或无法读取为数值则返回 null
      */
-    default @Nullable Double readDouble(String... args) {
+    default @Nullable Double readDouble(@NotNull String... args) {
         Number number = readNumber(args);
         if (number == null) return null;
         return number.doubleValue();
@@ -190,7 +190,7 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
      * @return 非空的 Double 值
      * @throws NullPointerException 如果值为 null
      */
-    default @NotNull Double readDoubleRequired(String... args) {
+    default @NotNull Double readDoubleRequired(@NotNull String... args) {
         var r = readDouble(args);
         Objects.requireNonNull(r);
         return r;
@@ -204,7 +204,7 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
      * @param args 用于构建 JSON Pointer 的字符串参数序列，每个参数代表 JSON 路径中的一个步骤
      * @return 在 JSON Pointer 位置找到的 Boolean 值，如果值不存在或无法读取为 Boolean 则返回 null
      */
-    default @Nullable Boolean readBoolean(String... args) {
+    default @Nullable Boolean readBoolean(@NotNull String... args) {
         return read(jsonPointer -> {
             for (var arg : args) {
                 jsonPointer.append(arg);
@@ -220,7 +220,7 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
      * @return 非空的 Boolean 值
      * @throws NullPointerException 如果值为 null
      */
-    default @NotNull Boolean readBooleanRequired(String... args) {
+    default @NotNull Boolean readBooleanRequired(@NotNull String... args) {
         var r = readBoolean(args);
         Objects.requireNonNull(r);
         return r;
@@ -234,7 +234,7 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
      * @param args 用于构建 JSON Pointer 的字符串参数序列，每个参数代表 JSON 路径中的一个步骤
      * @return 在 JSON Pointer 位置找到的 JsonObject 值，如果值不存在或无法读取为 JsonObject 则返回 null
      */
-    default @Nullable JsonObject readJsonObject(String... args) {
+    default @Nullable JsonObject readJsonObject(@NotNull String... args) {
         return read(jsonPointer -> {
             for (var arg : args) {
                 jsonPointer.append(arg);
@@ -250,7 +250,7 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
      * @return 非空的 JsonObject 值
      * @throws NullPointerException 如果值为 null
      */
-    default @NotNull JsonObject readJsonObjectRequired(String... args) {
+    default @NotNull JsonObject readJsonObjectRequired(@NotNull String... args) {
         var r = readJsonObject(args);
         Objects.requireNonNull(r);
         return r;
@@ -264,7 +264,7 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
      * @param args 用于构建 JSON Pointer 的字符串参数序列，每个参数代表 JSON 路径中的一个步骤
      * @return 在 JSON Pointer 位置找到的 JsonArray 值，如果值不存在或无法读取为 JsonArray 则返回 null
      */
-    default @Nullable JsonArray readJsonArray(String... args) {
+    default @Nullable JsonArray readJsonArray(@NotNull String... args) {
         return read(jsonPointer -> {
             for (var arg : args) {
                 jsonPointer.append(arg);
@@ -280,7 +280,7 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
      * @return 非空的 JsonArray 值
      * @throws NullPointerException 如果值为 null
      */
-    default @NotNull JsonArray readJsonArrayRequired(String... args) {
+    default @NotNull JsonArray readJsonArrayRequired(@NotNull String... args) {
         var r = readJsonArray(args);
         Objects.requireNonNull(r);
         return r;
@@ -290,13 +290,13 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
      * 使用指定的 JSON Pointer 参数从 JSON 结构中读取 JsonObject 数组。
      * <p>
      * 此方法先读取 JsonArray，然后将其转换为 List&lt;JsonObject&gt;。
-     * 如果数组中的元素不是 JsonObject 类型，将抛出 RuntimeException。
+     * 如果数组中的元素不是有效 JsonObject 类型，将抛出 RuntimeException。
      *
      * @param args 用于构建 JSON Pointer 的字符串参数序列
      * @return 在 JSON Pointer 位置找到的 JsonObject 列表，如果值不存在则返回 null
      * @throws RuntimeException 如果数组中的元素不是 JsonObject 类型
      */
-    default @Nullable List<JsonObject> readJsonObjectArray(String... args) {
+    default @Nullable List<@NotNull JsonObject> readJsonObjectArray(@NotNull String... args) {
         JsonArray array = read(jsonPointer -> {
             for (var arg : args) {
                 jsonPointer.append(arg);
@@ -306,10 +306,8 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
         if (array == null) return null;
         List<JsonObject> list = new ArrayList<>();
         array.forEach(x -> {
-            if (x == null) {
-                list.add(null);
-            } else if (x instanceof JsonObject) {
-                list.add((JsonObject) x);
+            if (x instanceof JsonObject jsonObject) {
+                list.add(jsonObject);
             } else {
                 throw new RuntimeException("NOT JSON OBJECT");
             }
@@ -324,7 +322,7 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
      * @return 非空的 JsonObject 列表
      * @throws NullPointerException 如果值为 null
      */
-    default @NotNull List<JsonObject> readJsonObjectArrayRequired(String... args) {
+    default @NotNull List<@NotNull JsonObject> readJsonObjectArrayRequired(@NotNull String... args) {
         var r = readJsonObjectArray(args);
         Objects.requireNonNull(r);
         return r;
@@ -334,12 +332,12 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
      * 使用指定的 JSON Pointer 参数从 JSON 结构中读取字符串数组。
      * <p>
      * 此方法先读取 JsonArray，然后将其转换为 List&lt;String&gt;。
-     * 数组中的每个元素将被转换为字符串（null 值保持为 null）。
+     * 数组中的每个元素必须都是非 null 字符串。
      *
      * @param args 用于构建 JSON Pointer 的字符串参数序列
      * @return 在 JSON Pointer 位置找到的字符串列表，如果值不存在则返回 null
      */
-    default @Nullable List<String> readStringArray(String... args) {
+    default @Nullable List<@NotNull String> readStringArray(@NotNull String... args) {
         JsonArray array = read(jsonPointer -> {
             for (var arg : args) {
                 jsonPointer.append(arg);
@@ -349,10 +347,10 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
         if (array == null) return null;
         List<String> list = new ArrayList<>();
         array.forEach(x -> {
-            if (x == null) {
-                list.add(null);
+            if (x instanceof String s) {
+                list.add(s);
             } else {
-                list.add(x.toString());
+                throw new RuntimeException("Not String");
             }
         });
         return list;
@@ -365,7 +363,7 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
      * @return 非空的字符串列表
      * @throws NullPointerException 如果值为 null
      */
-    default @NotNull List<String> readStringArrayRequired(String... args) {
+    default @NotNull List<@NotNull String> readStringArrayRequired(@NotNull String... args) {
         var r = readStringArray(args);
         Objects.requireNonNull(r);
         return r;
@@ -382,7 +380,7 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
      * @return 在 JSON Pointer 位置找到的 Integer 列表，如果值不存在则返回 null
      * @throws RuntimeException 如果数组中的元素不是 Number 类型
      */
-    default @Nullable List<Integer> readIntegerArray(String... args) {
+    default @Nullable List<@NotNull Integer> readIntegerArray(@NotNull String... args) {
         JsonArray array = read(jsonPointer -> {
             for (var arg : args) {
                 jsonPointer.append(arg);
@@ -392,14 +390,10 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
         if (array == null) return null;
         List<Integer> list = new ArrayList<>();
         array.forEach(x -> {
-            if (x == null) {
-                list.add(0);
+            if (x instanceof Number number) {
+                list.add(number.intValue());
             } else {
-                if (x instanceof Number) {
-                    list.add(((Number) x).intValue());
-                } else {
-                    throw new RuntimeException("Not Integer");
-                }
+                throw new RuntimeException("Not Integer");
             }
         });
         return list;
@@ -412,7 +406,7 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
      * @return 非空的 Integer 列表
      * @throws NullPointerException 如果值为 null
      */
-    default @NotNull List<Integer> readIntegerArrayRequired(String... args) {
+    default @NotNull List<@NotNull Integer> readIntegerArrayRequired(@NotNull String... args) {
         var r = readIntegerArray(args);
         Objects.requireNonNull(r);
         return r;
@@ -429,7 +423,7 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
      * @return 在 JSON Pointer 位置找到的 Long 列表，如果值不存在则返回 null
      * @throws RuntimeException 如果数组中的元素不是 Number 类型
      */
-    default @Nullable List<Long> readLongArray(String... args) {
+    default @Nullable List<@NotNull Long> readLongArray(@NotNull String... args) {
         JsonArray array = read(jsonPointer -> {
             for (var arg : args) {
                 jsonPointer.append(arg);
@@ -439,14 +433,10 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
         if (array == null) return null;
         List<Long> list = new ArrayList<>();
         array.forEach(x -> {
-            if (x == null) {
-                list.add(0L);
+            if (x instanceof Number number) {
+                list.add(number.longValue());
             } else {
-                if (x instanceof Number) {
-                    list.add(((Number) x).longValue());
-                } else {
-                    throw new RuntimeException("Not Long");
-                }
+                throw new RuntimeException("Not Long");
             }
         });
         return list;
@@ -459,7 +449,7 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
      * @return 非空的 Long 列表
      * @throws NullPointerException 如果值为 null
      */
-    default @NotNull List<Long> readLongArrayRequired(String... args) {
+    default @NotNull List<@NotNull Long> readLongArrayRequired(@NotNull String... args) {
         var r = readLongArray(args);
         Objects.requireNonNull(r);
         return r;
@@ -476,7 +466,7 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
      * @return 在 JSON Pointer 位置找到的 Float 列表，如果值不存在则返回 null
      * @throws RuntimeException 如果数组中的元素不是 Number 类型
      */
-    default @Nullable List<Float> readFloatArray(String... args) {
+    default @Nullable List<@NotNull Float> readFloatArray(@NotNull String... args) {
         JsonArray array = read(jsonPointer -> {
             for (var arg : args) {
                 jsonPointer.append(arg);
@@ -486,14 +476,10 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
         if (array == null) return null;
         List<Float> list = new ArrayList<>();
         array.forEach(x -> {
-            if (x == null) {
-                list.add(0.0f);
+            if (x instanceof Number number) {
+                list.add(number.floatValue());
             } else {
-                if (x instanceof Number) {
-                    list.add(((Number) x).floatValue());
-                } else {
-                    throw new RuntimeException("Not Float");
-                }
+                throw new RuntimeException("Not Float");
             }
         });
         return list;
@@ -506,7 +492,7 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
      * @return 非空的 Float 列表
      * @throws NullPointerException 如果值为 null
      */
-    default @NotNull List<Float> readFloatArrayRequired(String... args) {
+    default @NotNull List<@NotNull Float> readFloatArrayRequired(@NotNull String... args) {
         var r = readFloatArray(args);
         Objects.requireNonNull(r);
         return r;
@@ -523,7 +509,7 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
      * @return 在 JSON Pointer 位置找到的 Double 列表，如果值不存在则返回 null
      * @throws RuntimeException 如果数组中的元素不是 Number 类型
      */
-    default @Nullable List<Double> readDoubleArray(String... args) {
+    default @Nullable List<@NotNull Double> readDoubleArray(@NotNull String... args) {
         JsonArray array = read(jsonPointer -> {
             for (var arg : args) {
                 jsonPointer.append(arg);
@@ -533,14 +519,10 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
         if (array == null) return null;
         List<Double> list = new ArrayList<>();
         array.forEach(x -> {
-            if (x == null) {
-                list.add(0.0);
+            if (x instanceof Number number) {
+                list.add(number.doubleValue());
             } else {
-                if (x instanceof Number) {
-                    list.add(((Number) x).doubleValue());
-                } else {
-                    throw new RuntimeException("Not Double");
-                }
+                throw new RuntimeException("Not Double");
             }
         });
         return list;
@@ -553,7 +535,7 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
      * @return 非空的 Double 列表
      * @throws NullPointerException 如果值为 null
      */
-    default @NotNull List<Double> readDoubleArrayRequired(String... args) {
+    default @NotNull List<@NotNull Double> readDoubleArrayRequired(@NotNull String... args) {
         var r = readDoubleArray(args);
         Objects.requireNonNull(r);
         return r;
@@ -567,7 +549,7 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
      * @param args 用于构建 JSON Pointer 的字符串参数序列，每个参数代表 JSON 路径中的一个步骤
      * @return 在 JSON Pointer 位置找到的值，如果值不存在则返回 null
      */
-    default @Nullable Object readValue(String... args) {
+    default @Nullable Object readValue(@NotNull String... args) {
         return read(jsonPointer -> {
             for (var arg : args) {
                 jsonPointer.append(arg);
@@ -583,7 +565,7 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
      * @return 非空的值
      * @throws NullPointerException 如果值为 null
      */
-    default @NotNull Object readValueRequired(String... args) {
+    default @NotNull Object readValueRequired(@NotNull String... args) {
         var r = readValue(args);
         Objects.requireNonNull(r);
         return r;
@@ -597,7 +579,7 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
      * @param <C>    要读取的实体的类型
      * @return 从 JSON 对象中读取的实体，如果读取失败则返回 null
      */
-    default @Nullable <C> C readEntity(@NotNull Class<C> cClass, String... args) {
+    default <C> @Nullable C readEntity(@NotNull Class<C> cClass, @NotNull String... args) {
         JsonObject jsonObject = readJsonObject(args);
         if (jsonObject == null) {
             return null;
@@ -625,6 +607,5 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
      * @return 包含所有键值对的迭代器
      */
     @Override
-    @NotNull
-    Iterator<Map.Entry<String, Object>> iterator();
+    @NotNull Iterator<Map.Entry<String, Object>> iterator();
 }

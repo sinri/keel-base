@@ -37,8 +37,7 @@ public abstract class QueuedLogWriterAdapter extends AbstractKeelVerticle implem
         return 128;
     }
 
-    @NotNull
-    abstract protected Future<Void> processLogRecords(@NotNull String topic, @NotNull List<SpecificLog<?>> batch);
+    abstract protected @NotNull Future<Void> processLogRecords(@NotNull String topic, @NotNull List<@NotNull SpecificLog<?>> batch);
 
     @Override
     protected @NotNull Future<Void> startVerticle() {

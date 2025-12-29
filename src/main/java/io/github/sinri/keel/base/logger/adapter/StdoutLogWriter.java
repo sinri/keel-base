@@ -25,7 +25,7 @@ public final class StdoutLogWriter extends BaseLogWriter {
     }
 
     @Override
-    public @NotNull String renderClassification(@NotNull List<String> classification) {
+    public @NotNull String renderClassification(@NotNull List<@NotNull String> classification) {
         return new JsonArray(classification).encode();
     }
 

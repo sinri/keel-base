@@ -29,12 +29,12 @@ public abstract class AbstractKeelVerticle extends AbstractVerticle implements K
     }
 
     @Override
-    public @NotNull Keel getKeel() {
+    public final @NotNull Keel getKeel() {
         return keel;
     }
 
     @Override
-    public @NotNull Vertx getVertx() {
+    public final @NotNull Vertx getVertx() {
         Vertx v = super.getVertx();
         if (v == null) {
             return keel.getVertx();

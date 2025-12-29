@@ -13,41 +13,37 @@ import java.util.Objects;
  * @since 5.0.0
  */
 public class ConfigProperty {
-    private final List<String> keychain = new ArrayList<>();
+    private final @NotNull List<String> keychain = new ArrayList<>();
     private @NotNull String value = "";
 
     public ConfigProperty() {
     }
 
-    public final ConfigProperty setKeychain(@NotNull List<String> keychain) {
+    public final @NotNull ConfigProperty setKeychain(@NotNull List<String> keychain) {
         this.keychain.addAll(keychain);
         return this;
     }
 
-    public final ConfigProperty addToKeychain(@NotNull String key) {
+    public final @NotNull ConfigProperty addToKeychain(@NotNull String key) {
         this.keychain.add(key);
         return this;
     }
 
-    public final ConfigProperty setValue(@Nullable String value) {
+    public final @NotNull ConfigProperty setValue(@Nullable String value) {
         this.value = Objects.requireNonNullElse(value, "");
         return this;
     }
 
-
-    @NotNull
-    public String getPropertyName() {
+    public @NotNull String getPropertyName() {
         return String.join(".", keychain);
     }
 
-
-    @NotNull
-    public String getPropertyValue() {
+    public @NotNull String getPropertyValue() {
         return value;
     }
 
     @Override
-    public final String toString() {
+    public final @NotNull String toString() {
         return String.join(".", keychain) + "=" + value;
     }
 }

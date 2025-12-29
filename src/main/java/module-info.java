@@ -2,7 +2,6 @@ module io.github.sinri.keel.base {
     requires transitive com.fasterxml.jackson.core;
     requires transitive com.fasterxml.jackson.databind;
     requires transitive io.github.sinri.keel.logger.api;
-    requires transitive io.vertx.config;
     requires transitive io.vertx.core;
     requires transitive io.vertx.core.logging;
     requires transitive org.jetbrains.annotations;

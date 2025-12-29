@@ -21,10 +21,10 @@ import java.util.function.Function;
  */
 public final class RepeatedlyCallTask {
     @NotNull
-    private final Function<RepeatedlyCallTask, Future<Void>> processor;
+    private final Function<@NotNull RepeatedlyCallTask, @NotNull Future<Void>> processor;
     private volatile boolean toStop = false;
 
-    public RepeatedlyCallTask(@NotNull Function<RepeatedlyCallTask, Future<Void>> processor) {
+    public RepeatedlyCallTask(@NotNull Function<@NotNull RepeatedlyCallTask, @NotNull Future<Void>> processor) {
         this.processor = processor;
     }
 

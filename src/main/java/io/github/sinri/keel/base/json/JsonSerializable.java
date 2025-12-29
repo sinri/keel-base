@@ -10,9 +10,7 @@ import org.jetbrains.annotations.NotNull;
  */
 @JsonSerialize(using = JsonifiableSerializer.class)
 public interface JsonSerializable {
-    @NotNull
-    String toJsonExpression();
+    @NotNull String toJsonExpression();
 
-    @NotNull
-    String toFormattedJsonExpression();
+    @NotNull String toFormattedJsonExpression();
 }

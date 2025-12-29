@@ -9,11 +9,9 @@ import org.jetbrains.annotations.NotNull;
  * @since 5.0.0
  */
 public interface KeelHolder extends VertxHolder {
-    @NotNull
-    Keel getKeel();
+    @NotNull Keel getKeel();
 
-    @NotNull
-    default Vertx getVertx() {
+    default @NotNull Vertx getVertx() {
         return getKeel().getVertx();
     }
 }

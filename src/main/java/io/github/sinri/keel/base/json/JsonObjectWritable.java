@@ -37,7 +37,7 @@ public interface JsonObjectWritable extends JsonObjectReadable {
      * @param key 要检索或创建 JSON 对象的键
      * @return 与指定键关联的现有或新创建的 JSON 对象
      */
-    default JsonObject ensureJsonObject(@NotNull String key) {
+    default @NotNull JsonObject ensureJsonObject(@NotNull String key) {
         JsonObject x = this.readJsonObject(key);
         if (x == null) {
             x = new JsonObject();
@@ -55,7 +55,7 @@ public interface JsonObjectWritable extends JsonObjectReadable {
      * @param key 要检索或创建 JSON 数组的键
      * @return 与指定键关联的现有或新创建的 JSON 数组
      */
-    default JsonArray ensureJsonArray(@NotNull String key) {
+    default @NotNull JsonArray ensureJsonArray(@NotNull String key) {
         JsonArray x = this.readJsonArray(key);
         if (x == null) {
             x = new JsonArray();

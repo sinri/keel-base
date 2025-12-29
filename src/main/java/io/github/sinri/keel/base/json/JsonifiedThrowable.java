@@ -38,8 +38,7 @@ public class JsonifiedThrowable extends JsonifiableDataUnitImpl {
      * @param throwable 要包装的异常对象
      * @return JSON 化的异常对象
      */
-    @NotNull
-    public static JsonifiedThrowable wrap(@NotNull Throwable throwable) {
+    public static @NotNull JsonifiedThrowable wrap(@NotNull Throwable throwable) {
         return wrap(throwable, LoggingStackSpecification.IgnorableCallStackPackage, true);
     }
 
@@ -54,10 +53,9 @@ public class JsonifiedThrowable extends JsonifiableDataUnitImpl {
      * @param omitIgnoredStack         是否完全省略被忽略的堆栈项，如果为 false 则用摘要项替代
      * @return JSON 化的异常对象，包含异常链信息
      */
-    @NotNull
-    public static JsonifiedThrowable wrap(
+    public static @NotNull JsonifiedThrowable wrap(
             @NotNull Throwable throwable,
-            @NotNull Set<String> ignorableStackPackageSet,
+            @NotNull Set<@NotNull String> ignorableStackPackageSet,
             boolean omitIgnoredStack
     ) {
         JsonifiedThrowable x = new JsonifiedThrowable();
@@ -96,10 +94,9 @@ public class JsonifiedThrowable extends JsonifiableDataUnitImpl {
      * @param omitIgnoredStack         是否完全省略被忽略的堆栈项
      * @return 过滤和压缩后的堆栈项列表
      */
-    @NotNull
-    private static List<JsonifiedCallStackItem> filterStackTraceAndReduce(
+    private static @NotNull List<JsonifiedCallStackItem> filterStackTraceAndReduce(
             @Nullable StackTraceElement[] stackTrace,
-            @NotNull Set<String> ignorableStackPackageSet,
+            @NotNull Set<@NotNull String> ignorableStackPackageSet,
             boolean omitIgnoredStack
     ) {
         List<JsonifiedCallStackItem> items = new ArrayList<>();
@@ -132,9 +129,9 @@ public class JsonifiedThrowable extends JsonifiableDataUnitImpl {
      */
     private static void filterStackTrace(
             @Nullable StackTraceElement[] stackTrace,
-            @NotNull Set<String> ignorableStackPackageSet,
-            @NotNull BiConsumer<String, Integer> ignoredStackTraceItemsConsumer,
-            @NotNull Consumer<StackTraceElement> stackTraceItemConsumer
+            @NotNull Set<@NotNull String> ignorableStackPackageSet,
+            @NotNull BiConsumer<@NotNull String, @NotNull Integer> ignoredStackTraceItemsConsumer,
+            @NotNull Consumer<@NotNull StackTraceElement> stackTraceItemConsumer
     ) {
         if (stackTrace != null) {
             String ignoringClassPackage = null;
@@ -206,8 +203,8 @@ public class JsonifiedThrowable extends JsonifiableDataUnitImpl {
      * @return 堆栈跟踪项列表，不会为 null
      */
     @NotNull
-    public List<JsonifiedCallStackItem> getThrowableStack() {
-        List<JsonifiedCallStackItem> items = new ArrayList<>();
+    public List<@NotNull JsonifiedCallStackItem> getThrowableStack() {
+        List<@NotNull JsonifiedCallStackItem> items = new ArrayList<>();
         var a = readJsonArray("stack");
         if (a != null) {
             a.forEach(x -> {
@@ -296,7 +293,7 @@ public class JsonifiedThrowable extends JsonifiableDataUnitImpl {
          *
          * @return 堆栈项类型
          */
-        public String getType() {
+        public @Nullable String getType() {
             return readString("type");
         }
 
@@ -307,7 +304,7 @@ public class JsonifiedThrowable extends JsonifiableDataUnitImpl {
          *
          * @return 被忽略的类包名
          */
-        public String getPackage() {
+        public @Nullable String getPackage() {
             return readString("package");
         }
 
@@ -318,7 +315,7 @@ public class JsonifiedThrowable extends JsonifiableDataUnitImpl {
          *
          * @return 被忽略的堆栈项数量（字符串形式）
          */
-        public String getIgnoredStackCount() {
+        public @Nullable String getIgnoredStackCount() {
             return readString("count");
         }
 
@@ -329,7 +326,7 @@ public class JsonifiedThrowable extends JsonifiableDataUnitImpl {
          *
          * @return 调用堆栈的类名
          */
-        public String getCallStackClass() {
+        public @Nullable String getCallStackClass() {
             return readString("class");
         }
 
@@ -340,7 +337,7 @@ public class JsonifiedThrowable extends JsonifiableDataUnitImpl {
          *
          * @return 调用堆栈的方法名
          */
-        public String getCallStackMethod() {
+        public @Nullable String getCallStackMethod() {
             return readString("method");
         }
 
@@ -351,7 +348,7 @@ public class JsonifiedThrowable extends JsonifiableDataUnitImpl {
          *
          * @return 调用堆栈的文件名
          */
-        public String getCallStackFile() {
+        public @Nullable String getCallStackFile() {
             return readString("file");
         }
 
@@ -362,7 +359,7 @@ public class JsonifiedThrowable extends JsonifiableDataUnitImpl {
          *
          * @return 调用堆栈的行号（字符串形式）
          */
-        public String getCallStackLine() {
+        public @Nullable String getCallStackLine() {
             return readString("line");
         }
     }

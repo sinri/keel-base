@@ -38,7 +38,7 @@ interface KeelAsyncMixinLogic extends KeelAsyncMixinCore {
      * @return 异步循环执行结果
      */
     @NotNull
-    default Future<Void> asyncCallRepeatedly(@NotNull Function<RepeatedlyCallTask, Future<Void>> processor) {
+    default Future<Void> asyncCallRepeatedly(@NotNull Function<@NotNull RepeatedlyCallTask, @NotNull Future<Void>> processor) {
         return asyncCallRepeatedly(new RepeatedlyCallTask(processor));
     }
 
@@ -54,7 +54,7 @@ interface KeelAsyncMixinLogic extends KeelAsyncMixinCore {
     @NotNull
     default <T> Future<Void> asyncCallIteratively(
             @NotNull Iterator<T> iterator,
-            @NotNull BiFunction<List<T>, RepeatedlyCallTask, Future<Void>> itemsProcessor,
+            @NotNull BiFunction<@NotNull List<T>, @NotNull RepeatedlyCallTask, @NotNull Future<Void>> itemsProcessor,
             int batchSize) {
         if (batchSize <= 0)
             throw new IllegalArgumentException("batchSize must be greater than 0");
@@ -90,7 +90,7 @@ interface KeelAsyncMixinLogic extends KeelAsyncMixinCore {
     @NotNull
     default <T> Future<Void> asyncCallIteratively(
             @NotNull Iterator<T> iterator,
-            @NotNull Function<List<T>, Future<Void>> itemsProcessor,
+            @NotNull Function<@NotNull List<T>, @NotNull Future<Void>> itemsProcessor,
             int batchSize) {
         return asyncCallIteratively(
                 iterator,
@@ -110,7 +110,7 @@ interface KeelAsyncMixinLogic extends KeelAsyncMixinCore {
     @NotNull
     default <T> Future<Void> asyncCallIteratively(
             @NotNull Iterable<T> iterable,
-            @NotNull BiFunction<List<T>, RepeatedlyCallTask, Future<Void>> itemsProcessor,
+            @NotNull BiFunction<@NotNull List<T>, @NotNull RepeatedlyCallTask, @NotNull Future<Void>> itemsProcessor,
             int batchSize) {
         return asyncCallIteratively(iterable.iterator(), itemsProcessor, batchSize);
     }
@@ -126,7 +126,7 @@ interface KeelAsyncMixinLogic extends KeelAsyncMixinCore {
     @NotNull
     default <T> Future<Void> asyncCallIteratively(
             @NotNull Iterator<T> iterator,
-            @NotNull BiFunction<T, RepeatedlyCallTask, Future<Void>> itemProcessor) {
+            @NotNull BiFunction<T, @NotNull RepeatedlyCallTask, @NotNull Future<Void>> itemProcessor) {
         return asyncCallRepeatedly(routineResult -> Future.succeededFuture()
                                                           .compose(v -> {
                                                               if (iterator.hasNext()) {
@@ -149,7 +149,7 @@ interface KeelAsyncMixinLogic extends KeelAsyncMixinCore {
     @NotNull
     default <T> Future<Void> asyncCallIteratively(
             @NotNull Iterator<T> iterator,
-            @NotNull Function<T, Future<Void>> itemProcessor) {
+            @NotNull Function<T, @NotNull Future<Void>> itemProcessor) {
         return asyncCallIteratively(
                 iterator,
                 (t, repeatedlyCallTask) -> itemProcessor.apply(t));
@@ -165,7 +165,7 @@ interface KeelAsyncMixinLogic extends KeelAsyncMixinCore {
     @NotNull
     default <T> Future<Void> asyncCallIteratively(
             @NotNull Iterable<T> iterable,
-            @NotNull Function<T, Future<Void>> itemProcessor) {
+            @NotNull Function<T, @NotNull Future<Void>> itemProcessor) {
         return asyncCallIteratively(iterable.iterator(), itemProcessor);
     }
 
@@ -180,7 +180,7 @@ interface KeelAsyncMixinLogic extends KeelAsyncMixinCore {
     @NotNull
     default <T> Future<Void> asyncCallIteratively(
             @NotNull Iterable<T> iterable,
-            @NotNull BiFunction<T, RepeatedlyCallTask, Future<Void>> itemProcessor) {
+            @NotNull BiFunction<T, @NotNull RepeatedlyCallTask, @NotNull Future<Void>> itemProcessor) {
         return asyncCallIteratively(iterable.iterator(), itemProcessor);
     }
 
@@ -197,8 +197,9 @@ interface KeelAsyncMixinLogic extends KeelAsyncMixinCore {
      * @throws IllegalArgumentException 当步进不满足增量且可达时抛出
      */
     @NotNull
-    default Future<Void> asyncCallStepwise(long start, long end, long step,
-                                           BiFunction<Long, RepeatedlyCallTask, Future<Void>> processor) {
+    default Future<Void> asyncCallStepwise(
+            long start, long end, long step,
+            @NotNull BiFunction<@NotNull Long, @NotNull RepeatedlyCallTask, @NotNull Future<Void>> processor) {
         if (step <= 0)
             throw new IllegalArgumentException("step must be greater than 0");
         if (start > end)
@@ -225,7 +226,10 @@ interface KeelAsyncMixinLogic extends KeelAsyncMixinCore {
      * @return 异步循环执行结果
      */
     @NotNull
-    default Future<Void> asyncCallStepwise(long times, BiFunction<Long, RepeatedlyCallTask, Future<Void>> processor) {
+    default Future<Void> asyncCallStepwise(
+            long times,
+            @NotNull BiFunction<@NotNull Long, @NotNull RepeatedlyCallTask, @NotNull Future<Void>> processor
+    ) {
         if (times <= 0) {
             return Future.succeededFuture();
         }
@@ -240,7 +244,10 @@ interface KeelAsyncMixinLogic extends KeelAsyncMixinCore {
      * @return 异步循环执行结果
      */
     @NotNull
-    default Future<Void> asyncCallStepwise(long times, Function<Long, Future<Void>> processor) {
+    default Future<Void> asyncCallStepwise(
+            long times,
+            @NotNull Function<@NotNull Long, @NotNull Future<Void>> processor
+    ) {
         if (times <= 0) {
             return Future.succeededFuture();
         }
@@ -254,7 +261,7 @@ interface KeelAsyncMixinLogic extends KeelAsyncMixinCore {
      *
      * @param supplier 异步循环逻辑
      */
-    default void asyncCallEndlessly(@NotNull Supplier<Future<Void>> supplier) {
+    default void asyncCallEndlessly(@NotNull Supplier<@NotNull Future<Void>> supplier) {
         asyncCallRepeatedly(routineResult -> Future.succeededFuture()
                                                    .compose(v -> supplier.get())
                                                    .eventually(Future::succeededFuture));

@@ -9,6 +9,5 @@ import org.jetbrains.annotations.NotNull;
  * @since 5.0.0
  */
 public interface VertxHolder {
-    @NotNull
-    Vertx getVertx();
+    @NotNull Vertx getVertx();
 }

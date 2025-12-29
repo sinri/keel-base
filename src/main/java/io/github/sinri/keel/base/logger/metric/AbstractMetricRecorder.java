@@ -100,5 +100,6 @@ abstract public class AbstractMetricRecorder extends AbstractKeelVerticle implem
      * @param buffer 指标记录缓冲区
      * @return 处理结果
      */
-    abstract protected Future<Void> handleForTopic(String topic, List<MetricRecord> buffer);
+    @NotNull
+    abstract protected Future<Void> handleForTopic(@NotNull String topic, @NotNull List<@NotNull MetricRecord> buffer);
 }

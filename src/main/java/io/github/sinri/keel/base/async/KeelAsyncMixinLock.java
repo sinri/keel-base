@@ -25,7 +25,7 @@ interface KeelAsyncMixinLock extends KeelAsyncMixinCore {
      */
     @NotNull
     default <T> Future<T> asyncCallExclusively(@NotNull String lockName, long waitTimeForLock,
-                                               @NotNull Supplier<Future<T>> exclusiveSupplier) {
+                                               @NotNull Supplier<@NotNull Future<T>> exclusiveSupplier) {
         return getVertx().sharedData()
                          .getLockWithTimeout(lockName, waitTimeForLock)
                          .compose(lock -> Future.succeededFuture()
@@ -40,7 +40,7 @@ interface KeelAsyncMixinLock extends KeelAsyncMixinCore {
      */
     @NotNull
     default <T> Future<T> asyncCallExclusively(@NotNull String lockName,
-                                               @NotNull Supplier<Future<T>> exclusiveSupplier) {
+                                               @NotNull Supplier<@NotNull Future<T>> exclusiveSupplier) {
         return asyncCallExclusively(lockName, 1_000L, exclusiveSupplier);
     }
 }

@@ -2,14 +2,11 @@ package io.github.sinri.keel.base.json;
 
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonObject;
-import io.vertx.core.json.pointer.JsonPointer;
 import io.vertx.core.shareddata.ClusterSerializable;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
 import java.util.Map;
-import java.util.function.Function;
 
 /**
  * 本接口定义了一类基于 JSON 对象的数据实体，可读写、转换、重载。
@@ -19,30 +16,6 @@ import java.util.function.Function;
 public interface JsonifiableDataUnit
         extends JsonObjectConvertible, JsonObjectReloadable, JsonObjectWritable,
         UnmodifiableJsonifiableEntity, ClusterSerializable {
-    /**
-     * 使用 JSON Pointer 从 JSON 对象中读取指定类型的值。
-     * <p>
-     * 此方法通过函数式接口动态构建 JSON Pointer，并根据返回的类型尝试读取对应的值。
-     * 如果类型转换失败，将返回 null。
-     *
-     * @param func 用于构建 JSON Pointer 并指定返回类型的函数
-     * @param <T>  返回值的类型
-     * @return 从 JSON Pointer 位置读取的值，如果值不存在或无法转换为指定类型则返回 null
-     */
-    @Nullable
-    default <T> T read(@NotNull Function<JsonPointer, Class<T>> func) {
-        try {
-            JsonPointer jsonPointer = JsonPointer.create();
-            Class<T> tClass = func.apply(jsonPointer);
-            Object o = jsonPointer.queryJson(toJsonObject());
-            if (o == null) {
-                return null;
-            }
-            return tClass.cast(o);
-        } catch (ClassCastException castException) {
-            return null;
-        }
-    }
 
     /**
      * 在 JSON 对象中创建或替换键值对。
