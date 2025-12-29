@@ -1,6 +1,6 @@
 package io.github.sinri.keel.base.verticles;
 
-import io.github.sinri.keel.base.KeelInstance;
+import io.github.sinri.keel.base.KeelSampleImpl;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
@@ -26,7 +26,7 @@ public class InstantKeelVerticleUnitTest {
     @BeforeEach
     void setUp(Vertx vertx, VertxTestContext testContext) {
         this.vertx = vertx;
-        KeelInstance.Keel.initializeVertx(vertx);
+        KeelSampleImpl.Keel.initializeVertx(vertx);
         testContext.completeNow();
     }
 
@@ -34,7 +34,7 @@ public class InstantKeelVerticleUnitTest {
     void testInstantVerticleCreation(VertxTestContext testContext) {
         AtomicBoolean executed = new AtomicBoolean(false);
 
-        KeelVerticle verticle = KeelVerticle.instant(KeelInstance.Keel, verticleInstance -> {
+        KeelVerticle verticle = KeelVerticle.instant(KeelSampleImpl.Keel, verticleInstance -> {
             executed.set(true);
             return Future.succeededFuture();
         });
@@ -58,7 +58,7 @@ public class InstantKeelVerticleUnitTest {
 
     @Test
     void testInstantVerticleWithFailure(VertxTestContext testContext) {
-        KeelVerticle verticle = KeelVerticle.instant(KeelInstance.Keel, verticleInstance -> {
+        KeelVerticle verticle = KeelVerticle.instant(KeelSampleImpl.Keel, verticleInstance -> {
             return Future.failedFuture(new RuntimeException("Test failure"));
         });
 
@@ -78,7 +78,7 @@ public class InstantKeelVerticleUnitTest {
     void testInstantVerticleAutoUndeploy(VertxTestContext testContext) {
         AtomicBoolean executed = new AtomicBoolean(false);
 
-        KeelVerticle verticle = KeelVerticle.instant(KeelInstance.Keel, verticleInstance -> {
+        KeelVerticle verticle = KeelVerticle.instant(KeelSampleImpl.Keel, verticleInstance -> {
             executed.set(true);
             // Auto undeploy after completion
             vertx.setTimer(100L, id -> verticleInstance.undeployMe());
@@ -105,7 +105,7 @@ public class InstantKeelVerticleUnitTest {
     @Test
     void testInstantVerticleAccessToSelf(VertxTestContext testContext) {
         final KeelVerticle[] verticleRef = new KeelVerticle[1];
-        KeelVerticle verticle = KeelVerticle.instant(KeelInstance.Keel, verticleInstance -> {
+        KeelVerticle verticle = KeelVerticle.instant(KeelSampleImpl.Keel, verticleInstance -> {
             assertNotNull(verticleInstance);
             assertNotNull(verticleInstance.deploymentID());
             assertEquals(verticleInstance, verticleRef[0]);

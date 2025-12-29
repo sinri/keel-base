@@ -1,12 +1,13 @@
 package io.github.sinri.keel.base.logger.metric;
 
-import io.github.sinri.keel.base.KeelInstance;
+import io.github.sinri.keel.base.KeelSampleImpl;
 import io.github.sinri.keel.logger.api.metric.MetricRecord;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,7 +30,7 @@ class AbstractMetricRecorderUnitTest {
     @BeforeEach
     void setUp(Vertx vertx, VertxTestContext testContext) {
         this.vertx = vertx;
-        KeelInstance.Keel.initializeVertx(vertx);
+        KeelSampleImpl.Keel.initializeVertx(vertx);
         testContext.completeNow();
     }
 
@@ -102,11 +103,11 @@ class AbstractMetricRecorderUnitTest {
         private final List<MetricRecord> processedRecords = new ArrayList<>();
 
         TestMetricRecorder() {
-            super(io.github.sinri.keel.base.KeelInstance.Keel);
+            super(KeelSampleImpl.Keel);
         }
 
         @Override
-        protected Future<Void> handleForTopic(String topic, List<MetricRecord> buffer) {
+        protected @NotNull Future<Void> handleForTopic(@NotNull String topic, @NotNull List<@NotNull MetricRecord> buffer) {
             processedCount.addAndGet(buffer.size());
             processedRecords.addAll(buffer);
             return Future.succeededFuture();

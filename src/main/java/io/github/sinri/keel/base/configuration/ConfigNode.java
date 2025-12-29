@@ -2,15 +2,11 @@ package io.github.sinri.keel.base.configuration;
 
 import io.github.sinri.keel.base.json.JsonObjectConvertible;
 import io.github.sinri.keel.base.json.JsonObjectReloadable;
-import io.github.sinri.keel.base.logger.factory.StdoutLoggerFactory;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.*;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
@@ -73,39 +69,5 @@ public interface ConfigNode extends JsonObjectConvertible, JsonObjectReloadable 
 
     @Nullable ConfigNode getChild(@NotNull String childName);
 
-    @NotNull ConfigNode loadProperties(@NotNull Properties properties);
-
-    default @NotNull ConfigNode loadPropertiesFile(@NotNull String propertiesFileName, @NotNull Charset charset) throws IOException {
-        File file = new File(propertiesFileName);
-        Properties properties = new Properties();
-        try {
-            // here, the file named as `propertiesFileName` should be put along with JAR
-            properties.load(new FileReader(file, charset));
-        } catch (IOException e) {
-            StdoutLoggerFactory.getInstance().createLogger(getClass().getName())
-                               .warning("Cannot read the file %s. Use the embedded one.".formatted(file.getAbsolutePath()));
-            InputStream resourceAsStream = getClass().getClassLoader().getResourceAsStream(propertiesFileName);
-            if (resourceAsStream == null) {
-                // if the embedded file is not found, throw an IOException
-                throw new IOException("The embedding properties file is not found.");
-            }
-            properties.load(resourceAsStream);
-        }
-
-        return loadProperties(properties);
-    }
-
-    default @NotNull ConfigNode loadPropertiesFile(@NotNull String propertiesFileName) throws IOException {
-        return loadPropertiesFile(propertiesFileName, StandardCharsets.UTF_8);
-    }
-
-    default @NotNull ConfigNode loadPropertiesFileContent(@NotNull String content) {
-        Properties properties = new Properties();
-        try {
-            properties.load(new StringReader(content));
-        } catch (IOException e) {
-            throw new RuntimeException("Cannot load given properties content.", e);
-        }
-        return loadProperties(properties);
-    }
+    void reloadData(@NotNull Properties properties);
 }

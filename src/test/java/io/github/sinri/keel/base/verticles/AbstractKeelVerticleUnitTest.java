@@ -1,6 +1,6 @@
 package io.github.sinri.keel.base.verticles;
 
-import io.github.sinri.keel.base.KeelInstance;
+import io.github.sinri.keel.base.KeelSampleImpl;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
@@ -26,7 +26,7 @@ public class AbstractKeelVerticleUnitTest {
     @BeforeEach
     void setUp(Vertx vertx, VertxTestContext testContext) {
         this.vertx = vertx;
-        KeelInstance.Keel.initializeVertx(vertx);
+        KeelSampleImpl.Keel.initializeVertx(vertx);
         testContext.completeNow();
     }
 
@@ -216,7 +216,7 @@ public class AbstractKeelVerticleUnitTest {
      */
     private static class TestKeelVerticle extends AbstractKeelVerticle {
         TestKeelVerticle() {
-            super(io.github.sinri.keel.base.KeelInstance.Keel);
+            super(KeelSampleImpl.Keel);
         }
 
         @Override

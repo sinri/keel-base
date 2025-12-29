@@ -1,6 +1,6 @@
 package io.github.sinri.keel.base.logger.adapter;
 
-import io.github.sinri.keel.base.KeelInstance;
+import io.github.sinri.keel.base.KeelSampleImpl;
 import io.github.sinri.keel.logger.api.log.SpecificLog;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
@@ -37,7 +37,7 @@ class FileLogWriterAdapterTest {
     @BeforeEach
     void setUp(Vertx vertx, VertxTestContext testContext) {
         this.vertx = vertx;
-        KeelInstance.Keel.initializeVertx(vertx);
+        KeelSampleImpl.Keel.initializeVertx(vertx);
         testContext.completeNow();
     }
 
@@ -239,12 +239,12 @@ class FileLogWriterAdapterTest {
         private final File defaultFile;
 
         TestFileLogWriterAdapter(@Nullable File defaultFile) {
-            super(KeelInstance.Keel);
+            super(KeelSampleImpl.Keel);
             this.defaultFile = defaultFile;
         }
 
         TestFileLogWriterAdapter(@Nullable File file1, @Nullable File file2) {
-            super(KeelInstance.Keel);
+            super(KeelSampleImpl.Keel);
             this.defaultFile = null;
             if (file1 != null) {
                 topicFileMap.put("topic1", file1);

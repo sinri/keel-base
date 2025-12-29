@@ -1,6 +1,6 @@
 package io.github.sinri.keel.base.logger.adapter;
 
-import io.github.sinri.keel.base.KeelInstance;
+import io.github.sinri.keel.base.KeelSampleImpl;
 import io.github.sinri.keel.logger.api.log.SpecificLog;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
@@ -29,7 +29,7 @@ class QueuedLogWriterAdapterUnitTest {
     @BeforeEach
     void setUp(Vertx vertx, VertxTestContext testContext) {
         this.vertx = vertx;
-        KeelInstance.Keel.initializeVertx(vertx);
+        KeelSampleImpl.Keel.initializeVertx(vertx);
         testContext.completeNow();
     }
 
@@ -94,7 +94,7 @@ class QueuedLogWriterAdapterUnitTest {
         private final AtomicInteger processedCount = new AtomicInteger(0);
 
         TestQueuedLogWriterAdapter() {
-            super(io.github.sinri.keel.base.KeelInstance.Keel);
+            super(KeelSampleImpl.Keel);
         }
 
         @Override

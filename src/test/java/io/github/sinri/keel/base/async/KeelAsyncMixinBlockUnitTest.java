@@ -1,7 +1,7 @@
 package io.github.sinri.keel.base.async;
 
 import io.github.sinri.keel.base.Keel;
-import io.github.sinri.keel.base.KeelInstance;
+import io.github.sinri.keel.base.KeelSampleImpl;
 import io.github.sinri.keel.base.logger.logger.StdoutLogger;
 import io.github.sinri.keel.base.verticles.KeelVerticle;
 import io.vertx.core.DeploymentOptions;
@@ -30,8 +30,8 @@ public class KeelAsyncMixinBlockUnitTest {
 
     @BeforeEach
     public void setUp(Vertx vertx) {
-        KeelInstance.Keel.initializeVertx(vertx);
-        asyncMixin = KeelInstance.Keel;
+        KeelSampleImpl.Keel.initializeVertx(vertx);
+        asyncMixin = KeelSampleImpl.Keel;
     }
 
     @Test
@@ -119,7 +119,7 @@ public class KeelAsyncMixinBlockUnitTest {
     public void testBlockAwait(VertxTestContext testContext) {
         // This test needs to run in a worker thread context
         Future<String> future = asyncMixin.asyncSleep(50).map(v -> "success");
-        var verticle = KeelVerticle.instant(KeelInstance.Keel, keelVerticle -> {
+        var verticle = KeelVerticle.instant(KeelSampleImpl.Keel, keelVerticle -> {
 
             keelVerticle.getVertx().setTimer(100L, id -> {
                 try {

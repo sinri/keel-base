@@ -1,6 +1,6 @@
 package io.github.sinri.keel.base.logger.factory;
 
-import io.github.sinri.keel.base.KeelInstance;
+import io.github.sinri.keel.base.KeelSampleImpl;
 import io.github.sinri.keel.base.logger.adapter.FileLogWriterAdapter;
 import io.github.sinri.keel.logger.api.logger.Logger;
 import io.github.sinri.keel.logger.api.logger.SpecificLogger;
@@ -108,7 +108,7 @@ class FileLoggerFactoryTest {
         private final java.util.Map<String, FileWriter> fileWriterMap = new ConcurrentHashMap<>();
 
         TestFileLogWriterAdapter(@NotNull File logFile) {
-            super(KeelInstance.Keel);
+            super(KeelSampleImpl.Keel);
             this.logFile = logFile;
         }
 

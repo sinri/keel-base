@@ -6,6 +6,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 
 /**
  * 配置树。
@@ -29,6 +30,12 @@ class ConfigTreeImpl implements ConfigTree {
 
     public final @NotNull ConfigNode getRootNode() {
         return rootNode;
+    }
+
+    @Override
+    public @NotNull ConfigTree loadProperties(@NotNull Properties properties) {
+        this.getRootNode().reloadData(properties);
+        return this;
     }
 
     @Override

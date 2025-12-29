@@ -1,7 +1,7 @@
 package io.github.sinri.keel.base.verticles;
 
 import io.github.sinri.keel.base.Keel;
-import io.github.sinri.keel.base.KeelInstance;
+import io.github.sinri.keel.base.KeelSampleImpl;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
@@ -14,12 +14,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 @ExtendWith(VertxExtension.class)
 public class VerticleStatusTest {
     public VerticleStatusTest(Vertx vertx) {
-        KeelInstance.Keel.initializeVertx(vertx);
+        KeelSampleImpl.Keel.initializeVertx(vertx);
     }
 
     @Test
     void testCommon(VertxTestContext testContext) {
-        var v1 = new V1(KeelInstance.Keel, false);
+        var v1 = new V1(KeelSampleImpl.Keel, false);
         System.out.println("1: " + v1.getRunningState());
         v1.deployMe(new DeploymentOptions())
           .onSuccess(id -> {
@@ -29,15 +29,15 @@ public class VerticleStatusTest {
               System.out.println("3: " + v1.getRunningState() + " e=" + e.getMessage());
           });
         System.out.println("2: " + v1.getRunningState());
-        KeelInstance.Keel.asyncSleep(4000).onComplete(ar -> {
+        KeelSampleImpl.Keel.asyncSleep(4000).onComplete(ar -> {
                         System.out.println("4: " + v1.getRunningState());
                     })
-                         .onComplete(testContext.succeedingThenComplete());
+                           .onComplete(testContext.succeedingThenComplete());
     }
 
     @Test
     void testError(VertxTestContext testContext) {
-        var v1 = new V1(KeelInstance.Keel, true);
+        var v1 = new V1(KeelSampleImpl.Keel, true);
         System.out.println("1: " + v1.getRunningState());
         v1.deployMe(new DeploymentOptions())
           .onSuccess(id -> {
@@ -47,11 +47,11 @@ public class VerticleStatusTest {
               System.out.println("3: " + v1.getRunningState() + " e=" + e.getMessage());
           });
         System.out.println("2: " + v1.getRunningState());
-        KeelInstance.Keel.asyncSleep(4000)
-                         .onComplete(ar -> {
+        KeelSampleImpl.Keel.asyncSleep(4000)
+                           .onComplete(ar -> {
                              System.out.println("4: " + v1.getRunningState());
                          })
-                         .onComplete(testContext.succeedingThenComplete());
+                           .onComplete(testContext.succeedingThenComplete());
     }
 
     private static class V1 extends AbstractKeelVerticle {

@@ -19,7 +19,7 @@ public class VertxTestHelper {
      * @param vertx Vertx实例
      */
     public static void setupVertx(Vertx vertx) {
-        KeelInstance.Keel.initializeVertx(vertx);
+        KeelSampleImpl.Keel.initializeVertx(vertx);
     }
 
     /**
@@ -28,9 +28,9 @@ public class VertxTestHelper {
      * @param testContext 测试上下文
      */
     public static void cleanupVertx(VertxTestContext testContext) {
-        if (KeelInstance.Keel.isVertxInitialized()) {
-            KeelInstance.Keel.close()
-                .onComplete(ar -> {
+        if (KeelSampleImpl.Keel.isVertxInitialized()) {
+            KeelSampleImpl.Keel.close()
+                               .onComplete(ar -> {
                     if (ar.succeeded()) {
                         testContext.completeNow();
                     } else {

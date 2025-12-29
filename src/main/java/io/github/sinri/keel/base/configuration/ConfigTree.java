@@ -1,23 +1,56 @@
 package io.github.sinri.keel.base.configuration;
 
+import io.github.sinri.keel.base.logger.factory.StdoutLoggerFactory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
+import java.io.*;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 
 public interface ConfigTree {
     @NotNull
-    static ConfigTree loadFromLocalFile(@NotNull String file) throws IOException {
-        ConfigNode configNode = ConfigNode.create("");
-        configNode.loadPropertiesFile(file);
-        return ConfigTree.wrap(configNode);
-    }
-
-    @NotNull
     static ConfigTree wrap(@NotNull ConfigNode configNode) {
         return new ConfigTreeImpl(configNode);
+    }
+
+    @NotNull ConfigTree loadProperties(@NotNull Properties properties);
+
+    default @NotNull ConfigTree loadPropertiesFile(@NotNull String propertiesFileName, @NotNull Charset charset) throws IOException {
+        File file = new File(propertiesFileName);
+        Properties properties = new Properties();
+        try {
+            // here, the file named as `propertiesFileName` should be put along with JAR
+            properties.load(new FileReader(file, charset));
+        } catch (IOException e) {
+            StdoutLoggerFactory.getInstance().createLogger(getClass().getName())
+                               .warning("Cannot read the file %s. Use the embedded one.".formatted(file.getAbsolutePath()));
+            InputStream resourceAsStream = getClass().getClassLoader().getResourceAsStream(propertiesFileName);
+            if (resourceAsStream == null) {
+                // if the embedded file is not found, throw an IOException
+                throw new IOException("The embedding properties file is not found.");
+            }
+            properties.load(resourceAsStream);
+        }
+
+        return loadProperties(properties);
+    }
+
+    default @NotNull ConfigTree loadPropertiesFile(@NotNull String propertiesFileName) throws IOException {
+        return loadPropertiesFile(propertiesFileName, StandardCharsets.UTF_8);
+    }
+
+    default @NotNull ConfigTree loadPropertiesFileContent(@NotNull String content) {
+        Properties properties = new Properties();
+        try {
+            properties.load(new StringReader(content));
+        } catch (IOException e) {
+            throw new RuntimeException("Cannot load given properties content.", e);
+        }
+        return loadProperties(properties);
     }
 
     @Nullable ConfigTree extract(@NotNull List<@NotNull String> path);

@@ -1,6 +1,8 @@
 package io.github.sinri.keel.base;
 
+import io.github.sinri.keel.base.configuration.ConfigNode;
 import io.github.sinri.keel.base.configuration.ConfigTree;
+import io.github.sinri.keel.base.configuration.NotConfiguredException;
 import io.github.sinri.keel.base.logger.factory.StdoutLoggerFactory;
 import io.github.sinri.keel.logger.api.factory.LoggerFactory;
 import io.vertx.core.Future;
@@ -19,7 +21,7 @@ import java.util.Objects;
  *
  * @since 5.0.0
  */
-public final class KeelInstance implements Keel {
+public final class KeelSampleImpl implements Keel {
 
     static {
         String loggingProperty = System.getProperty("vertx.logger-delegate-factory-class-name");
@@ -34,7 +36,7 @@ public final class KeelInstance implements Keel {
      * 测试用的单例 Keel 实例。
      */
     @NotNull
-    public static final KeelInstance Keel = new KeelInstance();
+    public static final KeelSampleImpl Keel = new KeelSampleImpl();
 
     @NotNull
     private final ConfigTree configuration;
@@ -48,8 +50,8 @@ public final class KeelInstance implements Keel {
      * <p>
      * 初始化配置树和默认的日志工厂。
      */
-    public KeelInstance() {
-        this.configuration = new ConfigTree();
+    public KeelSampleImpl() {
+        this.configuration = ConfigTree.wrap(ConfigNode.create(""));
         this.loggerFactory = StdoutLoggerFactory.getInstance();
     }
 
@@ -77,7 +79,6 @@ public final class KeelInstance implements Keel {
      * 设置日志工厂。
      *
      * @param loggerFactory 要设置的日志工厂
-     * @return 当前实例，支持链式调用
      */
     public void setLoggerFactory(@NotNull LoggerFactory loggerFactory) {
         this.loggerFactory = loggerFactory;
@@ -97,7 +98,7 @@ public final class KeelInstance implements Keel {
         String[] split = dotJoinedKeyChain.split("\\.");
         try {
             return this.getConfiguration().readString(List.of(split));
-        } catch (ConfigTree.NotConfiguredException e) {
+        } catch (NotConfiguredException e) {
             return null;
         }
     }

@@ -1,7 +1,7 @@
 package io.github.sinri.keel.base.async;
 
 import io.github.sinri.keel.base.Keel;
-import io.github.sinri.keel.base.KeelInstance;
+import io.github.sinri.keel.base.KeelSampleImpl;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.junit5.VertxExtension;
@@ -28,8 +28,8 @@ class KeelAsyncMixinParallelUnitTest {
 
     @BeforeEach
     void setUp(Vertx vertx) {
-        KeelInstance.Keel.initializeVertx(vertx);
-        asyncMixin = KeelInstance.Keel;
+        KeelSampleImpl.Keel.initializeVertx(vertx);
+        asyncMixin = KeelSampleImpl.Keel;
     }
 
     @Test

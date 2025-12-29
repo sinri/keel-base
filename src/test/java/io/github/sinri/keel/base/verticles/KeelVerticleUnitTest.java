@@ -1,6 +1,6 @@
 package io.github.sinri.keel.base.verticles;
 
-import io.github.sinri.keel.base.KeelInstance;
+import io.github.sinri.keel.base.KeelSampleImpl;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class KeelVerticleUnitTest {
     @BeforeEach
     void setUp(Vertx vertx, VertxTestContext testContext) {
-        KeelInstance.Keel.initializeVertx(vertx);
+        KeelSampleImpl.Keel.initializeVertx(vertx);
         testContext.completeNow();
     }
 
@@ -167,7 +167,7 @@ public class KeelVerticleUnitTest {
      */
     private static class TestKeelVerticle extends AbstractKeelVerticle {
         TestKeelVerticle() {
-            super(io.github.sinri.keel.base.KeelInstance.Keel);
+            super(KeelSampleImpl.Keel);
         }
 
         @Override

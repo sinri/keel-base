@@ -137,8 +137,7 @@ class ConfigNodeImpl implements ConfigNode {
     }
 
     @Override
-    @NotNull
-    public ConfigNode loadProperties(@NotNull Properties properties) {
+    public void reloadData(@NotNull Properties properties) {
         properties.forEach((k, v) -> {
             String fullKey = k.toString();
             String[] keyArray = fullKey.split("\\.");
@@ -159,6 +158,5 @@ class ConfigNodeImpl implements ConfigNode {
                 }
             }
         });
-        return this;
     }
 }
