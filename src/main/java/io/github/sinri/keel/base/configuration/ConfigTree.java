@@ -141,4 +141,5 @@ public interface ConfigTree {
         return Double.parseDouble(value);
     }
 
+    @NotNull List<@NotNull ConfigProperty> transformChildrenToPropertyList();
 }

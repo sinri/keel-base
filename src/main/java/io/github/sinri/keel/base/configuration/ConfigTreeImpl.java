@@ -17,7 +17,7 @@ import java.util.Properties;
  *
  * @since 5.0.0
  */
-class ConfigTreeImpl implements ConfigTree {
+public class ConfigTreeImpl implements ConfigTree {
     private final @NotNull ConfigNode rootNode;
 
     /**
@@ -84,6 +84,7 @@ class ConfigTreeImpl implements ConfigTree {
      *
      * @return 配置项 {@link ConfigProperty} 列表
      */
+    @Override
     public @NotNull List<@NotNull ConfigProperty> transformChildrenToPropertyList() {
         List<@NotNull ConfigProperty> properties = new ArrayList<>();
         // 为了输出稳定，按字典序遍历同级子节点

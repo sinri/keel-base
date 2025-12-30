@@ -10,7 +10,7 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
-class ConfigNodeImpl implements ConfigNode {
+public class ConfigNodeImpl implements ConfigNode {
     /**
      * 配置节点的子节点，以子节点名称为键的一个 Map。
      */
