@@ -2,7 +2,7 @@ package io.github.sinri.keel.base;
 
 
 import io.github.sinri.keel.base.async.KeelAsyncMixin;
-import io.github.sinri.keel.base.configuration.ConfigTree;
+import io.github.sinri.keel.base.configuration.NodeBasedConfigTree;
 import io.github.sinri.keel.base.configuration.NotConfiguredException;
 import io.github.sinri.keel.logger.api.factory.LoggerFactory;
 import io.vertx.core.Future;
@@ -18,7 +18,7 @@ import java.util.List;
  */
 public interface Keel extends KeelAsyncMixin {
 
-    @NotNull ConfigTree getConfiguration();
+    @NotNull NodeBasedConfigTree getConfiguration();
 
     @NotNull LoggerFactory getLoggerFactory();
 

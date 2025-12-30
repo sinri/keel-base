@@ -18,7 +18,7 @@ public interface ConfigTree {
     }
 
     @NotNull
-    static ConfigTree create() {
+    static NodeBasedConfigTree createNodeBased() {
         return wrap(ConfigNode.create(""));
     }
 
@@ -142,4 +142,13 @@ public interface ConfigTree {
     }
 
     @NotNull List<@NotNull ConfigProperty> transformChildrenToPropertyList();
+
+    default @Nullable String readString(@NotNull String dotJoinedKeyChain) {
+        String[] split = dotJoinedKeyChain.split("\\.");
+        try {
+            return readString(List.of(split));
+        } catch (NotConfiguredException e) {
+            return null;
+        }
+    }
 }

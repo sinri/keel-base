@@ -5,6 +5,7 @@ module io.github.sinri.keel.base {
     requires transitive io.vertx.core;
     requires transitive io.vertx.core.logging;
     requires transitive org.jetbrains.annotations;
+    requires io.vertx.config;
 
     // Export public APIs, except io.github.sinri.keel.base.internal
     exports io.github.sinri.keel.base;

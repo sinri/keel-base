@@ -1,7 +1,7 @@
 package io.github.sinri.keel.base;
 
-import io.github.sinri.keel.base.configuration.ConfigNode;
 import io.github.sinri.keel.base.configuration.ConfigTree;
+import io.github.sinri.keel.base.configuration.NodeBasedConfigTree;
 import io.github.sinri.keel.base.configuration.NotConfiguredException;
 import io.github.sinri.keel.base.logger.factory.StdoutLoggerFactory;
 import io.github.sinri.keel.logger.api.factory.LoggerFactory;
@@ -39,7 +39,7 @@ public final class KeelSampleImpl implements Keel {
     public static final KeelSampleImpl Keel = new KeelSampleImpl();
 
     @NotNull
-    private final ConfigTree configuration;
+    private final NodeBasedConfigTree configuration;
     @Nullable
     private Vertx vertx;
     @NotNull
@@ -51,7 +51,7 @@ public final class KeelSampleImpl implements Keel {
      * 初始化配置树和默认的日志工厂。
      */
     public KeelSampleImpl() {
-        this.configuration = ConfigTree.wrap(ConfigNode.create(""));
+        this.configuration = ConfigTree.createNodeBased();
         this.loggerFactory = StdoutLoggerFactory.getInstance();
     }
 
@@ -61,7 +61,7 @@ public final class KeelSampleImpl implements Keel {
      * @return 配置树实例
      */
     @NotNull
-    public ConfigTree getConfiguration() {
+    public NodeBasedConfigTree getConfiguration() {
         return configuration;
     }
 

@@ -49,8 +49,8 @@ dependencies {
 
     // Vert.x dependencies (matching module-info.java requires transitive)
     api("io.vertx:vertx-core:$vertxVersion")
-    //api("io.vertx:vertx-config:$vertxVersion")
-    //implementation("io.vertx:vertx-config-yaml:$vertxVersion")
+    api("io.vertx:vertx-config:$vertxVersion")
+    implementation("io.vertx:vertx-config-yaml:$vertxVersion")
     implementation("io.vertx:vertx-json-schema:$vertxVersion")
 
     // Jackson dependencies (matching module-info.java requires transitive)
@@ -93,7 +93,7 @@ tasks.processResources {
 // Configure test task (matching Maven surefire configuration)
 tasks.test {
     useJUnitPlatform()
-    include("io/github/sinri/keel/base/**/*UnitTest.class")
+    include("io/github/sinri/keel/base/**/*Test.class")
 }
 
 // Configure JavaDoc (matching Maven javadoc plugin configuration)

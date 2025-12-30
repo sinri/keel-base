@@ -17,28 +17,24 @@ import java.util.Properties;
  *
  * @since 5.0.0
  */
-public class NodeBasedConfigTree implements ConfigTree {
-    private final @NotNull ConfigNode rootNode;
+public class NodeBasedConfigTree extends ConfigNodeImpl implements ConfigTree {
+    //private final @NotNull ConfigNode rootNode;
 
     /**
      * 构造一个空的配置树。
      */
     public NodeBasedConfigTree(@NotNull ConfigNode rootNode) {
-        super();
-        this.rootNode = rootNode;
+        super(rootNode);
+        //this.rootNode = rootNode;
     }
 
-    public NodeBasedConfigTree(@NotNull NodeBasedConfigTree nodeBasedConfigTree) {
-        this(nodeBasedConfigTree.getRootNode());
-    }
-
-    public final @NotNull ConfigNode getRootNode() {
-        return rootNode;
-    }
+    //    public final @NotNull ConfigNode getRootNode() {
+    //        return rootNode;
+    //    }
 
     @Override
     public @NotNull ConfigTree loadProperties(@NotNull Properties properties) {
-        this.getRootNode().reloadData(properties);
+        this.reloadData(properties);
         return this;
     }
 
@@ -47,10 +43,10 @@ public class NodeBasedConfigTree implements ConfigTree {
         if (path.isEmpty())
             return this;
         if (path.size() == 1) {
-            ConfigNode configNode = this.getRootNode().getChildren().get(path.get(0));
+            ConfigNode configNode = this.getChildren().get(path.get(0));
             return new NodeBasedConfigTree(configNode);
         }
-        ConfigNode configElement = this.getRootNode().getChildren().get(path.get(0));
+        ConfigNode configElement = this.getChildren().get(path.get(0));
         if (configElement == null) {
             return null;
         }
@@ -76,7 +72,7 @@ public class NodeBasedConfigTree implements ConfigTree {
         if (x == null) {
             throw new NotConfiguredException(keychain);
         }
-        String valueAsString = x.getRootNode().getValue();
+        String valueAsString = x.getValue();
         if (valueAsString == null) {
             throw new NotConfiguredException(keychain);
         }
@@ -92,10 +88,10 @@ public class NodeBasedConfigTree implements ConfigTree {
     public @NotNull List<@NotNull ConfigProperty> transformChildrenToPropertyList() {
         List<@NotNull ConfigProperty> properties = new ArrayList<>();
         // 为了输出稳定，按字典序遍历同级子节点
-        List<String> keys = new ArrayList<>(this.getRootNode().getChildren().keySet());
+        List<String> keys = new ArrayList<>(this.getChildren().keySet());
         Collections.sort(keys);
         for (String key : keys) {
-            ConfigNode child = this.getRootNode().getChild(key);
+            ConfigNode child = this.getChild(key);
             if (child != null) {
                 dfsTransform(child, new ArrayList<>(List.of(key)), properties);
             }
@@ -133,4 +129,6 @@ public class NodeBasedConfigTree implements ConfigTree {
             }
         }
     }
+
+
 }
