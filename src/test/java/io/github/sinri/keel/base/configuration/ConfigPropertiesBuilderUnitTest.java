@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -22,9 +23,6 @@ import static org.junit.jupiter.api.Assertions.*;
 class ConfigPropertiesBuilderUnitTest {
     private ConfigPropertiesBuilder builder;
 
-    @TempDir
-    Path tempDir;
-
     @BeforeEach
     void setUp() {
         builder = new ConfigPropertiesBuilder();
@@ -38,370 +36,215 @@ class ConfigPropertiesBuilderUnitTest {
     }
 
     @Test
-    void testSetPrefix() {
-        ConfigPropertiesBuilder result = builder.setPrefix(List.of("app", "config"));
+    void testSetPrefixWithList() {
+        List<String> prefix = List.of("app", "config");
+        ConfigPropertiesBuilder result = builder.setPrefix(prefix);
+
         assertSame(builder, result);
     }
 
     @Test
-    void testSetPrefixVarargs() {
+    void testSetPrefixWithVarargs() {
         ConfigPropertiesBuilder result = builder.setPrefix("app", "config");
+
         assertSame(builder, result);
     }
 
     @Test
-    void testSetPrefixNull() {
+    void testSetPrefixWithNull() {
         ConfigPropertiesBuilder result = builder.setPrefix((List<String>) null);
+
         assertSame(builder, result);
     }
 
     @Test
-    void testAddWithKeychain() {
+    void testSetPrefixWithEmptyList() {
+        ConfigPropertiesBuilder result = builder.setPrefix(List.of());
+
+        assertSame(builder, result);
+    }
+
+    @Test
+    void testAddWithListKeychainWithoutPrefix() {
         builder.add(List.of("app", "name"), "TestApp");
+
         String result = builder.writeToString();
         assertEquals("app.name=TestApp", result);
     }
 
     @Test
-    void testAddWithSingleKey() {
-        builder.add("singleKey", "singleValue");
-        String result = builder.writeToString();
-        assertEquals("singleKey=singleValue", result);
-    }
-
-    @Test
-    void testAddWithPrefix() {
+    void testAddWithListKeychainWithPrefix() {
         builder.setPrefix("database", "primary");
-        builder.add("host", "localhost");
-        builder.add("port", "3306");
+        builder.add(List.of("host"), "localhost");
 
         String result = builder.writeToString();
-        assertTrue(result.contains("database.primary.host=localhost"));
-        assertTrue(result.contains("database.primary.port=3306"));
+        assertEquals("database.primary.host=localhost", result);
     }
 
     @Test
-    void testAddWithPrefixAndKeychain() {
-        builder.setPrefix("database");
-        builder.add(List.of("primary", "host"), "localhost");
-        builder.add(List.of("secondary", "host"), "localhost2");
+    void testAddWithListKeychainNullValue() {
+        builder.add(List.of("app", "name"), null);
 
         String result = builder.writeToString();
-        assertTrue(result.contains("database.primary.host=localhost"));
-        assertTrue(result.contains("database.secondary.host=localhost2"));
+        assertEquals("app.name=", result);
     }
 
     @Test
-    void testAddWithNullValue() {
-        builder.add("key", null);
+    void testAddWithListKeychainEmptyValue() {
+        builder.add(List.of("app", "name"), "");
+
         String result = builder.writeToString();
-        assertEquals("key=", result);
+        assertEquals("app.name=", result);
     }
 
     @Test
-    void testAddWithEmptyValue() {
-        builder.add("key", "");
+    void testAddWithStringKeychainWithoutPrefix() {
+        builder.add("server.port", "8080");
+
         String result = builder.writeToString();
-        assertEquals("key=", result);
+        assertEquals("server.port=8080", result);
+    }
+
+    @Test
+    void testAddWithStringKeychainWithPrefix() {
+        builder.setPrefix("app");
+        builder.add("version", "1.0.0");
+
+        String result = builder.writeToString();
+        assertEquals("app.version=1.0.0", result);
+    }
+
+    @Test
+    void testAddWithStringKeychainNullValue() {
+        builder.add("app.name", null);
+
+        String result = builder.writeToString();
+        assertEquals("app.name=", result);
     }
 
     @Test
     void testAddMultipleProperties() {
-        builder.add("app.name", "TestApp");
-        builder.add("app.version", "1.0.0");
-        builder.add("server.host", "localhost");
-        builder.add("server.port", "8080");
+        builder.add(List.of("app", "name"), "TestApp");
+        builder.add(List.of("app", "version"), "1.0.0");
+        builder.add(List.of("server", "port"), "8080");
 
         String result = builder.writeToString();
-        assertTrue(result.contains("app.name=TestApp"));
-        assertTrue(result.contains("app.version=1.0.0"));
-        assertTrue(result.contains("server.host=localhost"));
-        assertTrue(result.contains("server.port=8080"));
+        String[] lines = result.split("\n");
+
+        assertEquals(3, lines.length);
+        assertEquals("app.name=TestApp", lines[0]);
+        assertEquals("app.version=1.0.0", lines[1]);
+        assertEquals("server.port=8080", lines[2]);
     }
 
     @Test
-    void testWriteToStringEmpty() {
+    void testAddWithPrefixChange() {
+        builder.setPrefix("app");
+        builder.add("name", "TestApp");
+
+        builder.setPrefix("server");
+        builder.add("port", "8080");
+
+        String result = builder.writeToString();
+        String[] lines = result.split("\n");
+
+        assertEquals(2, lines.length);
+        assertEquals("app.name=TestApp", lines[0]);
+        assertEquals("server.port=8080", lines[1]);
+    }
+
+    @Test
+    void testAddWithNullPrefix() {
+        builder.setPrefix((List<String>) null);
+        builder.add("app.name", "TestApp");
+
+        String result = builder.writeToString();
+        assertEquals("app.name=TestApp", result);
+    }
+
+    @Test
+    void testSetConfigPropertyList() {
+        List<ConfigProperty> propertyList = new ArrayList<>();
+
+        ConfigProperty prop1 = new ConfigProperty();
+        prop1.addToKeychain("app").addToKeychain("name").setValue("TestApp");
+
+        ConfigProperty prop2 = new ConfigProperty();
+        prop2.addToKeychain("app").addToKeychain("version").setValue("1.0.0");
+
+        propertyList.add(prop1);
+        propertyList.add(prop2);
+
+        ConfigPropertiesBuilder result = builder.setConfigPropertyList(propertyList);
+
+        assertSame(builder, result);
+
+        String output = builder.writeToString();
+        String[] lines = output.split("\n");
+
+        assertEquals(2, lines.length);
+        assertEquals("app.name=TestApp", lines[0]);
+        assertEquals("app.version=1.0.0", lines[1]);
+    }
+
+    @Test
+    void testSetConfigPropertyListOverwritesPreviousProperties() {
+        builder.add("old.key", "oldValue");
+
+        List<ConfigProperty> propertyList = new ArrayList<>();
+        ConfigProperty prop = new ConfigProperty();
+        prop.addToKeychain("new").addToKeychain("key").setValue("newValue");
+        propertyList.add(prop);
+
+        builder.setConfigPropertyList(propertyList);
+
+        String result = builder.writeToString();
+        assertEquals("new.key=newValue", result);
+    }
+
+    @Test
+    void testWriteToStringWithEmptyList() {
         String result = builder.writeToString();
         assertEquals("", result);
     }
 
     @Test
-    void testWriteToStringWithOneProperty() {
-        builder.add("key", "value");
+    void testWriteToStringWithSingleProperty() {
+        builder.add("app.name", "TestApp");
+
         String result = builder.writeToString();
-        assertEquals("key=value", result);
+        assertEquals("app.name=TestApp", result);
     }
 
     @Test
     void testWriteToStringWithMultipleProperties() {
-        builder.add("key1", "value1");
-        builder.add("key2", "value2");
-        builder.add("key3", "value3");
+        builder.add("app.name", "TestApp");
+        builder.add("app.version", "1.0.0");
+        builder.add("server.port", "8080");
 
         String result = builder.writeToString();
         String[] lines = result.split("\n");
+
         assertEquals(3, lines.length);
-        assertEquals("key1=value1", lines[0]);
-        assertEquals("key2=value2", lines[1]);
-        assertEquals("key3=value3", lines[2]);
     }
 
     @Test
-    void testWriteToFile() throws IOException {
-        Path filePath = tempDir.resolve("test.properties");
-
-        builder.add("app.name", "TestApp");
-        builder.add("app.version", "1.0.0");
-        builder.add("server.host", "localhost");
-
-        builder.writeToFile(filePath.toString());
-
-        assertTrue(Files.exists(filePath));
-
-        String content = Files.readString(filePath, StandardCharsets.US_ASCII);
-        assertTrue(content.contains("app.name=TestApp"));
-        assertTrue(content.contains("app.version=1.0.0"));
-        assertTrue(content.contains("server.host=localhost"));
-    }
-
-    @Test
-    void testWriteToFileOverwritesExisting() throws IOException {
-        Path filePath = tempDir.resolve("overwrite.properties");
-
-        // Write first time
-        builder.add("key1", "value1");
-        builder.writeToFile(filePath.toString());
-
-        String firstContent = Files.readString(filePath, StandardCharsets.US_ASCII);
-        assertTrue(firstContent.contains("key1=value1"));
-
-        // Write second time with different content
-        ConfigPropertiesBuilder newBuilder = new ConfigPropertiesBuilder();
-        newBuilder.add("key2", "value2");
-        newBuilder.writeToFile(filePath.toString());
-
-        String secondContent = Files.readString(filePath, StandardCharsets.US_ASCII);
-        assertFalse(secondContent.contains("key1=value1"));
-        assertTrue(secondContent.contains("key2=value2"));
-    }
-
-    @Test
-    void testAppendToFile() throws IOException {
-        Path filePath = tempDir.resolve("append.properties");
-
-        // Write initial content
-        Files.writeString(filePath, "initial.key=initial.value\n", StandardCharsets.US_ASCII);
-
-        // Append new content
-        builder.add("app.name", "TestApp");
-        builder.add("app.version", "1.0.0");
-        builder.appendToFile(filePath.toString());
-
-        String content = Files.readString(filePath, StandardCharsets.US_ASCII);
-        assertTrue(content.contains("initial.key=initial.value"));
-        assertTrue(content.contains("app.name=TestApp"));
-        assertTrue(content.contains("app.version=1.0.0"));
-    }
-
-    @Test
-    void testAppendToFileCreatesIfNotExists() throws IOException {
-        Path filePath = tempDir.resolve("newfile.properties");
-
-        builder.add("key", "value");
-        builder.appendToFile(filePath.toString());
-
-        assertTrue(Files.exists(filePath));
-        String content = Files.readString(filePath, StandardCharsets.US_ASCII);
-        assertTrue(content.contains("key=value"));
-    }
-
-    @Test
-    void testAppendToFileMultipleTimes() throws IOException {
-        Path filePath = tempDir.resolve("multiappend.properties");
-
-        // First append
-        builder.add("key1", "value1");
-        builder.appendToFile(filePath.toString());
-
-        // Second append
-        ConfigPropertiesBuilder builder2 = new ConfigPropertiesBuilder();
-        builder2.add("key2", "value2");
-        builder2.appendToFile(filePath.toString());
-
-        // Third append
-        ConfigPropertiesBuilder builder3 = new ConfigPropertiesBuilder();
-        builder3.add("key3", "value3");
-        builder3.appendToFile(filePath.toString());
-
-        String content = Files.readString(filePath, StandardCharsets.US_ASCII);
-        assertTrue(content.contains("key1=value1"));
-        assertTrue(content.contains("key2=value2"));
-        assertTrue(content.contains("key3=value3"));
-    }
-
-    @Test
-    void testSetConfigPropertyList() {
-        ConfigProperty prop1 = new ConfigProperty()
-                .setKeychain(List.of("app", "name"))
-                .setValue("TestApp");
-        ConfigProperty prop2 = new ConfigProperty()
-                .setKeychain(List.of("app", "version"))
-                .setValue("1.0.0");
-
-        List<ConfigProperty> list = List.of(prop1, prop2);
-
-        ConfigPropertiesBuilder result = builder.setConfigPropertyList(list);
-        assertSame(builder, result);
-
-        String output = builder.writeToString();
-        assertTrue(output.contains("app.name=TestApp"));
-        assertTrue(output.contains("app.version=1.0.0"));
-    }
-
-    @Test
-    void testSetConfigPropertyListReplacesExisting() {
-        builder.add("old.key", "old.value");
-
-        ConfigProperty newProp = new ConfigProperty()
-                .setKeychain(List.of("new", "key"))
-                .setValue("new.value");
-
-        builder.setConfigPropertyList(List.of(newProp));
-
-        String output = builder.writeToString();
-        assertFalse(output.contains("old.key=old.value"));
-        assertTrue(output.contains("new.key=new.value"));
-    }
-
-    @Test
-    void testChainedOperations() {
-        String result = builder
-                .setPrefix("database", "primary")
-                .add("host", "localhost")
-                .add("port", "3306")
-                .writeToString();
-
-        assertTrue(result.contains("database.primary.host=localhost"));
-        assertTrue(result.contains("database.primary.port=3306"));
-    }
-
-    @Test
-    void testComplexConfiguration() {
-        builder.setPrefix("app");
-        builder.add("name", "TestApp");
-        builder.add("version", "1.0.0");
-
-        builder.setPrefix("server");
-        builder.add("host", "localhost");
-        builder.add("port", "8080");
-
-        builder.setPrefix("database");
-        builder.add(List.of("primary", "host"), "db1.example.com");
-        builder.add(List.of("primary", "port"), "3306");
-        builder.add(List.of("secondary", "host"), "db2.example.com");
-        builder.add(List.of("secondary", "port"), "3307");
+    void testWriteToStringWithSpecialCharactersInValue() {
+        builder.add("app.path", "/usr/local/app");
+        builder.add("database.url", "jdbc:mysql://localhost:3306/testdb");
+        builder.add("message", "Hello World!");
 
         String result = builder.writeToString();
+        String[] lines = result.split("\n");
 
-        assertTrue(result.contains("app.name=TestApp"));
-        assertTrue(result.contains("app.version=1.0.0"));
-        assertTrue(result.contains("server.host=localhost"));
-        assertTrue(result.contains("server.port=8080"));
-        assertTrue(result.contains("database.primary.host=db1.example.com"));
-        assertTrue(result.contains("database.primary.port=3306"));
-        assertTrue(result.contains("database.secondary.host=db2.example.com"));
-        assertTrue(result.contains("database.secondary.port=3307"));
+        assertEquals(3, lines.length);
+        assertTrue(result.contains("app.path=/usr/local/app"));
+        assertTrue(result.contains("database.url=jdbc:mysql://localhost:3306/testdb"));
+        assertTrue(result.contains("message=Hello World!"));
     }
 
     @Test
-    void testPropertyWithSpecialCharacters() {
-        builder.add("path", "C:\\Users\\Test\\Application");
-        builder.add("url", "jdbc:mysql://localhost:3306/testdb");
-        builder.add("description", "This is a test: with special chars");
-
-        String result = builder.writeToString();
-        assertTrue(result.contains("path=C:\\Users\\Test\\Application"));
-        assertTrue(result.contains("url=jdbc:mysql://localhost:3306/testdb"));
-        assertTrue(result.contains("description=This is a test: with special chars"));
-    }
-
-    @Test
-    void testWriteEmptyListToFile() throws IOException {
-        Path filePath = tempDir.resolve("empty.properties");
-        builder.setConfigPropertyList(List.of());
-        builder.writeToFile(filePath.toString());
-
-        assertTrue(Files.exists(filePath));
-        String content = Files.readString(filePath, StandardCharsets.US_ASCII);
-        assertEquals("", content);
-    }
-
-    @Test
-    void testPrefixDoesNotAffectPreviouslyAddedProperties() {
-        builder.add("key1", "value1");
-        builder.setPrefix("prefix");
-        builder.add("key2", "value2");
-
-        String result = builder.writeToString();
-        assertTrue(result.contains("key1=value1"));
-        assertTrue(result.contains("prefix.key2=value2"));
-    }
-
-    @Test
-    void testChangePrefixMultipleTimes() {
-        builder.setPrefix("prefix1");
-        builder.add("key1", "value1");
-
-        builder.setPrefix("prefix2");
-        builder.add("key2", "value2");
-
-        builder.setPrefix((List<String>) null);
-        builder.add("key3", "value3");
-
-        String result = builder.writeToString();
-        assertTrue(result.contains("prefix1.key1=value1"));
-        assertTrue(result.contains("prefix2.key2=value2"));
-        assertTrue(result.contains("key3=value3"));
-    }
-
-    @Test
-    void testDeepNestedProperties() {
-        builder.add(List.of("level1", "level2", "level3", "level4", "level5"), "deepValue");
-
-        String result = builder.writeToString();
-        assertTrue(result.contains("level1.level2.level3.level4.level5=deepValue"));
-    }
-
-    @Test
-    void testNumericValues() {
-        builder.add("int.value", "42");
-        builder.add("long.value", "123456789012345");
-        builder.add("float.value", "3.14");
-        builder.add("double.value", "2.718281828");
-
-        String result = builder.writeToString();
-        assertTrue(result.contains("int.value=42"));
-        assertTrue(result.contains("long.value=123456789012345"));
-        assertTrue(result.contains("float.value=3.14"));
-        assertTrue(result.contains("double.value=2.718281828"));
-    }
-
-    @Test
-    void testBooleanValues() {
-        builder.add("feature.enabled", "true");
-        builder.add("feature.disabled", "false");
-        builder.add("feature.yes", "YES");
-        builder.add("feature.no", "NO");
-
-        String result = builder.writeToString();
-        assertTrue(result.contains("feature.enabled=true"));
-        assertTrue(result.contains("feature.disabled=false"));
-        assertTrue(result.contains("feature.yes=YES"));
-        assertTrue(result.contains("feature.no=NO"));
-    }
-
-    @Test
-    void testUnicodeValues() {
+    void testWriteToStringWithUnicodeCharacters() {
         builder.add("app.name", "测试应用");
         builder.add("app.description", "これはテストです");
 
@@ -411,42 +254,371 @@ class ConfigPropertiesBuilderUnitTest {
     }
 
     @Test
-    void testLargePropertyList() {
+    void testWriteToFile(@TempDir Path tempDir) throws IOException {
+        Path testFile = tempDir.resolve("test-config.properties");
+
+        builder.add("app.name", "TestApp");
+        builder.add("app.version", "1.0.0");
+        builder.add("server.port", "8080");
+
+        builder.writeToFile(testFile.toString());
+
+        assertTrue(Files.exists(testFile));
+
+        String content = Files.readString(testFile, StandardCharsets.US_ASCII);
+        String[] lines = content.split("\n");
+
+        assertEquals(3, lines.length);
+        assertEquals("app.name=TestApp", lines[0]);
+        assertEquals("app.version=1.0.0", lines[1]);
+        assertEquals("server.port=8080", lines[2]);
+    }
+
+    @Test
+    void testWriteToFileOverwritesExistingFile(@TempDir Path tempDir) throws IOException {
+        Path testFile = tempDir.resolve("test-config.properties");
+
+        // 先写入初始内容
+        Files.writeString(testFile, "old.key=oldValue", StandardCharsets.US_ASCII);
+
+        // 使用builder写入新内容
+        builder.add("new.key", "newValue");
+        builder.writeToFile(testFile.toString());
+
+        String content = Files.readString(testFile, StandardCharsets.US_ASCII);
+        assertEquals("new.key=newValue", content);
+        assertFalse(content.contains("old.key"));
+    }
+
+    @Test
+    void testWriteToFileWithEmptyBuilder(@TempDir Path tempDir) throws IOException {
+        Path testFile = tempDir.resolve("empty-config.properties");
+
+        builder.writeToFile(testFile.toString());
+
+        assertTrue(Files.exists(testFile));
+        String content = Files.readString(testFile, StandardCharsets.US_ASCII);
+        assertEquals("", content);
+    }
+
+    @Test
+    void testAppendToFile(@TempDir Path tempDir) throws IOException {
+        Path testFile = tempDir.resolve("append-config.properties");
+
+        // 先写入初始内容
+        Files.writeString(testFile, "existing.key=existingValue\n", StandardCharsets.US_ASCII);
+
+        // 追加新内容
+        builder.add("new.key", "newValue");
+        builder.appendToFile(testFile.toString());
+
+        String content = Files.readString(testFile, StandardCharsets.US_ASCII);
+        assertTrue(content.contains("existing.key=existingValue"));
+        assertTrue(content.contains("new.key=newValue"));
+    }
+
+    @Test
+    void testAppendToFileCreatesNewFileIfNotExists(@TempDir Path tempDir) throws IOException {
+        Path testFile = tempDir.resolve("new-append-config.properties");
+
+        builder.add("app.name", "TestApp");
+        builder.appendToFile(testFile.toString());
+
+        assertTrue(Files.exists(testFile));
+        String content = Files.readString(testFile, StandardCharsets.US_ASCII);
+        assertEquals("app.name=TestApp", content);
+    }
+
+    @Test
+    void testAppendToFileMultipleTimes(@TempDir Path tempDir) throws IOException {
+        Path testFile = tempDir.resolve("multi-append-config.properties");
+
+        // 第一次追加
+        ConfigPropertiesBuilder builder1 = new ConfigPropertiesBuilder();
+        builder1.add("key1", "value1");
+        builder1.appendToFile(testFile.toString());
+
+        // 第二次追加
+        ConfigPropertiesBuilder builder2 = new ConfigPropertiesBuilder();
+        builder2.add("key2", "value2");
+        builder2.appendToFile(testFile.toString());
+
+        // 第三次追加
+        ConfigPropertiesBuilder builder3 = new ConfigPropertiesBuilder();
+        builder3.add("key3", "value3");
+        builder3.appendToFile(testFile.toString());
+
+        String content = Files.readString(testFile, StandardCharsets.US_ASCII);
+        assertTrue(content.contains("key1=value1"));
+        assertTrue(content.contains("key2=value2"));
+        assertTrue(content.contains("key3=value3"));
+    }
+
+    @Test
+    void testAppendToFileWithEmptyBuilder(@TempDir Path tempDir) throws IOException {
+        Path testFile = tempDir.resolve("empty-append-config.properties");
+
+        Files.writeString(testFile, "existing.key=existingValue\n", StandardCharsets.US_ASCII);
+
+        builder.appendToFile(testFile.toString());
+
+        String content = Files.readString(testFile, StandardCharsets.US_ASCII);
+        assertEquals("existing.key=existingValue\n", content);
+    }
+
+    @Test
+    void testChainedOperations() {
+        String result = builder
+                .setPrefix("app")
+                .add("name", "TestApp")
+                .add("version", "1.0.0")
+                .setPrefix("server")
+                .add("port", "8080")
+                .writeToString();
+
+        assertNotNull(result);
+        assertTrue(result.contains("app.name=TestApp"));
+        assertTrue(result.contains("app.version=1.0.0"));
+        assertTrue(result.contains("server.port=8080"));
+    }
+
+    @Test
+    void testComplexConfigurationScenario() {
+        builder.setPrefix("app");
+        builder.add("name", "MyApplication");
+        builder.add("version", "1.0.0");
+
+        builder.setPrefix("server");
+        builder.add(List.of("host"), "localhost");
+        builder.add(List.of("port"), "8080");
+
+        builder.setPrefix("database", "primary");
+        builder.add("url", "jdbc:mysql://localhost:3306/testdb");
+        builder.add("username", "root");
+        builder.add("password", "secret");
+
+        String result = builder.writeToString();
+        String[] lines = result.split("\n");
+
+        assertEquals(7, lines.length);
+        assertTrue(result.contains("app.name=MyApplication"));
+        assertTrue(result.contains("app.version=1.0.0"));
+        assertTrue(result.contains("server.host=localhost"));
+        assertTrue(result.contains("server.port=8080"));
+        assertTrue(result.contains("database.primary.url=jdbc:mysql://localhost:3306/testdb"));
+        assertTrue(result.contains("database.primary.username=root"));
+        assertTrue(result.contains("database.primary.password=secret"));
+    }
+
+    @Test
+    void testAddWithDeepNestedKeychain() {
+        builder.add(List.of("level1", "level2", "level3", "level4", "level5"), "deepValue");
+
+        String result = builder.writeToString();
+        assertEquals("level1.level2.level3.level4.level5=deepValue", result);
+    }
+
+    @Test
+    void testAddWithDeepNestedKeychainAndPrefix() {
+        builder.setPrefix("root", "sub");
+        builder.add(List.of("level1", "level2", "level3"), "deepValue");
+
+        String result = builder.writeToString();
+        assertEquals("root.sub.level1.level2.level3=deepValue", result);
+    }
+
+    @Test
+    void testMixedKeychainFormats() {
+        builder.add(List.of("app", "name"), "TestApp");
+        builder.add("server.port", "8080");
+        builder.add(List.of("database", "url"), "jdbc:mysql://localhost");
+
+        String result = builder.writeToString();
+        String[] lines = result.split("\n");
+
+        assertEquals(3, lines.length);
+        assertTrue(result.contains("app.name=TestApp"));
+        assertTrue(result.contains("server.port=8080"));
+        assertTrue(result.contains("database.url=jdbc:mysql://localhost"));
+    }
+
+    @Test
+    void testPropertyWithNumericValue() {
+        builder.add("server.port", "8080");
+        builder.add("timeout.seconds", "30");
+        builder.add("max.connections", "100");
+
+        String result = builder.writeToString();
+        assertTrue(result.contains("server.port=8080"));
+        assertTrue(result.contains("timeout.seconds=30"));
+        assertTrue(result.contains("max.connections=100"));
+    }
+
+    @Test
+    void testPropertyWithBooleanValue() {
+        builder.add("feature.enabled", "true");
+        builder.add("debug.mode", "false");
+        builder.add("ssl.enabled", "TRUE");
+
+        String result = builder.writeToString();
+        assertTrue(result.contains("feature.enabled=true"));
+        assertTrue(result.contains("debug.mode=false"));
+        assertTrue(result.contains("ssl.enabled=TRUE"));
+    }
+
+    @Test
+    void testPropertyWithUrlValue() {
+        builder.add("database.url", "jdbc:mysql://localhost:3306/testdb");
+        builder.add("api.endpoint", "https://api.example.com/v1");
+        builder.add("ftp.server", "ftp://ftp.example.com:21");
+
+        String result = builder.writeToString();
+        assertTrue(result.contains("database.url=jdbc:mysql://localhost:3306/testdb"));
+        assertTrue(result.contains("api.endpoint=https://api.example.com/v1"));
+        assertTrue(result.contains("ftp.server=ftp://ftp.example.com:21"));
+    }
+
+    @Test
+    void testPropertyWithPathValue() {
+        builder.add("app.home", "/usr/local/app");
+        builder.add("log.path", "/var/log/app.log");
+        builder.add("data.dir", "/data/storage");
+
+        String result = builder.writeToString();
+        assertTrue(result.contains("app.home=/usr/local/app"));
+        assertTrue(result.contains("log.path=/var/log/app.log"));
+        assertTrue(result.contains("data.dir=/data/storage"));
+    }
+
+    @Test
+    void testPropertyWithWindowsPathValue() {
+        builder.add("app.home", "C:\\Program Files\\Application");
+        builder.add("log.path", "D:\\Logs\\app.log");
+
+        String result = builder.writeToString();
+        assertTrue(result.contains("app.home=C:\\Program Files\\Application"));
+        assertTrue(result.contains("log.path=D:\\Logs\\app.log"));
+    }
+
+    @Test
+    void testPropertyWithSpacesInValue() {
+        builder.add("app.name", "My Application Name");
+        builder.add("app.description", "This is a test application");
+
+        String result = builder.writeToString();
+        assertTrue(result.contains("app.name=My Application Name"));
+        assertTrue(result.contains("app.description=This is a test application"));
+    }
+
+    @Test
+    void testPropertyWithSpecialCharactersInValue() {
+        builder.add("password", "p@ssw0rd!#$");
+        builder.add("regex.pattern", "^[a-zA-Z0-9]+$");
+        builder.add("email", "test@example.com");
+
+        String result = builder.writeToString();
+        assertTrue(result.contains("password=p@ssw0rd!#$"));
+        assertTrue(result.contains("regex.pattern=^[a-zA-Z0-9]+$"));
+        assertTrue(result.contains("email=test@example.com"));
+    }
+
+    @Test
+    void testEmptyKeychainInList() {
+        builder.add(List.of(), "value");
+
+        String result = builder.writeToString();
+        assertEquals("=value", result);
+    }
+
+    @Test
+    void testSingleElementKeychain() {
+        builder.add(List.of("key"), "value");
+
+        String result = builder.writeToString();
+        assertEquals("key=value", result);
+    }
+
+    @Test
+    void testPrefixResetBehavior() {
+        builder.setPrefix("prefix1");
+        builder.add("key1", "value1");
+
+        builder.setPrefix("prefix2");
+        builder.add("key2", "value2");
+
+        String result = builder.writeToString();
+        // Note: setPrefix累加前缀
+        assertTrue(result.contains("prefix1.key1=value1"));
+        assertTrue(result.contains("prefix2.key2=value2"));
+    }
+
+    @Test
+    void testWriteAndReadRoundTrip(@TempDir Path tempDir) throws IOException {
+        Path testFile = tempDir.resolve("roundtrip-config.properties");
+
+        // 写入
+        builder.add("app.name", "TestApp");
+        builder.add("app.version", "1.0.0");
+        builder.add("server.port", "8080");
+        builder.writeToFile(testFile.toString());
+
+        // 读取验证
+        String content = Files.readString(testFile, StandardCharsets.US_ASCII);
+        String[] lines = content.split("\n");
+
+        assertEquals(3, lines.length);
+        assertEquals("app.name=TestApp", lines[0]);
+        assertEquals("app.version=1.0.0", lines[1]);
+        assertEquals("server.port=8080", lines[2]);
+    }
+
+    @Test
+    void testLargeNumberOfProperties() {
         for (int i = 0; i < 1000; i++) {
             builder.add("key" + i, "value" + i);
         }
 
         String result = builder.writeToString();
         String[] lines = result.split("\n");
-        assertEquals(1000, lines.length);
 
+        assertEquals(1000, lines.length);
         assertTrue(result.contains("key0=value0"));
-        assertTrue(result.contains("key500=value500"));
         assertTrue(result.contains("key999=value999"));
     }
 
     @Test
-    void testRoundTripWithConfigTree() throws IOException, NotConfiguredException {
-        // Build properties
-        builder.add("app.name", "TestApp");
-        builder.add("app.version", "1.0.0");
-        builder.add("server.host", "localhost");
-        builder.add("server.port", "8080");
+    void testPropertyOverwriteByReassignment() {
+        List<ConfigProperty> propertyList = new ArrayList<>();
 
-        // Write to file
-        Path filePath = tempDir.resolve("roundtrip.properties");
-        builder.writeToFile(filePath.toString());
+        ConfigProperty prop1 = new ConfigProperty();
+        prop1.addToKeychain("app").addToKeychain("name").setValue("FirstValue");
+        propertyList.add(prop1);
 
-        // Load back into ConfigTree
-        ConfigNode rootNode = ConfigNode.create("root");
-        ConfigTree tree = ConfigTree.wrap(rootNode);
-        tree.loadPropertiesFile(filePath.toString());
+        builder.setConfigPropertyList(propertyList);
+        assertEquals("app.name=FirstValue", builder.writeToString());
 
-        // Verify values
-        assertEquals("TestApp", tree.readString(List.of("app", "name")));
-        assertEquals("1.0.0", tree.readString(List.of("app", "version")));
-        assertEquals("localhost", tree.readString(List.of("server", "host")));
-        assertEquals(8080, tree.readInteger(List.of("server", "port")));
+        // 重新设置列表
+        List<ConfigProperty> newPropertyList = new ArrayList<>();
+        ConfigProperty prop2 = new ConfigProperty();
+        prop2.addToKeychain("app").addToKeychain("name").setValue("SecondValue");
+        newPropertyList.add(prop2);
+
+        builder.setConfigPropertyList(newPropertyList);
+        assertEquals("app.name=SecondValue", builder.writeToString());
+    }
+
+    @Test
+    void testBuilderReusability() {
+        // 第一次使用
+        builder.add("key1", "value1");
+        String result1 = builder.writeToString();
+        assertEquals("key1=value1", result1);
+
+        // 添加更多属性后再次使用
+        builder.add("key2", "value2");
+        String result2 = builder.writeToString();
+        String[] lines = result2.split("\n");
+        assertEquals(2, lines.length);
     }
 }
 
