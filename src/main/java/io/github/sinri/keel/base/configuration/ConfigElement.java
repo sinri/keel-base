@@ -1,20 +1,58 @@
-package io.github.sinri.keel.base.configuration.lab2;
+package io.github.sinri.keel.base.configuration;
 
-import io.github.sinri.keel.base.configuration.ConfigProperty;
-import io.github.sinri.keel.base.configuration.NotConfiguredException;
+import io.github.sinri.keel.base.logger.factory.StdoutLoggerFactory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ConfigElement {
-    private final @NotNull Map<String, ConfigElement> children = new ConcurrentHashMap<>();
+    private final @NotNull Map<String, ConfigElement> children;
     private final @NotNull String elementName;
     private @NotNull String elementValue = "";
 
     public ConfigElement(@NotNull String elementName) {
         this.elementName = elementName;
+        this.elementValue = "";
+        this.children = new ConcurrentHashMap<>();
+    }
+
+    public ConfigElement(@NotNull ConfigElement another) {
+        this.elementName = another.elementName;
+        this.elementValue = another.elementValue;
+        this.children = another.children;
+    }
+
+    @NotNull
+    public static Properties loadLocalPropertiesFile(@NotNull String propertiesFileName, @NotNull Charset charset) throws IOException {
+        File file = new File(propertiesFileName);
+        Properties properties = new Properties();
+        try {
+            // here, the file named as `propertiesFileName` should be put along with JAR
+            properties.load(new FileReader(file, charset));
+        } catch (IOException e) {
+            StdoutLoggerFactory.getInstance().createLogger(ConfigElement.class.getName())
+                               .warning("Cannot read the file %s. Use the embedded one.".formatted(file.getAbsolutePath()));
+            InputStream resourceAsStream = ConfigElement.class.getClassLoader().getResourceAsStream(propertiesFileName);
+            if (resourceAsStream == null) {
+                // if the embedded file is not found, throw an IOException
+                throw new IOException("The embedding properties file is not found.");
+            }
+            properties.load(resourceAsStream);
+        }
+        return properties;
+    }
+
+    public void loadPropertiesFile(@NotNull String propertiesFileName) throws IOException {
+        var x = loadLocalPropertiesFile(propertiesFileName, StandardCharsets.UTF_8);
+        this.loadData(x);
     }
 
     /**
@@ -105,7 +143,7 @@ public class ConfigElement {
      *
      * @param properties Properties 对象，包含配置数据
      */
-    public void reloadData(@NotNull Properties properties) {
+    public void loadData(@NotNull Properties properties) {
         properties.forEach((k, v) -> {
             // System.out.println(k + "->" + v);
             if (k == null || v == null) return;
@@ -187,7 +225,8 @@ public class ConfigElement {
     private void dfsTransform(
             @NotNull ConfigElement node,
             @NotNull List<String> path,
-            @NotNull List<@NotNull ConfigProperty> out) {
+            @NotNull List<@NotNull ConfigProperty> out
+    ) {
         // System.out.println("dfsTransform on " + path);
         // 当前节点若有值，则输出一条属性
         if (node.isLeafNode()) {

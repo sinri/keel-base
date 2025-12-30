@@ -1,7 +1,5 @@
-package io.github.sinri.keel.base.configuration.lab2;
+package io.github.sinri.keel.base.configuration;
 
-import io.github.sinri.keel.base.configuration.ConfigProperty;
-import io.github.sinri.keel.base.configuration.NotConfiguredException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -125,25 +123,25 @@ class ConfigElementUnitTest {
     }
 
     @Test
-    void testReloadDataWithSimpleProperties() throws NotConfiguredException {
+    void testLoadDataWithSimpleProperties() throws NotConfiguredException {
         Properties properties = new Properties();
         properties.setProperty("key1", "value1");
         properties.setProperty("key2", "value2");
 
-        configElement.reloadData(properties);
+        configElement.loadData(properties);
 
         assertEquals("value1", configElement.getChild("key1").getElementValue());
         assertEquals("value2", configElement.getChild("key2").getElementValue());
     }
 
     @Test
-    void testReloadDataWithNestedProperties() throws NotConfiguredException {
+    void testLoadDataWithNestedProperties() throws NotConfiguredException {
         Properties properties = new Properties();
         properties.setProperty("server.host", "localhost");
         properties.setProperty("server.port", "8080");
         properties.setProperty("database.url", "jdbc:mysql://localhost");
 
-        configElement.reloadData(properties);
+        configElement.loadData(properties);
 
         ConfigElement server = configElement.getChild("server");
         assertNotNull(server);
@@ -156,11 +154,11 @@ class ConfigElementUnitTest {
     }
 
     @Test
-    void testReloadDataWithDeepNestedProperties() throws NotConfiguredException {
+    void testLoadDataWithDeepNestedProperties() throws NotConfiguredException {
         Properties properties = new Properties();
         properties.setProperty("a.b.c.d", "deepValue");
 
-        configElement.reloadData(properties);
+        configElement.loadData(properties);
 
         ConfigElement a = configElement.getChild("a");
         assertNotNull(a);
@@ -179,7 +177,7 @@ class ConfigElementUnitTest {
         Properties properties = new Properties();
         properties.setProperty("server.host", "localhost");
 
-        configElement.reloadData(properties);
+        configElement.loadData(properties);
 
         ConfigElement extracted = configElement.extract("server", "host");
         assertNotNull(extracted);
@@ -191,7 +189,7 @@ class ConfigElementUnitTest {
         Properties properties = new Properties();
         properties.setProperty("server.host", "localhost");
 
-        configElement.reloadData(properties);
+        configElement.loadData(properties);
 
         ConfigElement extracted = configElement.extract(Arrays.asList("server", "host"));
         assertNotNull(extracted);
@@ -217,7 +215,7 @@ class ConfigElementUnitTest {
         properties.setProperty("server.port", "8080");
         properties.setProperty("database.url", "jdbc:mysql://localhost");
 
-        configElement.reloadData(properties);
+        configElement.loadData(properties);
 
         System.out.println(configElement.debugToString(0));
 
@@ -250,7 +248,7 @@ class ConfigElementUnitTest {
         Properties properties = new Properties();
         properties.setProperty("app.name", "MyApp");
 
-        configElement.reloadData(properties);
+        configElement.loadData(properties);
 
         String value = configElement.readString(Arrays.asList("app", "name"));
         assertEquals("MyApp", value);
@@ -274,7 +272,7 @@ class ConfigElementUnitTest {
         Properties properties = new Properties();
         properties.setProperty("app.version", "1.0.0");
 
-        configElement.reloadData(properties);
+        configElement.loadData(properties);
 
         String value = configElement.readString("app.version");
         assertEquals("1.0.0", value);
@@ -296,7 +294,7 @@ class ConfigElementUnitTest {
         properties.setProperty("flag.no", "NO");
         properties.setProperty("flag.other", "anything");
 
-        configElement.reloadData(properties);
+        configElement.loadData(properties);
 
         assertTrue(configElement.readBoolean(Arrays.asList("flag", "yes")));
         assertTrue(configElement.readBoolean(Arrays.asList("flag", "true")));
@@ -312,7 +310,7 @@ class ConfigElementUnitTest {
         properties.setProperty("number.int", "42");
         properties.setProperty("number.negative", "-100");
 
-        configElement.reloadData(properties);
+        configElement.loadData(properties);
 
         assertEquals(42, configElement.readInteger(Arrays.asList("number", "int")));
         assertEquals(-100, configElement.readInteger(Arrays.asList("number", "negative")));
@@ -323,7 +321,7 @@ class ConfigElementUnitTest {
         Properties properties = new Properties();
         properties.setProperty("number.invalid", "not-a-number");
 
-        configElement.reloadData(properties);
+        configElement.loadData(properties);
 
         assertThrows(NumberFormatException.class,
                 () -> configElement.readInteger(Arrays.asList("number", "invalid")));
@@ -335,7 +333,7 @@ class ConfigElementUnitTest {
         properties.setProperty("number.long", "9223372036854775807");
         properties.setProperty("number.negative", "-9223372036854775808");
 
-        configElement.reloadData(properties);
+        configElement.loadData(properties);
 
         assertEquals(9223372036854775807L, configElement.readLong(Arrays.asList("number", "long")));
         assertEquals(-9223372036854775808L, configElement.readLong(Arrays.asList("number", "negative")));
@@ -346,7 +344,7 @@ class ConfigElementUnitTest {
         Properties properties = new Properties();
         properties.setProperty("number.invalid", "not-a-long");
 
-        configElement.reloadData(properties);
+        configElement.loadData(properties);
 
         assertThrows(NumberFormatException.class,
                 () -> configElement.readLong(Arrays.asList("number", "invalid")));
@@ -358,7 +356,7 @@ class ConfigElementUnitTest {
         properties.setProperty("number.float", "3.14");
         properties.setProperty("number.negative", "-2.5");
 
-        configElement.reloadData(properties);
+        configElement.loadData(properties);
 
         assertEquals(3.14f, configElement.readFloat(Arrays.asList("number", "float")), 0.001f);
         assertEquals(-2.5f, configElement.readFloat(Arrays.asList("number", "negative")), 0.001f);
@@ -369,7 +367,7 @@ class ConfigElementUnitTest {
         Properties properties = new Properties();
         properties.setProperty("number.invalid", "not-a-float");
 
-        configElement.reloadData(properties);
+        configElement.loadData(properties);
 
         assertThrows(NumberFormatException.class,
                 () -> configElement.readFloat(Arrays.asList("number", "invalid")));
@@ -381,7 +379,7 @@ class ConfigElementUnitTest {
         properties.setProperty("number.double", "3.141592653589793");
         properties.setProperty("number.negative", "-2.718281828459045");
 
-        configElement.reloadData(properties);
+        configElement.loadData(properties);
 
         assertEquals(3.141592653589793, configElement.readDouble(Arrays.asList("number", "double")), 0.000001);
         assertEquals(-2.718281828459045, configElement.readDouble(Arrays.asList("number", "negative")), 0.000001);
@@ -392,7 +390,7 @@ class ConfigElementUnitTest {
         Properties properties = new Properties();
         properties.setProperty("number.invalid", "not-a-double");
 
-        configElement.reloadData(properties);
+        configElement.loadData(properties);
 
         assertThrows(NumberFormatException.class,
                 () -> configElement.readDouble(Arrays.asList("number", "invalid")));
@@ -410,7 +408,7 @@ class ConfigElementUnitTest {
         properties.setProperty("database.username", "root");
         properties.setProperty("database.connection.timeout", "30");
 
-        configElement.reloadData(properties);
+        configElement.loadData(properties);
 
         // 验证基本读取
         assertEquals("TestApp", configElement.readString(Arrays.asList("app", "name")));
