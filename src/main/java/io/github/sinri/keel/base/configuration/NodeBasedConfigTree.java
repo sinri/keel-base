@@ -17,15 +17,19 @@ import java.util.Properties;
  *
  * @since 5.0.0
  */
-public class ConfigTreeImpl implements ConfigTree {
+public class NodeBasedConfigTree implements ConfigTree {
     private final @NotNull ConfigNode rootNode;
 
     /**
      * 构造一个空的配置树。
      */
-    public ConfigTreeImpl(@NotNull ConfigNode rootNode) {
+    public NodeBasedConfigTree(@NotNull ConfigNode rootNode) {
         super();
         this.rootNode = rootNode;
+    }
+
+    public NodeBasedConfigTree(@NotNull NodeBasedConfigTree nodeBasedConfigTree) {
+        this(nodeBasedConfigTree.getRootNode());
     }
 
     public final @NotNull ConfigNode getRootNode() {
@@ -39,12 +43,12 @@ public class ConfigTreeImpl implements ConfigTree {
     }
 
     @Override
-    public @Nullable ConfigTreeImpl extract(@NotNull List<@NotNull String> path) {
+    public @Nullable NodeBasedConfigTree extract(@NotNull List<@NotNull String> path) {
         if (path.isEmpty())
             return this;
         if (path.size() == 1) {
             ConfigNode configNode = this.getRootNode().getChildren().get(path.get(0));
-            return new ConfigTreeImpl(configNode);
+            return new NodeBasedConfigTree(configNode);
         }
         ConfigNode configElement = this.getRootNode().getChildren().get(path.get(0));
         if (configElement == null) {
@@ -56,7 +60,7 @@ public class ConfigTreeImpl implements ConfigTree {
                 return null;
             }
         }
-        return new ConfigTreeImpl(configElement);
+        return new NodeBasedConfigTree(configElement);
     }
 
     /**
@@ -68,7 +72,7 @@ public class ConfigTreeImpl implements ConfigTree {
      */
     @Override
     public @NotNull String readString(@NotNull List<@NotNull String> keychain) throws NotConfiguredException {
-        @Nullable ConfigTreeImpl x = extract(keychain);
+        @Nullable NodeBasedConfigTree x = extract(keychain);
         if (x == null) {
             throw new NotConfiguredException(keychain);
         }

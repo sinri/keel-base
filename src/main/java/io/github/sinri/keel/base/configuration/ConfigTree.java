@@ -13,8 +13,8 @@ import java.util.Properties;
 
 public interface ConfigTree {
     @NotNull
-    static ConfigTree wrap(@NotNull ConfigNode configNode) {
-        return new ConfigTreeImpl(configNode);
+    static NodeBasedConfigTree wrap(@NotNull ConfigNode configNode) {
+        return new NodeBasedConfigTree(configNode);
     }
 
     @NotNull
