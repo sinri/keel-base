@@ -17,6 +17,11 @@ public interface ConfigTree {
         return new ConfigTreeImpl(configNode);
     }
 
+    @NotNull
+    static ConfigTree create() {
+        return wrap(ConfigNode.create(""));
+    }
+
     @NotNull ConfigTree loadProperties(@NotNull Properties properties);
 
     default @NotNull ConfigTree loadPropertiesFile(@NotNull String propertiesFileName, @NotNull Charset charset) throws IOException {
