@@ -7,7 +7,7 @@ import io.github.sinri.keel.logger.api.logger.BaseLogger;
 import io.github.sinri.keel.logger.api.logger.BaseSpecificLogger;
 import io.github.sinri.keel.logger.api.logger.Logger;
 import io.github.sinri.keel.logger.api.logger.SpecificLogger;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NullMarked;
 
 import java.util.function.Supplier;
 
@@ -16,17 +16,18 @@ import java.util.function.Supplier;
  *
  * @since 5.0.0
  */
+@NullMarked
 public abstract class FileLoggerFactory implements LoggerFactory {
     @Override
-    abstract public @NotNull FileLogWriterAdapter sharedAdapter();
+    abstract public FileLogWriterAdapter sharedAdapter();
 
     @Override
-    public @NotNull Logger createLogger(@NotNull String topic) {
+    public Logger createLogger(String topic) {
         return new BaseLogger(topic, sharedAdapter());
     }
 
     @Override
-    public @NotNull <L extends SpecificLog<L>> SpecificLogger<L> createLogger(@NotNull String topic, @NotNull Supplier<L> specificLogSupplier) {
+    public <L extends SpecificLog<L>> SpecificLogger<L> createLogger(String topic, Supplier<L> specificLogSupplier) {
         return new BaseSpecificLogger<>(topic, specificLogSupplier, sharedAdapter());
     }
 }

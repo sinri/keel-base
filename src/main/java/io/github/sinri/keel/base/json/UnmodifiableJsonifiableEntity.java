@@ -2,7 +2,7 @@ package io.github.sinri.keel.base.json;
 
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.shareddata.Shareable;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NullMarked;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -14,6 +14,7 @@ import java.lang.reflect.InvocationTargetException;
  *
  * @since 5.0.0
  */
+@NullMarked
 public interface UnmodifiableJsonifiableEntity
         extends JsonObjectReadable, JsonSerializable, Shareable {
 
@@ -31,7 +32,7 @@ public interface UnmodifiableJsonifiableEntity
      * @throws InstantiationException    如果指定的类无法实例化
      * @throws IllegalAccessException    如果构造函数不可访问
      */
-    static <U extends UnmodifiableJsonifiableEntity> @NotNull U wrap(@NotNull JsonObject jsonObject, @NotNull Class<U> clazz) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    static <U extends UnmodifiableJsonifiableEntity> U wrap(JsonObject jsonObject, Class<U> clazz) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         return clazz.getConstructor(JsonObject.class).newInstance(jsonObject);
     }
 
@@ -43,7 +44,7 @@ public interface UnmodifiableJsonifiableEntity
      * @param jsonObject 要包装的非空 {@link JsonObject}
      * @return 包装提供的 {@link JsonObject} 的 {@link UnmodifiableJsonifiableEntity} 实例
      */
-    static @NotNull UnmodifiableJsonifiableEntity wrap(@NotNull JsonObject jsonObject) {
+    static UnmodifiableJsonifiableEntity wrap(JsonObject jsonObject) {
         return new UnmodifiableJsonifiableEntityImpl(jsonObject);
     }
 
@@ -54,7 +55,7 @@ public interface UnmodifiableJsonifiableEntity
      *
      * @return 由 {@link #toJsonExpression()} 生成的字符串组成的 JSON 对象
      */
-    default @NotNull JsonObject cloneAsJsonObject() {
+    default JsonObject cloneAsJsonObject() {
         return new JsonObject(toJsonExpression());
     }
 

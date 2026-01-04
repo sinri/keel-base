@@ -3,8 +3,8 @@ package io.github.sinri.keel.base.json;
 import io.github.sinri.keel.logger.api.LoggingStackSpecification;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +21,7 @@ import java.util.function.Consumer;
  *
  * @since 5.0.0
  */
+@NullMarked
 public class JsonifiedThrowable extends JsonifiableDataUnitImpl {
 
     /**
@@ -38,7 +39,7 @@ public class JsonifiedThrowable extends JsonifiableDataUnitImpl {
      * @param throwable 要包装的异常对象
      * @return JSON 化的异常对象
      */
-    public static @NotNull JsonifiedThrowable wrap(@NotNull Throwable throwable) {
+    public static JsonifiedThrowable wrap(Throwable throwable) {
         return wrap(throwable, LoggingStackSpecification.IgnorableCallStackPackage, true);
     }
 
@@ -53,9 +54,9 @@ public class JsonifiedThrowable extends JsonifiableDataUnitImpl {
      * @param omitIgnoredStack         是否完全省略被忽略的堆栈项，如果为 false 则用摘要项替代
      * @return JSON 化的异常对象，包含异常链信息
      */
-    public static @NotNull JsonifiedThrowable wrap(
-            @NotNull Throwable throwable,
-            @NotNull Set<@NotNull String> ignorableStackPackageSet,
+    public static JsonifiedThrowable wrap(
+            Throwable throwable,
+            Set<String> ignorableStackPackageSet,
             boolean omitIgnoredStack
     ) {
         JsonifiedThrowable x = new JsonifiedThrowable();
@@ -94,9 +95,9 @@ public class JsonifiedThrowable extends JsonifiableDataUnitImpl {
      * @param omitIgnoredStack         是否完全省略被忽略的堆栈项
      * @return 过滤和压缩后的堆栈项列表
      */
-    private static @NotNull List<JsonifiedCallStackItem> filterStackTraceAndReduce(
+    private static List<JsonifiedCallStackItem> filterStackTraceAndReduce(
             @Nullable StackTraceElement[] stackTrace,
-            @NotNull Set<@NotNull String> ignorableStackPackageSet,
+            Set<String> ignorableStackPackageSet,
             boolean omitIgnoredStack
     ) {
         List<JsonifiedCallStackItem> items = new ArrayList<>();
@@ -129,9 +130,9 @@ public class JsonifiedThrowable extends JsonifiableDataUnitImpl {
      */
     private static void filterStackTrace(
             @Nullable StackTraceElement[] stackTrace,
-            @NotNull Set<@NotNull String> ignorableStackPackageSet,
-            @NotNull BiConsumer<@NotNull String, @NotNull Integer> ignoredStackTraceItemsConsumer,
-            @NotNull Consumer<@NotNull StackTraceElement> stackTraceItemConsumer
+            Set<String> ignorableStackPackageSet,
+            BiConsumer<String, Integer> ignoredStackTraceItemsConsumer,
+            Consumer<StackTraceElement> stackTraceItemConsumer
     ) {
         if (stackTrace != null) {
             String ignoringClassPackage = null;
@@ -180,7 +181,6 @@ public class JsonifiedThrowable extends JsonifiableDataUnitImpl {
      *
      * @return 异常类的全限定名，不会为 null
      */
-    @NotNull
     public String getThrowableClass() {
         return Objects.requireNonNull(readString("class"));
     }
@@ -202,9 +202,8 @@ public class JsonifiedThrowable extends JsonifiableDataUnitImpl {
      *
      * @return 堆栈跟踪项列表，不会为 null
      */
-    @NotNull
-    public List<@NotNull JsonifiedCallStackItem> getThrowableStack() {
-        List<@NotNull JsonifiedCallStackItem> items = new ArrayList<>();
+    public List<JsonifiedCallStackItem> getThrowableStack() {
+        List<JsonifiedCallStackItem> items = new ArrayList<>();
         var a = readJsonArray("stack");
         if (a != null) {
             a.forEach(x -> {
@@ -249,7 +248,7 @@ public class JsonifiedThrowable extends JsonifiableDataUnitImpl {
          *
          * @param jsonObject 包含堆栈项信息的 JSON 对象
          */
-        private JsonifiedCallStackItem(@NotNull JsonObject jsonObject) {
+        private JsonifiedCallStackItem(JsonObject jsonObject) {
             super(jsonObject);
         }
 
@@ -261,7 +260,7 @@ public class JsonifiedThrowable extends JsonifiableDataUnitImpl {
          * @param ignoringClassPackage 被忽略的类包名
          * @param ignoringCount        被忽略的堆栈项数量
          */
-        private JsonifiedCallStackItem(@NotNull String ignoringClassPackage, int ignoringCount) {
+        private JsonifiedCallStackItem(String ignoringClassPackage, int ignoringCount) {
             super(new JsonObject()
                     .put("type", "ignored")
                     .put("package", ignoringClassPackage)
@@ -273,7 +272,7 @@ public class JsonifiedThrowable extends JsonifiableDataUnitImpl {
          *
          * @param stackTranceItem 堆栈跟踪元素
          */
-        private JsonifiedCallStackItem(@NotNull StackTraceElement stackTranceItem) {
+        private JsonifiedCallStackItem(StackTraceElement stackTranceItem) {
             super(new JsonObject()
                     .put("type", "call")
                     .put("class", stackTranceItem.getClassName())

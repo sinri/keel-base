@@ -7,7 +7,7 @@ import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -98,7 +98,7 @@ class QueuedLogWriterAdapterUnitTest {
         }
 
         @Override
-        protected @NotNull Future<Void> processLogRecords(@NotNull String topic, @NotNull List<SpecificLog<?>> batch) {
+        protected Future<Void> processLogRecords(String topic, List<SpecificLog<?>> batch) {
             processedCount.addAndGet(batch.size());
             return Future.succeededFuture();
         }

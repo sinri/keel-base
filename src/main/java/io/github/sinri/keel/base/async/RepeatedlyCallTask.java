@@ -3,7 +3,7 @@ package io.github.sinri.keel.base.async;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NullMarked;
 
 import java.util.function.Function;
 
@@ -19,16 +19,16 @@ import java.util.function.Function;
  * @see #stop()
  * @since 5.0.0
  */
+@NullMarked
 public final class RepeatedlyCallTask {
-    @NotNull
-    private final Function<@NotNull RepeatedlyCallTask, @NotNull Future<Void>> processor;
+    private final Function<RepeatedlyCallTask, Future<Void>> processor;
     private volatile boolean toStop = false;
 
-    public RepeatedlyCallTask(@NotNull Function<@NotNull RepeatedlyCallTask, @NotNull Future<Void>> processor) {
+    public RepeatedlyCallTask(Function<RepeatedlyCallTask, Future<Void>> processor) {
         this.processor = processor;
     }
 
-    public static void start(@NotNull Vertx vertx, @NotNull RepeatedlyCallTask thisTask, @NotNull Promise<Void> finalPromise) {
+    public static void start(Vertx vertx, RepeatedlyCallTask thisTask, Promise<Void> finalPromise) {
         Future.succeededFuture()
               .compose(v -> {
                   if (thisTask.toStop) {

@@ -5,7 +5,7 @@ import io.github.sinri.keel.base.verticles.AbstractKeelVerticle;
 import io.github.sinri.keel.logger.api.metric.MetricRecord;
 import io.github.sinri.keel.logger.api.metric.MetricRecorder;
 import io.vertx.core.Future;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NullMarked;
 
 import java.io.Closeable;
 import java.util.ArrayList;
@@ -19,17 +19,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *
  * @since 5.0.0
  */
-abstract public class AbstractMetricRecorder extends AbstractKeelVerticle implements MetricRecorder, Closeable {
-    @NotNull
+abstract @NullMarked
+public class AbstractMetricRecorder extends AbstractKeelVerticle implements MetricRecorder, Closeable {
     private final AtomicBoolean endSwitch = new AtomicBoolean(false);
-    @NotNull
     private final Queue<MetricRecord> metricRecordQueue = new ConcurrentLinkedQueue<>();
 
-    public AbstractMetricRecorder(@NotNull Keel keel) {
+    public AbstractMetricRecorder(Keel keel) {
         super(keel);
     }
 
-    public void recordMetric(@NotNull MetricRecord metricRecord) {
+    public void recordMetric(MetricRecord metricRecord) {
         this.metricRecordQueue.add(metricRecord);
     }
 
@@ -46,13 +45,12 @@ abstract public class AbstractMetricRecorder extends AbstractKeelVerticle implem
      * 重载以改变指标记录的主题。
      * @return 指标记录的主题
      */
-    @NotNull
     protected String topic() {
         return "metric";
     }
 
     @Override
-    protected @NotNull Future<Void> startVerticle() {
+    protected Future<Void> startVerticle() {
         Future.succeededFuture()
               .compose(v -> {
                   List<MetricRecord> buffer = new ArrayList<>();
@@ -100,6 +98,5 @@ abstract public class AbstractMetricRecorder extends AbstractKeelVerticle implem
      * @param buffer 指标记录缓冲区
      * @return 处理结果
      */
-    @NotNull
-    abstract protected Future<Void> handleForTopic(@NotNull String topic, @NotNull List<@NotNull MetricRecord> buffer);
+    abstract protected Future<Void> handleForTopic(String topic, List<MetricRecord> buffer);
 }

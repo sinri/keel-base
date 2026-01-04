@@ -2,7 +2,7 @@ package io.github.sinri.keel.base.verticles;
 
 import io.github.sinri.keel.base.Keel;
 import io.vertx.core.Future;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NullMarked;
 
 import java.util.function.Function;
 
@@ -12,15 +12,16 @@ import java.util.function.Function;
  *
  * @since 5.0.0
  */
+@NullMarked
 public final class InstantKeelVerticle extends AbstractKeelVerticle {
-    private final @NotNull Function<KeelVerticle, Future<Void>> verticleStartFunc;
+    private final Function<KeelVerticle, Future<Void>> verticleStartFunc;
 
     /**
      * 使用指定的启动函数构造即时执行的 Keel Verticle 实例。
      *
      * @param verticleStartFunc 在 verticle 启动时执行的函数，接收当前 verticle 实例并返回异步完成结果
      */
-    InstantKeelVerticle(@NotNull Keel keel, @NotNull Function<@NotNull KeelVerticle, @NotNull Future<Void>> verticleStartFunc) {
+    InstantKeelVerticle(Keel keel, Function<KeelVerticle, Future<Void>> verticleStartFunc) {
         super(keel);
         this.verticleStartFunc = verticleStartFunc;
     }
@@ -33,7 +34,7 @@ public final class InstantKeelVerticle extends AbstractKeelVerticle {
      * @return 异步完成结果，表示启动操作的完成状态
      */
     @Override
-    protected @NotNull Future<Void> startVerticle() {
+    protected Future<Void> startVerticle() {
         return this.verticleStartFunc.apply(this);
     }
 }

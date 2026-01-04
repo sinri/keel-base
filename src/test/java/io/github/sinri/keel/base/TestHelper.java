@@ -1,7 +1,7 @@
 package io.github.sinri.keel.base;
 
 import io.vertx.core.json.JsonObject;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NullMarked;
 
 import java.util.Properties;
 
@@ -10,13 +10,13 @@ import java.util.Properties;
  *
  * @since 5.0.0
  */
+@NullMarked
 public class TestHelper {
     /**
      * 创建测试用的Properties对象。
      *
      * @return 包含测试数据的Properties对象
      */
-    @NotNull
     public static Properties createTestProperties() {
         Properties props = new Properties();
         props.setProperty("app.name", "TestApp");
@@ -34,7 +34,6 @@ public class TestHelper {
      *
      * @return 包含测试数据的JsonObject对象
      */
-    @NotNull
     public static JsonObject createTestJsonObject() {
         return new JsonObject()
                 .put("name", "TestObject")
@@ -50,7 +49,6 @@ public class TestHelper {
      *
      * @return 包含复杂测试数据的JsonObject对象
      */
-    @NotNull
     public static JsonObject createComplexTestJsonObject() {
         return new JsonObject()
                 .put("string", "test")

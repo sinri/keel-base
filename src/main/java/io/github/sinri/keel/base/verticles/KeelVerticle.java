@@ -4,8 +4,8 @@ import io.github.sinri.keel.base.Keel;
 import io.github.sinri.keel.base.KeelHolder;
 import io.vertx.core.*;
 import io.vertx.core.json.JsonObject;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.function.Function;
@@ -17,6 +17,7 @@ import java.util.function.Function;
  *
  * @since 5.0.0
  */
+@NullMarked
 public interface KeelVerticle extends Verticle, KeelHolder {
 
     String CONFIG_KEY_OF_VERTICLE_IDENTITY = "verticle_identity";
@@ -29,7 +30,7 @@ public interface KeelVerticle extends Verticle, KeelHolder {
      * @param verticleStartFunc 在 verticle 启动时执行的函数
      * @return 即时执行的 Keel Verticle 实例
      */
-    static @NotNull KeelVerticle instant(@NotNull Keel keel, @NotNull Function<@NotNull KeelVerticle, @NotNull Future<Void>> verticleStartFunc) {
+    static KeelVerticle instant(Keel keel, Function<KeelVerticle, Future<Void>> verticleStartFunc) {
         return new InstantKeelVerticle(keel, verticleStartFunc);
     }
 
@@ -40,7 +41,7 @@ public interface KeelVerticle extends Verticle, KeelHolder {
      *
      * @return Vertx 实例。
      */
-    @NotNull Vertx getVertx();
+    Vertx getVertx();
 
     /**
      * 获取当前 verticle 的线程模型。
@@ -76,7 +77,7 @@ public interface KeelVerticle extends Verticle, KeelHolder {
      *         <li>thread_model: 当前上下文的线程模型，或 {@code null} 如果尚未部署</li>
      *         </ul>
      */
-    default @NotNull JsonObject getVerticleInfo() {
+    default JsonObject getVerticleInfo() {
         ThreadingModel threadingModel = contextThreadModel();
         return new JsonObject()
                 .put("class", this.getClass().getName())
@@ -91,7 +92,7 @@ public interface KeelVerticle extends Verticle, KeelHolder {
      * @param deploymentOptions 部署选项
      * @return 一个异步完成，如果部署成功则返回部署唯一标识，如果部署失败则返回异常
      */
-    default @NotNull Future<String> deployMe(@NotNull DeploymentOptions deploymentOptions) {
+    default Future<String> deployMe(DeploymentOptions deploymentOptions) {
         String deploymentID = deploymentID();
         if (deploymentID != null) {
             throw new IllegalStateException("This verticle has been deployed already!");
@@ -104,7 +105,7 @@ public interface KeelVerticle extends Verticle, KeelHolder {
      *
      * @return 一个异步完成，如果解除部署成功则返回，如果解除部署失败则返回异常
      */
-    default @NotNull Future<Void> undeployMe() {
+    default Future<Void> undeployMe() {
         String deploymentID = deploymentID();
         if (deploymentID == null) {
             throw new IllegalStateException("This verticle has not been deployed yet!");
@@ -121,7 +122,7 @@ public interface KeelVerticle extends Verticle, KeelHolder {
      *
      * @return 当前 verticle 实例的身份，格式为 "标识@部署ID"
      */
-    default @NotNull String verticleIdentity() {
+    default String verticleIdentity() {
         String mark = Objects.requireNonNullElseGet(
                 Objects.requireNonNullElse(config(), new JsonObject())
                        .getString(CONFIG_KEY_OF_VERTICLE_IDENTITY),
@@ -135,5 +136,5 @@ public interface KeelVerticle extends Verticle, KeelHolder {
      *
      * @return 当前 verticle 的运行状态。
      */
-    @NotNull KeelVerticleRunningStateEnum getRunningState();
+    KeelVerticleRunningStateEnum getRunningState();
 }

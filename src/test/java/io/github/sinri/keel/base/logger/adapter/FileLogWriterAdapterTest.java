@@ -2,13 +2,14 @@ package io.github.sinri.keel.base.logger.adapter;
 
 import io.github.sinri.keel.base.KeelSampleImpl;
 import io.github.sinri.keel.logger.api.log.SpecificLog;
+import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -44,31 +45,42 @@ class FileLogWriterAdapterTest {
     @Test
     void testWriteLogToFile(@TempDir Path tempDir, VertxTestContext testContext) throws IOException {
         File logFile = tempDir.resolve("test.log").toFile();
+        System.out.println("Log file: " + logFile.getAbsolutePath());
         TestFileLogWriterAdapter adapter = new TestFileLogWriterAdapter(logFile);
 
         // 直接测试 processLogRecords 方法
         List<SpecificLog<?>> batch = List.of(createTestLog("Test log message"));
 
-        vertx.deployVerticle(adapter)
-             .compose(deploymentId -> adapter.processLogRecords("test-topic", batch))
-             .compose(v -> {
-                 adapter.close();
-                 return vertx.undeploy(adapter.deploymentID());
-             })
-             .onComplete(ar -> {
-                 if (ar.failed()) {
-                     testContext.failNow(ar.cause());
-                     return;
-                 }
-                 try {
-                     // 验证文件内容
-                     String content = Files.readString(logFile.toPath());
-                     assertTrue(content.contains("Test log message"), "日志文件应包含测试消息");
-                     testContext.completeNow();
-                 } catch (IOException e) {
-                     testContext.failNow(e);
-                 }
-             });
+        for (var log : batch) {
+            System.out.println("~ "+adapter.render("test-topic", log));
+        }
+
+        adapter.deployMe(new DeploymentOptions())
+               .compose(deploymentId -> adapter.processLogRecords("test-topic", batch))
+               .compose(v -> {
+                   System.out.println("Sleeping 1 second...");
+                   return KeelSampleImpl.Keel.asyncSleep(1000L);
+               })
+               .compose(v -> {
+                   adapter.close();
+                   return vertx.undeploy(adapter.deploymentID());
+               })
+               .onComplete(ar -> {
+                   System.out.println("Undeployed? "+(ar.succeeded()));
+                   if (ar.failed()) {
+                       testContext.failNow(ar.cause());
+                       return;
+                   }
+                   try {
+                       // 验证文件内容
+                       String content = Files.readString(logFile.toPath());
+                       System.out.println("Log file content: ---\n" + content+"\n---");
+                       assertTrue(content.contains("Test log message"), "日志文件应包含测试消息");
+                       testContext.completeNow();
+                   } catch (Throwable e) {
+                       testContext.failNow(e);
+                   }
+               });
     }
 
     @Test
@@ -208,8 +220,7 @@ class FileLogWriterAdapterTest {
     /**
      * 创建测试用的SpecificLog对象。
      */
-    @NotNull
-    private SpecificLog<?> createTestLog(@NotNull String message) {
+    private SpecificLog<?> createTestLog(String message) {
         return new TestSpecificLog(message);
     }
 
@@ -217,45 +228,37 @@ class FileLogWriterAdapterTest {
      * 测试用的SpecificLog实现类。
      */
     private static class TestSpecificLog extends SpecificLog<TestSpecificLog> {
-        private final String message;
 
-        TestSpecificLog(@NotNull String message) {
-            this.message = message;
-        }
-
-        @Override
-        public @NotNull String toString() {
-            return message + "\n";
+        TestSpecificLog(String message) {
+            super();
+            this.message(message);
         }
     }
 
     /**
      * 测试用的FileLogWriterAdapter实现。
      */
+    @NullMarked
     private static class TestFileLogWriterAdapter extends FileLogWriterAdapter {
         private final Map<String, File> topicFileMap = new ConcurrentHashMap<>();
         private final Map<String, FileWriter> fileWriterMap = new ConcurrentHashMap<>();
         private final Map<String, Boolean> closedMap = new ConcurrentHashMap<>();
-        private final File defaultFile;
+        private final @Nullable File defaultFile;
 
-        TestFileLogWriterAdapter(@Nullable File defaultFile) {
+        TestFileLogWriterAdapter(File defaultFile) {
             super(KeelSampleImpl.Keel);
             this.defaultFile = defaultFile;
         }
 
-        TestFileLogWriterAdapter(@Nullable File file1, @Nullable File file2) {
+        TestFileLogWriterAdapter(File file1, File file2) {
             super(KeelSampleImpl.Keel);
             this.defaultFile = null;
-            if (file1 != null) {
-                topicFileMap.put("topic1", file1);
-            }
-            if (file2 != null) {
-                topicFileMap.put("topic2", file2);
-            }
+            topicFileMap.put("topic1", file1);
+            topicFileMap.put("topic2", file2);
         }
 
         @Override
-        protected @Nullable FileWriter getFileWriterForTopic(@NotNull String topic) {
+        protected @Nullable FileWriter getFileWriterForTopic(String topic) {
             if (defaultFile == null && !topicFileMap.containsKey(topic)) {
                 return null;
             }
@@ -275,7 +278,8 @@ class FileLogWriterAdapterTest {
         }
 
         @Override
-        protected @NotNull Future<Void> processLogRecords(@NotNull String topic, @NotNull List<SpecificLog<?>> batch) {
+        protected Future<Void> processLogRecords(String topic, List<SpecificLog<?>> batch) {
+            System.out.println("Processing log records for topic: " + topic+ " batch: "+batch.size());
             Future<Void> result = super.processLogRecords(topic, batch);
             // 在processLogRecords之后检查是否需要关闭文件写入器
             return result;
@@ -290,13 +294,14 @@ class FileLogWriterAdapterTest {
                     closedMap.put(topic, true);
                 } catch (IOException e) {
                     // 忽略关闭错误
+                    e.printStackTrace();
                 }
             });
             fileWriterMap.clear();
             super.close();
         }
 
-        boolean isFileWriterClosed(@NotNull String topic) {
+        boolean isFileWriterClosed(String topic) {
             return closedMap.getOrDefault(topic, true);
         }
     }

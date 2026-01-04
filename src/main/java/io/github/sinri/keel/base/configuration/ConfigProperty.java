@@ -1,7 +1,7 @@
 package io.github.sinri.keel.base.configuration;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,38 +12,39 @@ import java.util.Objects;
  *
  * @since 5.0.0
  */
+@NullMarked
 public class ConfigProperty {
-    private final @NotNull List<String> keychain = new ArrayList<>();
-    private @NotNull String value = "";
+    private final List<String> keychain = new ArrayList<>();
+    private String value = "";
 
     public ConfigProperty() {
     }
 
-    public final @NotNull ConfigProperty setKeychain(@NotNull List<String> keychain) {
+    public final ConfigProperty setKeychain(List<String> keychain) {
         this.keychain.addAll(keychain);
         return this;
     }
 
-    public final @NotNull ConfigProperty addToKeychain(@NotNull String key) {
+    public final ConfigProperty addToKeychain(String key) {
         this.keychain.add(key);
         return this;
     }
 
-    public final @NotNull ConfigProperty setValue(@Nullable String value) {
+    public final ConfigProperty setValue(@Nullable String value) {
         this.value = Objects.requireNonNullElse(value, "");
         return this;
     }
 
-    public @NotNull String getPropertyName() {
+    public String getPropertyName() {
         return String.join(".", keychain);
     }
 
-    public @NotNull String getPropertyValue() {
+    public String getPropertyValue() {
         return value;
     }
 
     @Override
-    public final @NotNull String toString() {
+    public final String toString() {
         return String.join(".", keychain) + "=" + value;
     }
 }

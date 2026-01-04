@@ -1,7 +1,8 @@
 package io.github.sinri.keel.base.async;
 
 import io.vertx.core.Future;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -13,11 +14,11 @@ import java.util.function.Function;
  *
  * @since 5.0.0
  */
+@NullMarked
 interface KeelAsyncMixinParallel extends KeelAsyncMixinCore {
-    @NotNull
-    private <T> List<@NotNull Future<Void>> buildFutures(
-            @NotNull Iterator<T> iterator,
-            @NotNull Function<T, @NotNull Future<Void>> itemProcessor
+    private <T> List<Future<Void>> buildFutures(
+            Iterator<@Nullable T> iterator,
+            Function<@Nullable T, Future<Void>> itemProcessor
     ) {
         List<Future<Void>> futures = new ArrayList<>();
         while (iterator.hasNext()) {
@@ -27,8 +28,10 @@ interface KeelAsyncMixinParallel extends KeelAsyncMixinCore {
         return futures;
     }
 
-    @NotNull
-    private <T> List<Future<Void>> buildFutures(@NotNull Iterable<T> iterable, @NotNull Function<T, @NotNull Future<Void>> itemProcessor) {
+    private <T> List<Future<Void>> buildFutures(
+            Iterable<@Nullable T> iterable,
+            Function<@Nullable T, Future<Void>> itemProcessor
+    ) {
         return buildFutures(iterable.iterator(), itemProcessor);
     }
 
@@ -40,9 +43,10 @@ interface KeelAsyncMixinParallel extends KeelAsyncMixinCore {
      * @param itemProcessor 针对迭代对象的异步处理逻辑
      * @return 一个异步结果，各异步任务均成功才返回成功，否则返回失败
      */
-    @NotNull
-    default <T> Future<Void> parallelForAllSuccess(@NotNull Iterable<T> collection,
-                                                   @NotNull Function<T, Future<Void>> itemProcessor) {
+    default <T> Future<Void> parallelForAllSuccess(
+            Iterable<@Nullable T> collection,
+            Function<@Nullable T, Future<Void>> itemProcessor
+    ) {
         return parallelForAllSuccess(collection.iterator(), itemProcessor);
     }
 
@@ -54,9 +58,10 @@ interface KeelAsyncMixinParallel extends KeelAsyncMixinCore {
      * @param itemProcessor 针对迭代对象的异步处理逻辑
      * @return 一个异步结果，各异步任务均成功才返回成功，否则返回失败
      */
-    @NotNull
-    default <T> Future<Void> parallelForAllSuccess(@NotNull Iterator<T> iterator,
-                                                   @NotNull Function<T, Future<Void>> itemProcessor) {
+    default <T> Future<Void> parallelForAllSuccess(
+            Iterator<@Nullable T> iterator,
+            Function<@Nullable T, Future<Void>> itemProcessor
+    ) {
         List<Future<Void>> futures = buildFutures(iterator, itemProcessor);
         if (futures.isEmpty()) {
             return Future.succeededFuture();
@@ -73,9 +78,10 @@ interface KeelAsyncMixinParallel extends KeelAsyncMixinCore {
      * @param itemProcessor 针对迭代对象的异步处理逻辑
      * @return 一个异步结果，有一个异步任务成功即返回成功，否则返回失败
      */
-    @NotNull
-    default <T> Future<Void> parallelForAnySuccess(@NotNull Iterable<T> collection,
-                                                   @NotNull Function<T, @NotNull Future<Void>> itemProcessor) {
+    default <T> Future<Void> parallelForAnySuccess(
+            Iterable<@Nullable T> collection,
+            Function<@Nullable T, Future<Void>> itemProcessor
+    ) {
         return parallelForAnySuccess(collection.iterator(), itemProcessor);
     }
 
@@ -87,9 +93,10 @@ interface KeelAsyncMixinParallel extends KeelAsyncMixinCore {
      * @param itemProcessor 针对迭代对象的异步处理逻辑
      * @return 一个异步结果，有一个异步任务成功即返回成功，否则返回失败
      */
-    @NotNull
-    default <T> Future<Void> parallelForAnySuccess(@NotNull Iterator<T> iterator,
-                                                   @NotNull Function<T, @NotNull Future<Void>> itemProcessor) {
+    default <T> Future<Void> parallelForAnySuccess(
+            Iterator<@Nullable T> iterator,
+            Function<@Nullable T, Future<Void>> itemProcessor
+    ) {
         List<Future<Void>> futures = buildFutures(iterator, itemProcessor);
         if (futures.isEmpty()) {
             return Future.succeededFuture();
@@ -106,9 +113,10 @@ interface KeelAsyncMixinParallel extends KeelAsyncMixinCore {
      * @param itemProcessor 针对迭代对象的异步处理逻辑
      * @return 一个异步结果，所有一个异步任务都执行完毕后返回成功，否则返回失败
      */
-    @NotNull
-    default <T> Future<Void> parallelForAllComplete(@NotNull Iterable<T> collection,
-                                                    @NotNull Function<T, Future<Void>> itemProcessor) {
+    default <T> Future<Void> parallelForAllComplete(
+            Iterable<@Nullable T> collection,
+            Function<@Nullable T, Future<Void>> itemProcessor
+    ) {
         return parallelForAllComplete(collection.iterator(), itemProcessor);
     }
 
@@ -120,9 +128,10 @@ interface KeelAsyncMixinParallel extends KeelAsyncMixinCore {
      * @param itemProcessor 针对迭代对象的异步处理逻辑
      * @return 一个异步结果，所有一个异步任务都执行完毕后返回成功，否则返回失败
      */
-    @NotNull
-    default <T> Future<Void> parallelForAllComplete(@NotNull Iterator<T> iterator,
-                                                    @NotNull Function<T, @NotNull Future<Void>> itemProcessor) {
+    default <T> Future<Void> parallelForAllComplete(
+            Iterator<@Nullable T> iterator,
+            Function<@Nullable T, Future<Void>> itemProcessor
+    ) {
         List<Future<Void>> futures = buildFutures(iterator, itemProcessor);
         if (futures.isEmpty()) {
             return Future.succeededFuture();

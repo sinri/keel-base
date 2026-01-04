@@ -2,7 +2,7 @@ package io.github.sinri.keel.base.json;
 
 import io.github.sinri.keel.base.TestHelper;
 import io.vertx.core.json.JsonObject;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -15,6 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
  *
  * @since 5.0.0
  */
+@NullMarked
 public class UnmodifiableJsonifiableEntityImplUnitTest {
     private UnmodifiableJsonifiableEntityImpl entity;
 
@@ -132,7 +133,7 @@ public class UnmodifiableJsonifiableEntityImplUnitTest {
         JsonObject json = new JsonObject().put("key", "value");
         UnmodifiableJsonifiableEntityImpl entity = new UnmodifiableJsonifiableEntityImpl(json) {
             @Override
-            protected @NotNull JsonObject purify(@NotNull JsonObject raw) {
+            protected JsonObject purify(JsonObject raw) {
                 JsonObject purified = raw.copy();
                 purified.remove("key");
                 purified.put("purified", true);

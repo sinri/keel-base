@@ -3,14 +3,15 @@ package io.github.sinri.keel.base.async;
 import io.github.sinri.keel.base.VertxHolder;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Keel 异步能力调用的核心定义。
  *
  * @since 5.0.0
  */
+@NullMarked
 interface KeelAsyncMixinCore extends VertxHolder {
 
     /**
@@ -21,7 +22,6 @@ interface KeelAsyncMixinCore extends VertxHolder {
      * @param time 以毫秒计的时间，有效值最小为 1 毫秒；如果值无效会强制置为 1毫秒。
      * @return 一个{@link Future}，表示设定时间已到
      */
-    @NotNull
     default Future<Void> asyncSleep(long time) {
         return asyncSleep(time, null);
     }
@@ -33,7 +33,6 @@ interface KeelAsyncMixinCore extends VertxHolder {
      * @param interrupter 一个可选的{@link Promise}，供异步中断
      * @return 一个{@link Future}，表示设定时间已到，或设置的中断被触发。
      */
-    @NotNull
     default Future<Void> asyncSleep(long time, @Nullable Promise<Void> interrupter) {
         Promise<Void> promise = Promise.promise();
         time = Math.max(1, time);

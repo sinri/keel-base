@@ -1,8 +1,8 @@
 package io.github.sinri.keel.base.configuration;
 
 import io.github.sinri.keel.base.logger.factory.StdoutLoggerFactory;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 import java.io.File;
 import java.io.FileReader;
@@ -13,25 +13,25 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+@NullMarked
 public class ConfigElement {
-    private final @NotNull Map<String, ConfigElement> children;
-    private final @NotNull String elementName;
-    private @NotNull String elementValue = "";
+    private final Map<String, ConfigElement> children;
+    private final String elementName;
+    private String elementValue = "";
 
-    public ConfigElement(@NotNull String elementName) {
+    public ConfigElement(String elementName) {
         this.elementName = elementName;
         this.elementValue = "";
         this.children = new ConcurrentHashMap<>();
     }
 
-    public ConfigElement(@NotNull ConfigElement another) {
+    public ConfigElement(ConfigElement another) {
         this.elementName = another.elementName;
         this.elementValue = another.elementValue;
         this.children = another.children;
     }
 
-    @NotNull
-    public static Properties loadLocalPropertiesFile(@NotNull String propertiesFileName, @NotNull Charset charset) throws IOException {
+    public static Properties loadLocalPropertiesFile(String propertiesFileName, Charset charset) throws IOException {
         File file = new File(propertiesFileName);
         Properties properties = new Properties();
         try {
@@ -50,7 +50,7 @@ public class ConfigElement {
         return properties;
     }
 
-    public void loadPropertiesFile(@NotNull String propertiesFileName) throws IOException {
+    public void loadPropertiesFile(String propertiesFileName) throws IOException {
         var x = loadLocalPropertiesFile(propertiesFileName, StandardCharsets.UTF_8);
         this.loadData(x);
     }
@@ -60,7 +60,7 @@ public class ConfigElement {
      *
      * @return 当前配置节点的配置子项名称
      */
-    public @NotNull String getElementName() {
+    public String getElementName() {
         return this.elementName;
     }
 
@@ -73,7 +73,7 @@ public class ConfigElement {
      *
      * @return 当前配置节点的配置子项值，可以为 null。
      */
-    public @NotNull String getElementValue() throws NotConfiguredException {
+    public String getElementValue() throws NotConfiguredException {
         if (!isLeafNode()) {
             throw new NotConfiguredException(List.of(elementName));
         }
@@ -85,7 +85,7 @@ public class ConfigElement {
      *
      * @param value 设置当前配置节点的配置子项值
      */
-    public void setElementValue(@NotNull String value) {
+    public void setElementValue(String value) {
         this.elementValue = value;
     }
 
@@ -94,7 +94,7 @@ public class ConfigElement {
      *
      * @return 当前配置节点的配置子项名称集合
      */
-    public @NotNull Set<String> getChildNames() {
+    public Set<String> getChildNames() {
         return Collections.unmodifiableSet(children.keySet());
     }
 
@@ -106,7 +106,7 @@ public class ConfigElement {
      * @param childName 子节点的名称
      * @return 子节点，可能为新创建的或已存在的，不为 null
      */
-    public @NotNull ConfigElement ensureChild(@NotNull String childName) {
+    public ConfigElement ensureChild(String childName) {
         return children.computeIfAbsent(childName, ConfigElement::new);
     }
 
@@ -115,7 +115,7 @@ public class ConfigElement {
      *
      * @param child 子节点
      */
-    public void addChild(@NotNull ConfigElement child) {
+    public void addChild(ConfigElement child) {
         this.children.put(child.getElementName(), child);
     }
 
@@ -124,7 +124,7 @@ public class ConfigElement {
      *
      * @param childName 子节点的名称
      */
-    public void removeChild(@NotNull String childName) {
+    public void removeChild(String childName) {
         this.children.remove(childName);
     }
 
@@ -134,7 +134,7 @@ public class ConfigElement {
      * @param childName 子节点的名称
      * @return 子节点，如果不存在就返回 null
      */
-    public @Nullable ConfigElement getChild(@NotNull String childName) {
+    public @Nullable ConfigElement getChild(String childName) {
         return children.get(childName);
     }
 
@@ -143,7 +143,7 @@ public class ConfigElement {
      *
      * @param properties Properties 对象，包含配置数据
      */
-    public void loadData(@NotNull Properties properties) {
+    public void loadData(Properties properties) {
         properties.forEach((k, v) -> {
             // System.out.println(k + "->" + v);
             if (k == null || v == null) return;
@@ -174,7 +174,7 @@ public class ConfigElement {
      * @param keychain 键链，表示要提取的子项路径
      * @return 提取的子项，如果不存在则返回 null
      */
-    public @Nullable ConfigElement extract(@NotNull String... keychain) {
+    public @Nullable ConfigElement extract(String... keychain) {
         return extract(java.util.Arrays.asList(keychain));
     }
 
@@ -184,7 +184,7 @@ public class ConfigElement {
      * @param keychain 键链，表示要提取的子项路径
      * @return 提取的子项，如果不存在则返回 null
      */
-    public @Nullable ConfigElement extract(@NotNull List<@NotNull String> keychain) {
+    public @Nullable ConfigElement extract(List<String> keychain) {
         ConfigElement configElement = this;
         for (String key : keychain) {
             configElement = configElement.getChild(key);
@@ -200,8 +200,8 @@ public class ConfigElement {
      *
      * @return 配置属性列表
      */
-    public @NotNull List<@NotNull ConfigProperty> transformChildrenToPropertyList() {
-        List<@NotNull ConfigProperty> properties = new ArrayList<>();
+    public List<ConfigProperty> transformChildrenToPropertyList() {
+        List<ConfigProperty> properties = new ArrayList<>();
         // 为了输出稳定，按字典序遍历同级子节点
         List<String> keys = new ArrayList<>(this.getChildNames());
         Collections.sort(keys);
@@ -223,9 +223,9 @@ public class ConfigElement {
      * @param out  通过遍历收集到的配置项将加入到这个 {@link ConfigProperty} 列表中
      */
     private void dfsTransform(
-            @NotNull ConfigElement node,
-            @NotNull List<String> path,
-            @NotNull List<@NotNull ConfigProperty> out
+            ConfigElement node,
+            List<String> path,
+            List<ConfigProperty> out
     ) {
         // System.out.println("dfsTransform on " + path);
         // 当前节点若有值，则输出一条属性
@@ -256,7 +256,7 @@ public class ConfigElement {
      * @return 配置项的字符串值
      * @throws NotConfiguredException 如果配置不存在或值为 null
      */
-    public @NotNull String readString(@NotNull List<@NotNull String> keychain) throws NotConfiguredException {
+    public String readString(List<String> keychain) throws NotConfiguredException {
         ConfigElement extract = extract(keychain);
 
         if (extract != null && extract.isLeafNode()) {
@@ -275,7 +275,7 @@ public class ConfigElement {
      * @return 配置项的布尔值
      * @throws NotConfiguredException 如果配置不存在或值为 null
      */
-    public boolean readBoolean(@NotNull List<@NotNull String> keychain) throws NotConfiguredException {
+    public boolean readBoolean(List<String> keychain) throws NotConfiguredException {
         String value = readString(keychain);
         return "YES".equalsIgnoreCase(value) || "TRUE".equalsIgnoreCase(value);
     }
@@ -288,7 +288,7 @@ public class ConfigElement {
      * @throws NotConfiguredException 如果配置不存在或值为 null
      * @throws NumberFormatException  如果字符串无法解析为整数
      */
-    public int readInteger(@NotNull List<@NotNull String> keychain) throws NotConfiguredException {
+    public int readInteger(List<String> keychain) throws NotConfiguredException {
         String value = readString(keychain);
         return Integer.parseInt(value);
     }
@@ -301,7 +301,7 @@ public class ConfigElement {
      * @throws NotConfiguredException 如果配置不存在或值为 null
      * @throws NumberFormatException  如果字符串无法解析为长整数
      */
-    public long readLong(@NotNull List<@NotNull String> keychain) throws NotConfiguredException {
+    public long readLong(List<String> keychain) throws NotConfiguredException {
         String value = readString(keychain);
         return Long.parseLong(value);
     }
@@ -314,7 +314,7 @@ public class ConfigElement {
      * @throws NotConfiguredException 如果配置不存在或值为 null
      * @throws NumberFormatException  如果字符串无法解析为浮点数
      */
-    public float readFloat(@NotNull List<@NotNull String> keychain) throws NotConfiguredException {
+    public float readFloat(List<String> keychain) throws NotConfiguredException {
         String value = readString(keychain);
         return Float.parseFloat(value);
     }
@@ -327,12 +327,12 @@ public class ConfigElement {
      * @throws NotConfiguredException 如果配置不存在或值为 null
      * @throws NumberFormatException  如果字符串无法解析为双精度浮点数
      */
-    public double readDouble(@NotNull List<@NotNull String> keychain) throws NotConfiguredException {
+    public double readDouble(List<String> keychain) throws NotConfiguredException {
         String value = readString(keychain);
         return Double.parseDouble(value);
     }
 
-    public @Nullable String readString(@NotNull String dotJoinedKeyChain) {
+    public @Nullable String readString(String dotJoinedKeyChain) {
         String[] split = dotJoinedKeyChain.split("\\.");
         try {
             return readString(List.of(split));

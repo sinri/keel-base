@@ -4,8 +4,8 @@ import io.github.sinri.keel.base.Keel;
 import io.github.sinri.keel.base.annotations.TechnicalPreview;
 import io.github.sinri.keel.base.verticles.KeelVerticle;
 import io.vertx.core.*;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
@@ -17,6 +17,7 @@ import java.util.function.Supplier;
  *
  * @since 5.0.0
  */
+@NullMarked
 interface KeelAsyncMixinBlock extends KeelAsyncMixinLogic {
     private boolean isInNonBlockContext() {
         Context currentContext = Vertx.currentContext();
@@ -30,8 +31,7 @@ interface KeelAsyncMixinBlock extends KeelAsyncMixinLogic {
      * @return 在虚拟线程中运行给定逻辑之后的 Future，或相关失败 Future。
      */
     @TechnicalPreview(notice = "Require JDK 21+")
-    @NotNull
-    default Future<Void> runInVerticleOnVirtualThread(@NotNull Keel keel, @NotNull Supplier<@NotNull Future<Void>> function) {
+    default Future<Void> runInVerticleOnVirtualThread(Keel keel, Supplier<Future<Void>> function) {
         return KeelVerticle.instant(
                                    keel,
                                    keelVerticle -> function.get()
@@ -50,8 +50,7 @@ interface KeelAsyncMixinBlock extends KeelAsyncMixinLogic {
      * @param <R>               异步返回值的类型
      * @return 转换好的 {@link Future}
      */
-    @NotNull
-    default <R> Future<R> asyncTransformCompletableFuture(@NotNull CompletableFuture<R> completableFuture) {
+    default <R> Future<R> asyncTransformCompletableFuture(CompletableFuture<R> completableFuture) {
         Promise<R> promise = Promise.promise();
         Context currentContext = Vertx.currentContext();
 
@@ -89,8 +88,7 @@ interface KeelAsyncMixinBlock extends KeelAsyncMixinLogic {
      * @param <R>       异步返回值的类型
      * @return 转换好的 {@link Future}
      */
-    @NotNull
-    default <R> Future<R> asyncTransformRawFuture(@NotNull java.util.concurrent.Future<R> rawFuture) {
+    default <R> Future<R> asyncTransformRawFuture(java.util.concurrent.Future<R> rawFuture) {
         if (isInNonBlockContext()) {
             return getVertx().executeBlocking(rawFuture::get);
         } else {
@@ -111,8 +109,7 @@ interface KeelAsyncMixinBlock extends KeelAsyncMixinLogic {
      * @param <R>       异步返回值的类型
      * @return 转换好的 {@link Future}
      */
-    @NotNull
-    default <R> Future<R> asyncTransformRawFuture(@NotNull java.util.concurrent.Future<R> rawFuture, long sleepTime) {
+    default <R> Future<R> asyncTransformRawFuture(java.util.concurrent.Future<R> rawFuture, long sleepTime) {
         return asyncCallRepeatedly(repeatedlyCallTask -> {
             if (rawFuture.isDone()) {
                 repeatedlyCallTask.stop();
@@ -169,7 +166,7 @@ interface KeelAsyncMixinBlock extends KeelAsyncMixinLogic {
      * @throws RuntimeException            如果异步任务失败，或当前线程在等待过程中被中断
      */
     @Nullable
-    default <T> T blockAwait(@NotNull Future<T> longTermAsyncProcessFuture) {
+    default <T> T blockAwait(Future<T> longTermAsyncProcessFuture) {
         if (isInNonBlockContext()) {
             throw new IllegalThreadStateException("Cannot call blockAwait in event loop context");
         }

@@ -3,8 +3,8 @@ package io.github.sinri.keel.base.verticles;
 import io.github.sinri.keel.base.Keel;
 import io.vertx.core.*;
 import io.vertx.core.json.JsonObject;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 import java.util.UUID;
 
@@ -16,25 +16,25 @@ import java.util.UUID;
  *
  * @since 5.0.0
  */
+@NullMarked
 public abstract class AbstractKeelVerticle extends AbstractVerticle implements KeelVerticle {
-    private final @NotNull Keel keel;
-    @NotNull
+    private final Keel keel;
     private KeelVerticleRunningStateEnum runningState;
     @Nullable
     private String deploymentInstanceCode;
 
-    public AbstractKeelVerticle(@NotNull Keel keel) {
+    public AbstractKeelVerticle(Keel keel) {
         this.runningState = KeelVerticleRunningStateEnum.BEFORE_RUNNING;
         this.keel = keel;
     }
 
     @Override
-    public final @NotNull Keel getKeel() {
+    public final Keel getKeel() {
         return keel;
     }
 
     @Override
-    public final @NotNull Vertx getVertx() {
+    public final Vertx getVertx() {
         Vertx v = super.getVertx();
         if (v == null) {
             return keel.getVertx();
@@ -94,7 +94,6 @@ public abstract class AbstractKeelVerticle extends AbstractVerticle implements K
      *
      * @return 如果正常异步返回则部署正常运作；否则部署失败。
      */
-    @NotNull
     protected abstract Future<Void> startVerticle();
 
     /**
@@ -122,19 +121,17 @@ public abstract class AbstractKeelVerticle extends AbstractVerticle implements K
      *
      * @return 如果正常异步返回则解除部署正常结束；否则解除部署失败。
      */
-    @NotNull
     protected Future<Void> stopVerticle() {
         return Future.succeededFuture();
     }
 
-    @NotNull
     @Override
     public String verticleIdentity() {
         return "%s:%s".formatted(KeelVerticle.super.verticleIdentity(), deploymentInstanceCode);
     }
 
     @Override
-    public @NotNull KeelVerticleRunningStateEnum getRunningState() {
+    public KeelVerticleRunningStateEnum getRunningState() {
         return runningState;
     }
 }

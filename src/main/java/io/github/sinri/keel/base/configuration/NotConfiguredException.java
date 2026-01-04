@@ -1,6 +1,6 @@
 package io.github.sinri.keel.base.configuration;
 
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NullMarked;
 
 import java.util.List;
 
@@ -9,13 +9,14 @@ import java.util.List;
  * <p>
  * 当尝试读取不存在的配置项时抛出此异常。
  */
+@NullMarked
 public class NotConfiguredException extends Exception {
     /**
      * 使用指定的键链构造异常。
      *
      * @param keychain 未配置的配置项键链
      */
-    public NotConfiguredException(@NotNull List<String> keychain) {
+    public NotConfiguredException(List<String> keychain) {
         super("Provided Keychain Not Configured: " + String.join(".", keychain));
     }
 }

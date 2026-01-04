@@ -4,10 +4,11 @@ import io.github.sinri.keel.base.Keel;
 import io.github.sinri.keel.logger.api.factory.BaseLoggerFactory;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.ThreadingModel;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NullMarked;
 
+@NullMarked
 public class TestFileLoggerFactory extends BaseLoggerFactory {
-    public TestFileLoggerFactory(@NotNull Keel keel) {
+    public TestFileLoggerFactory(Keel keel) {
         super(new TestFileLogWriter(keel));
         ((TestFileLogWriter) (this.sharedAdapter()))
                 .deployMe(new DeploymentOptions()

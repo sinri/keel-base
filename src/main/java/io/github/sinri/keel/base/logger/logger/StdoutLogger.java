@@ -2,7 +2,7 @@ package io.github.sinri.keel.base.logger.logger;
 
 import io.github.sinri.keel.base.logger.adapter.StdoutLogWriter;
 import io.github.sinri.keel.logger.api.logger.BaseLogger;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NullMarked;
 
 /**
  * 面向标准输出的日志记录器。
@@ -11,9 +11,10 @@ import org.jetbrains.annotations.NotNull;
  *
  * @since 5.0.0
  */
+@NullMarked
 public final class StdoutLogger extends BaseLogger {
 
-    public StdoutLogger(@NotNull String topic) {
+    public StdoutLogger(String topic) {
         super(topic, StdoutLogWriter.getInstance());
     }
 }

@@ -1,7 +1,6 @@
 package io.github.sinri.keel.base.configuration;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NullMarked;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -19,37 +18,25 @@ import java.util.stream.Collectors;
  *
  * @since 5.0.0
  */
+@NullMarked
 public class ConfigPropertiesBuilder {
-    private @NotNull List<ConfigProperty> configPropertyList;
-    private @Nullable List<String> prefix;
+    private List<ConfigProperty> configPropertyList;
 
     public ConfigPropertiesBuilder() {
         this.configPropertyList = new ArrayList<>();
     }
 
     /**
-     * 所提供的 prefix 仅与 {@link ConfigPropertiesBuilder#add(List, String)} 配合使用时对keychain生效。
+     * 追加一个 .properties 格式下的配置行，即以{@code .}分隔的一组字符串构成的 key 和对应的 value。
+     *
+     * @param prefix   配置键的公共前缀部分
+     * @param keychain 配置键的独立部分
+     * @param value    配置值
+     * @return 当前实例
      */
-    public final ConfigPropertiesBuilder setPrefix(@Nullable List<String> prefix) {
-        this.prefix = prefix;
-        return this;
-    }
-
-    /**
-     * 所提供的 prefix 仅与 {@link ConfigPropertiesBuilder#add(List, String)} 配合使用时对keychain生效。
-     */
-    public final ConfigPropertiesBuilder setPrefix(@NotNull String... prefix) {
-        return this.setPrefix(List.of(prefix));
-    }
-
-    /**
-     * 当通过 {@link ConfigPropertiesBuilder#setPrefix(List)} 给定非空的前缀时，keychain将自动持有该前缀。
-     */
-    public final ConfigPropertiesBuilder add(@NotNull List<String> keychain, @Nullable String value) {
+    public final ConfigPropertiesBuilder add(List<String> prefix, List<String> keychain, String value) {
         ArrayList<String> k = new ArrayList<>();
-        if (prefix != null) {
-            k.addAll(prefix);
-        }
+        k.addAll(prefix);
         k.addAll(keychain);
         ConfigProperty configProperty = new ConfigProperty();
         configProperty.setKeychain(k);
@@ -58,28 +45,49 @@ public class ConfigPropertiesBuilder {
     }
 
     /**
-     * 当通过 {@link ConfigPropertiesBuilder#setPrefix(List)} 给定非空的前缀时，keychain将自动持有该前缀。
+     * 如 {@link ConfigPropertiesBuilder#add(List, List, String)}，但默认无公共前缀。
      *
-     * @param keychainAsSingleString 用于构成单一元素的keychain
+     * @param keychain 配置键
+     * @param value    配置值
+     * @return 当前实例
      */
-    public final ConfigPropertiesBuilder add(@NotNull String keychainAsSingleString, @Nullable String value) {
-        return add(List.of(keychainAsSingleString), value);
+    public final ConfigPropertiesBuilder add(List<String> keychain, String value) {
+        return add(List.of(), keychain, value);
     }
 
     /**
-     * 本方法不受通过 {@link ConfigPropertiesBuilder#setPrefix(List)} 给定的前缀影响。
+     * 如 {@link ConfigPropertiesBuilder#add(List, List, String)}，但默认无公共前缀。
+     *
+     * @param prefix                 配置键的公共前缀部分
+     * @param keychainAsSingleString 配置键，单个字符串
+     * @param value                  配置值
+     * @return 当前实例
      */
-    protected final ConfigPropertiesBuilder add(@NotNull ConfigProperty configProperty) {
+    public final ConfigPropertiesBuilder add(List<String> prefix, String keychainAsSingleString, String value) {
+        return add(prefix, List.of(keychainAsSingleString), value);
+    }
+
+    /**
+     * 如 {@link ConfigPropertiesBuilder#add(List, List, String)}，但默认无公共前缀。
+     *
+     * @param keychainAsSingleString 配置键，单个字符串
+     * @param value                  配置值
+     * @return 当前实例
+     */
+    public final ConfigPropertiesBuilder add(String keychainAsSingleString, String value) {
+        return add(List.of(keychainAsSingleString), value);
+    }
+
+    protected final ConfigPropertiesBuilder add(ConfigProperty configProperty) {
         this.configPropertyList.add(configProperty);
         return this;
     }
 
-    public final ConfigPropertiesBuilder setConfigPropertyList(@NotNull List<ConfigProperty> configPropertyList) {
+    public final ConfigPropertiesBuilder setConfigPropertyList(List<ConfigProperty> configPropertyList) {
         this.configPropertyList = configPropertyList;
         return this;
     }
 
-    @NotNull
     public String writeToString() {
         if (configPropertyList.isEmpty()) {
             return "";
@@ -90,7 +98,7 @@ public class ConfigPropertiesBuilder {
         return String.join("\n", collect);
     }
 
-    public void writeToFile(@NotNull String filePath) throws IOException {
+    public void writeToFile(String filePath) throws IOException {
         Path path = Paths.get(filePath);
         Files.writeString(
                 path,
@@ -98,7 +106,7 @@ public class ConfigPropertiesBuilder {
         );
     }
 
-    public void appendToFile(@NotNull String filePath) throws IOException {
+    public void appendToFile(String filePath) throws IOException {
         Path path = Paths.get(filePath);
         Files.writeString(
                 path,

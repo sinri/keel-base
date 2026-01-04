@@ -2,8 +2,8 @@ package io.github.sinri.keel.base.json;
 
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.pointer.JsonPointer;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -17,8 +17,9 @@ import java.util.function.Function;
  *
  * @since 5.0.0
  */
+@NullMarked
 public class UnmodifiableJsonifiableEntityImpl implements UnmodifiableJsonifiableEntity {
-    private final @NotNull JsonObject jsonObject;
+    private final JsonObject jsonObject;
 
     /**
      * 使用指定的 JSON 对象构造一个不可修改的 JSON 实体实例。
@@ -27,7 +28,7 @@ public class UnmodifiableJsonifiableEntityImpl implements UnmodifiableJsonifiabl
      *
      * @param jsonObject 用于构造实体的非空 JSON 对象
      */
-    public UnmodifiableJsonifiableEntityImpl(@NotNull JsonObject jsonObject) {
+    public UnmodifiableJsonifiableEntityImpl(JsonObject jsonObject) {
         this.jsonObject = purify(jsonObject);
     }
 
@@ -39,8 +40,7 @@ public class UnmodifiableJsonifiableEntityImpl implements UnmodifiableJsonifiabl
      * @param raw 原始的 JsonObject.
      * @return 净化后的 JsonObject.
      */
-    @NotNull
-    protected JsonObject purify(@NotNull JsonObject raw) {
+    protected JsonObject purify(JsonObject raw) {
         return raw;
     }
 
@@ -50,7 +50,7 @@ public class UnmodifiableJsonifiableEntityImpl implements UnmodifiableJsonifiabl
      * @return JSON 对象的紧凑字符串表示
      */
     @Override
-    public final @NotNull String toJsonExpression() {
+    public final String toJsonExpression() {
         return jsonObject.encode();
     }
 
@@ -62,7 +62,7 @@ public class UnmodifiableJsonifiableEntityImpl implements UnmodifiableJsonifiabl
      * @return JSON 对象的格式化字符串表示
      */
     @Override
-    public @NotNull String toFormattedJsonExpression() {
+    public String toFormattedJsonExpression() {
         return jsonObject.encodePrettily();
     }
 
@@ -73,7 +73,6 @@ public class UnmodifiableJsonifiableEntityImpl implements UnmodifiableJsonifiabl
      *
      * @return JSON 对象的字符串表示
      */
-    @NotNull
     @Override
     public final String toString() {
         return toJsonExpression();
@@ -90,7 +89,7 @@ public class UnmodifiableJsonifiableEntityImpl implements UnmodifiableJsonifiabl
      * @return 从 JSON Pointer 位置读取的值，如果值不存在或无法转换为指定类型则返回 null
      */
     @Override
-    public @Nullable <T> T read(@NotNull Function<@NotNull JsonPointer, @NotNull Class<T>> func) {
+    public @Nullable <T> T read(Function<JsonPointer, Class<T>> func) {
         try {
             JsonPointer jsonPointer = JsonPointer.create();
             Class<T> tClass = func.apply(jsonPointer);
@@ -111,7 +110,6 @@ public class UnmodifiableJsonifiableEntityImpl implements UnmodifiableJsonifiabl
      *
      * @return 包含所有键值对的迭代器
      */
-    @NotNull
     @Override
     public Iterator<Map.Entry<String, Object>> iterator() {
         return jsonObject.iterator();
@@ -135,7 +133,6 @@ public class UnmodifiableJsonifiableEntityImpl implements UnmodifiableJsonifiabl
      * @return 拷贝得的实例
      */
     @Override
-    @NotNull
     public UnmodifiableJsonifiableEntityImpl copy() {
         return new UnmodifiableJsonifiableEntityImpl(cloneAsJsonObject());
     }

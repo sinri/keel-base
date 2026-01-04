@@ -5,7 +5,7 @@ import io.github.sinri.keel.base.verticles.AbstractKeelVerticle;
 import io.github.sinri.keel.logger.api.adapter.PersistentLogWriterAdapter;
 import io.github.sinri.keel.logger.api.log.SpecificLog;
 import io.vertx.core.Future;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NullMarked;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -18,13 +18,12 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @since 5.0.0
  */
+@NullMarked
 public abstract class QueuedLogWriterAdapter extends AbstractKeelVerticle implements PersistentLogWriterAdapter {
-    @NotNull
     private final Map<String, Queue<SpecificLog<?>>> queueMap = new ConcurrentHashMap<>();
-    @NotNull
     private final AtomicBoolean closeFlag = new AtomicBoolean(false);
 
-    public QueuedLogWriterAdapter(@NotNull Keel keel) {
+    public QueuedLogWriterAdapter(Keel keel) {
         super(keel);
     }
 
@@ -37,10 +36,10 @@ public abstract class QueuedLogWriterAdapter extends AbstractKeelVerticle implem
         return 128;
     }
 
-    abstract protected @NotNull Future<Void> processLogRecords(@NotNull String topic, @NotNull List<@NotNull SpecificLog<?>> batch);
+    abstract protected Future<Void> processLogRecords(String topic, List<SpecificLog<?>> batch);
 
     @Override
-    protected @NotNull Future<Void> startVerticle() {
+    protected Future<Void> startVerticle() {
         getKeel().asyncCallRepeatedly(repeatedlyCallTask -> {
                      Set<String> topics = this.queueMap.keySet();
                      AtomicInteger counter = new AtomicInteger(0);
@@ -80,7 +79,7 @@ public abstract class QueuedLogWriterAdapter extends AbstractKeelVerticle implem
     }
 
     @Override
-    public void accept(@NotNull String topic, @NotNull SpecificLog<?> log) {
+    public void accept(String topic, SpecificLog<?> log) {
         this.queueMap.computeIfAbsent(topic, k -> new ConcurrentLinkedQueue<>())
                      .add(log);
     }

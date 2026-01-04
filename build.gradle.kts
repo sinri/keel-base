@@ -21,6 +21,7 @@ val developerOrganizationUrl: String by project
 
 // Dependency versions
 val vertxVersion: String by project
+val jspecifyVersion: String by project
 val jacksonVersion: String by project
 val keelLoggerApiVersion: String by project
 
@@ -44,9 +45,6 @@ dependencies {
     // Keel Logger API
     api("io.github.sinri:keel-logger-api:$keelLoggerApiVersion")
 
-    // Annotations (for module-info.java)
-    api("org.jetbrains:annotations:26.0.1")
-
     // Vert.x dependencies (matching module-info.java requires transitive)
     api("io.vertx:vertx-core:$vertxVersion")
     api("io.vertx:vertx-config:$vertxVersion")
@@ -59,10 +57,13 @@ dependencies {
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:$jacksonVersion")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
 
+    // API dependency (transitive)
+    // https://mvnrepository.com/artifact/org.jspecify/jspecify
+    compileOnly("org.jspecify:jspecify:$jspecifyVersion")
+    testCompileOnly("org.jspecify:jspecify:$jspecifyVersion")
 
     // Test dependencies
     testImplementation("io.vertx:vertx-junit5:$vertxVersion")
-    testImplementation("org.junit.jupiter:junit-jupiter:5.11.4")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
@@ -146,26 +147,16 @@ publishing {
     }
 
     repositories {
-        // Internal Nexus repositories
         maven {
-            name = "Internal"
-            url = if (version.toString().endsWith("SNAPSHOT")) {
-                uri(findProperty("internalNexusSnapshotsUrl") as String)
-            } else {
-                uri(findProperty("internalNexusReleasesUrl") as String)
-            }
-            credentials {
-                username = findProperty("internalNexusUsername") as String
-                password = findProperty("internalNexusPassword") as String
-            }
-        }
-
-        // Maven Central (OSSRH)
-        maven {
-            name = "Release"
-
+            // name = "mixed"
             if (version.toString().endsWith("SNAPSHOT")) {
                 url = uri(findProperty("internalNexusSnapshotsUrl") as String)
+                credentials {
+                    username = findProperty("internalNexusUsername") as String
+                    password = findProperty("internalNexusPassword") as String
+                }
+            } else if (version.toString().contains(Regex("-[A-Za-z]+"))) {
+                url = uri(findProperty("internalNexusReleasesUrl") as String)
                 credentials {
                     username = findProperty("internalNexusUsername") as String
                     password = findProperty("internalNexusPassword") as String
@@ -177,7 +168,6 @@ publishing {
                     password = findProperty("ossrhPassword") as String? ?: System.getenv("OSSRH_PASSWORD")
                 }
             }
-
         }
     }
 }
@@ -190,17 +180,3 @@ signing {
     })
     sign(publishing.publications["mavenJava"])
 }
-
-// Custom tasks for publishing to specific repositories
-tasks.register("publishToInternal") {
-    group = "publishing"
-    description = "Publish to internal Nexus repository"
-    dependsOn("publishMavenJavaPublicationToInternalRepository")
-}
-
-tasks.register("publishToRelease") {
-    group = "publishing"
-    description = "Publish to Maven Central (OSSRH)"
-    dependsOn("publishMavenJavaPublicationToReleaseRepository")
-}
-

@@ -1,13 +1,14 @@
 package io.github.sinri.keel.base.json;
 
 import io.vertx.core.json.JsonObject;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NullMarked;
 
 /**
  * 本接口定义了一类可组装或转换为 JSON 对象的实体。
  *
  * @since 5.0.0
  */
+@NullMarked
 public interface JsonObjectConvertible extends JsonSerializable {
     /**
      * 将当前实体的状态转换为 {@link JsonObject}。
@@ -19,5 +20,5 @@ public interface JsonObjectConvertible extends JsonSerializable {
      *
      * @return 表示当前实体状态的非空 {@link JsonObject}
      */
-    @NotNull JsonObject toJsonObject();
+    JsonObject toJsonObject();
 }

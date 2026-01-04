@@ -1,7 +1,7 @@
 package io.github.sinri.keel.base.async;
 
 import io.vertx.core.Future;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NullMarked;
 
 import java.util.function.Supplier;
 
@@ -11,6 +11,7 @@ import java.util.function.Supplier;
  *
  * @since 5.0.0
  */
+@NullMarked
 interface KeelAsyncMixinLock extends KeelAsyncMixinCore {
     /**
      * 在Vertx 的锁机制下，独占运行一段异步逻辑。
@@ -23,9 +24,8 @@ interface KeelAsyncMixinLock extends KeelAsyncMixinCore {
      * @param exclusiveSupplier 需要独占运行的异步逻辑
      * @return 异步逻辑的结果；如果锁获取失败，则会异步返回相应失败。
      */
-    @NotNull
-    default <T> Future<T> asyncCallExclusively(@NotNull String lockName, long waitTimeForLock,
-                                               @NotNull Supplier<@NotNull Future<T>> exclusiveSupplier) {
+    default <T> Future<T> asyncCallExclusively(String lockName, long waitTimeForLock,
+                                               Supplier<Future<T>> exclusiveSupplier) {
         return getVertx().sharedData()
                          .getLockWithTimeout(lockName, waitTimeForLock)
                          .compose(lock -> Future.succeededFuture()
@@ -38,9 +38,8 @@ interface KeelAsyncMixinLock extends KeelAsyncMixinCore {
      * <p>
      * 和 {@link KeelAsyncMixinLock#asyncCallExclusively(String, long, Supplier)} 逻辑一致，锁等待时间默认 1 秒。
      */
-    @NotNull
-    default <T> Future<T> asyncCallExclusively(@NotNull String lockName,
-                                               @NotNull Supplier<@NotNull Future<T>> exclusiveSupplier) {
+    default <T> Future<T> asyncCallExclusively(String lockName,
+                                               Supplier<Future<T>> exclusiveSupplier) {
         return asyncCallExclusively(lockName, 1_000L, exclusiveSupplier);
     }
 }

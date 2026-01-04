@@ -1,7 +1,7 @@
 package io.github.sinri.keel.base.json;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NullMarked;
 
 /**
  * 本接口定义了一类可转写为 JSON 字符串表达的对象。
@@ -9,8 +9,9 @@ import org.jetbrains.annotations.NotNull;
  * @since 5.0.0
  */
 @JsonSerialize(using = JsonifiableSerializer.class)
+@NullMarked
 public interface JsonSerializable {
-    @NotNull String toJsonExpression();
+    String toJsonExpression();
 
-    @NotNull String toFormattedJsonExpression();
+    String toFormattedJsonExpression();
 }

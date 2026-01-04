@@ -9,8 +9,8 @@ import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
 import io.vertx.core.spi.cluster.ClusterManager;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.Objects;
@@ -20,6 +20,7 @@ import java.util.Objects;
  *
  * @since 5.0.0
  */
+@NullMarked
 public final class KeelSampleImpl implements Keel {
 
     static {
@@ -34,14 +35,11 @@ public final class KeelSampleImpl implements Keel {
     /**
      * 测试用的单例 Keel 实例。
      */
-    @NotNull
     public static final KeelSampleImpl Keel = new KeelSampleImpl();
 
-    @NotNull
     private final ConfigElement configuration;
     @Nullable
     private Vertx vertx;
-    @NotNull
     private LoggerFactory loggerFactory;
 
     /**
@@ -59,7 +57,6 @@ public final class KeelSampleImpl implements Keel {
      *
      * @return 配置树实例
      */
-    @NotNull
     public ConfigElement getConfiguration() {
         return configuration;
     }
@@ -69,7 +66,6 @@ public final class KeelSampleImpl implements Keel {
      *
      * @return 当前使用的日志工厂实例
      */
-    @NotNull
     public LoggerFactory getLoggerFactory() {
         return loggerFactory;
     }
@@ -79,27 +75,8 @@ public final class KeelSampleImpl implements Keel {
      *
      * @param loggerFactory 要设置的日志工厂
      */
-    public void setLoggerFactory(@NotNull LoggerFactory loggerFactory) {
+    public void setLoggerFactory(LoggerFactory loggerFactory) {
         this.loggerFactory = loggerFactory;
-    }
-
-    /**
-     * 通过点分隔的键链读取配置值。
-     * <p>
-     * 此方法将点分隔的字符串拆分为键链，然后从配置树中读取字符串值。
-     * 如果配置不存在，返回 null。
-     *
-     * @param dotJoinedKeyChain 点分隔的键链，例如 "database.host"
-     * @return 配置项的字符串值，如果配置不存在则返回 null
-     */
-    @Nullable
-    public String config(@NotNull String dotJoinedKeyChain) {
-        String[] split = dotJoinedKeyChain.split("\\.");
-        try {
-            return this.getConfiguration().readString(List.of(split));
-        } catch (NotConfiguredException e) {
-            return null;
-        }
     }
 
     /**
@@ -111,7 +88,6 @@ public final class KeelSampleImpl implements Keel {
      * @throws NullPointerException 如果 Vert.x 尚未初始化
      */
     @Override
-    @NotNull
     public Vertx getVertx() {
         return Objects.requireNonNull(vertx);
     }
@@ -133,8 +109,7 @@ public final class KeelSampleImpl implements Keel {
      * @return 异步完成结果，表示初始化操作的完成状态
      * @throws IllegalStateException 如果 Vert.x 已经被初始化
      */
-    @NotNull
-    public Future<Void> initializeVertx(@NotNull VertxOptions vertxOptions) {
+    public Future<Void> initializeVertx(VertxOptions vertxOptions) {
         return initializeVertx(vertxOptions, null);
     }
 
@@ -148,9 +123,8 @@ public final class KeelSampleImpl implements Keel {
      * @return 异步完成结果，表示初始化操作的完成状态
      * @throws IllegalStateException 如果 Vert.x 已经被初始化
      */
-    @NotNull
     public Future<Void> initializeVertx(
-            @NotNull VertxOptions vertxOptions,
+            VertxOptions vertxOptions,
             @Nullable ClusterManager clusterManager
     ) {
         if (isVertxInitialized()) {
@@ -179,7 +153,7 @@ public final class KeelSampleImpl implements Keel {
      * @param vertxOptions Vert.x 配置选项
      * @throws IllegalStateException 如果 Vert.x 已经被初始化
      */
-    public void initializeVertxStandalone(@NotNull VertxOptions vertxOptions) {
+    public void initializeVertxStandalone(VertxOptions vertxOptions) {
         if (isVertxInitialized()) {
             throw new IllegalStateException("Vertx has been initialized!");
         }
@@ -201,7 +175,7 @@ public final class KeelSampleImpl implements Keel {
      *
      * @param vertx 要使用的 Vert.x 实例
      */
-    public void initializeVertx(@NotNull Vertx vertx) {
+    public void initializeVertx(Vertx vertx) {
         if (this.vertx != null && !Objects.equals(vertx, this.vertx)) {
             this.vertx.close();
         }
@@ -226,8 +200,7 @@ public final class KeelSampleImpl implements Keel {
      * @param promiseHandler 清理处理程序，用于执行应用特定的清理逻辑
      * @return 异步完成结果，表示关闭操作的完成状态
      */
-    @NotNull
-    public Future<Void> gracefullyClose(@NotNull io.vertx.core.Handler<Promise<Void>> promiseHandler) {
+    public Future<Void> gracefullyClose(io.vertx.core.Handler<Promise<Void>> promiseHandler) {
         Promise<Void> promise = Promise.promise();
         promiseHandler.handle(promise);
         return promise.future()
@@ -245,7 +218,6 @@ public final class KeelSampleImpl implements Keel {
      *
      * @return 异步完成结果，表示关闭操作的完成状态
      */
-    @NotNull
     public Future<Void> close() {
         return gracefullyClose(Promise::complete);
     }

@@ -7,7 +7,7 @@ import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @since 5.0.0
  */
 @ExtendWith(VertxExtension.class)
+@NullMarked
 public class AbstractKeelVerticleUnitTest {
     private Vertx vertx;
 
@@ -188,7 +189,7 @@ public class AbstractKeelVerticleUnitTest {
     void testStartFailure(VertxTestContext testContext) {
         TestKeelVerticle verticle = new TestKeelVerticle() {
             @Override
-            protected @NotNull Future<Void> startVerticle() {
+            protected Future<Void> startVerticle() {
                 return Future.failedFuture(new RuntimeException("Start failure"));
             }
         };
@@ -220,7 +221,7 @@ public class AbstractKeelVerticleUnitTest {
         }
 
         @Override
-        protected @NotNull Future<Void> startVerticle() {
+        protected Future<Void> startVerticle() {
             return Future.succeededFuture();
         }
     }

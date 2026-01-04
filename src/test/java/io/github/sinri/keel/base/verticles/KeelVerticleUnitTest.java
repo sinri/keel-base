@@ -6,7 +6,7 @@ import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @since 5.0.0
  */
 @ExtendWith(VertxExtension.class)
+@NullMarked
 public class KeelVerticleUnitTest {
     @BeforeEach
     void setUp(Vertx vertx, VertxTestContext testContext) {
@@ -171,7 +172,7 @@ public class KeelVerticleUnitTest {
         }
 
         @Override
-        protected io.vertx.core.@NotNull Future<Void> startVerticle() {
+        protected io.vertx.core.Future<Void> startVerticle() {
             return io.vertx.core.Future.succeededFuture();
         }
     }

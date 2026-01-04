@@ -4,7 +4,7 @@ import io.github.sinri.keel.base.KeelSampleImpl;
 import io.github.sinri.keel.base.logger.adapter.FileLogWriterAdapter;
 import io.github.sinri.keel.logger.api.logger.Logger;
 import io.github.sinri.keel.logger.api.logger.SpecificLogger;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -87,12 +87,12 @@ class FileLoggerFactoryTest {
         private final File logFile;
         private FileLogWriterAdapter adapter;
 
-        TestFileLoggerFactory(@NotNull File logFile) {
+        TestFileLoggerFactory(File logFile) {
             this.logFile = logFile;
         }
 
         @Override
-        public @NotNull FileLogWriterAdapter sharedAdapter() {
+        public FileLogWriterAdapter sharedAdapter() {
             if (adapter == null) {
                 adapter = new TestFileLogWriterAdapter(logFile);
             }
@@ -107,13 +107,13 @@ class FileLoggerFactoryTest {
         private final File logFile;
         private final java.util.Map<String, FileWriter> fileWriterMap = new ConcurrentHashMap<>();
 
-        TestFileLogWriterAdapter(@NotNull File logFile) {
+        TestFileLogWriterAdapter(File logFile) {
             super(KeelSampleImpl.Keel);
             this.logFile = logFile;
         }
 
         @Override
-        protected java.io.FileWriter getFileWriterForTopic(@NotNull String topic) {
+        protected java.io.FileWriter getFileWriterForTopic(String topic) {
             return fileWriterMap.computeIfAbsent(topic, k -> {
                 try {
                     return new FileWriter(logFile, true);

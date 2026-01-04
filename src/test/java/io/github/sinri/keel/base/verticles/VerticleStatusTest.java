@@ -7,11 +7,12 @@ import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(VertxExtension.class)
+@NullMarked
 public class VerticleStatusTest {
     public VerticleStatusTest(Vertx vertx) {
         KeelSampleImpl.Keel.initializeVertx(vertx);
@@ -57,13 +58,13 @@ public class VerticleStatusTest {
     private static class V1 extends AbstractKeelVerticle {
         private final boolean startWithError;
 
-        public V1(@NotNull Keel keel, boolean startWithError) {
+        public V1(Keel keel, boolean startWithError) {
             super(keel);
             this.startWithError = startWithError;
         }
 
         @Override
-        protected @NotNull Future<Void> startVerticle() {
+        protected Future<Void> startVerticle() {
             return getKeel()
                     .asyncSleep(1000)
                     .compose(v -> {

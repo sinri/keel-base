@@ -3,7 +3,8 @@ package io.github.sinri.keel.base.json;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.shareddata.ClusterSerializable;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -13,6 +14,7 @@ import java.util.Map;
  *
  * @since 5.0.0
  */
+@NullMarked
 public interface JsonifiableDataUnit
         extends JsonObjectConvertible, JsonObjectReloadable, JsonObjectWritable,
         UnmodifiableJsonifiableEntity, ClusterSerializable {
@@ -26,7 +28,7 @@ public interface JsonifiableDataUnit
      * @param value 要设置的值，可以为 null
      */
     @Override
-    default void ensureEntry(@NotNull String key, Object value) {
+    default void ensureEntry(String key, @Nullable Object value) {
         toJsonObject().put(key, value);
     }
 
@@ -36,7 +38,7 @@ public interface JsonifiableDataUnit
      * @param key 要移除的键
      */
     @Override
-    default void removeEntry(@NotNull String key) {
+    default void removeEntry(String key) {
         this.toJsonObject().remove(key);
     }
 
@@ -58,7 +60,6 @@ public interface JsonifiableDataUnit
      * @return 包含所有键值对的迭代器
      */
     @Override
-    @NotNull
     default Iterator<Map.Entry<String, Object>> iterator() {
         return toJsonObject().iterator();
     }
@@ -101,7 +102,6 @@ public interface JsonifiableDataUnit
      *
      * @return JSON 对象的格式化字符串表示
      */
-    @NotNull
     @Override
     default String toFormattedJsonExpression() {
         return toJsonObject().encodePrettily();
@@ -112,7 +112,6 @@ public interface JsonifiableDataUnit
      *
      * @return JSON 对象的紧凑字符串表示
      */
-    @NotNull
     @Override
     default String toJsonExpression() {
         return toJsonObject().encode();

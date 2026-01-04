@@ -2,8 +2,8 @@ package io.github.sinri.keel.base.json;
 
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.pointer.JsonPointer;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 import java.util.function.Function;
 
@@ -14,8 +14,8 @@ import java.util.function.Function;
  *
  * @since 5.0.0
  */
+@NullMarked
 public class JsonifiableDataUnitImpl implements JsonifiableDataUnit {
-    @NotNull
     private JsonObject jsonObject;
 
     /**
@@ -23,7 +23,7 @@ public class JsonifiableDataUnitImpl implements JsonifiableDataUnit {
      *
      * @param jsonObject 用于构造数据单元的非空 JSON 对象
      */
-    public JsonifiableDataUnitImpl(@NotNull JsonObject jsonObject) {
+    public JsonifiableDataUnitImpl(JsonObject jsonObject) {
         this.jsonObject = jsonObject;
     }
 
@@ -43,7 +43,6 @@ public class JsonifiableDataUnitImpl implements JsonifiableDataUnit {
      *
      * @return 内部包装的 JSON 对象
      */
-    @NotNull
     @Override
     public JsonObject toJsonObject() {
         return jsonObject;
@@ -57,7 +56,7 @@ public class JsonifiableDataUnitImpl implements JsonifiableDataUnit {
      * @param jsonObject 用于重载数据的 JSON 对象
      */
     @Override
-    public void reloadData(@NotNull JsonObject jsonObject) {
+    public void reloadData(JsonObject jsonObject) {
         this.jsonObject = jsonObject;
     }
 
@@ -67,7 +66,7 @@ public class JsonifiableDataUnitImpl implements JsonifiableDataUnit {
      * @return JSON 对象的紧凑字符串表示
      */
     @Override
-    public @NotNull String toJsonExpression() {
+    public String toJsonExpression() {
         return jsonObject.encode();
     }
 
@@ -79,7 +78,7 @@ public class JsonifiableDataUnitImpl implements JsonifiableDataUnit {
      * @return JSON 对象的格式化字符串表示
      */
     @Override
-    public @NotNull String toFormattedJsonExpression() {
+    public String toFormattedJsonExpression() {
         return jsonObject.encodePrettily();
     }
 
@@ -96,7 +95,7 @@ public class JsonifiableDataUnitImpl implements JsonifiableDataUnit {
     }
 
     @Nullable
-    public final <T> T read(@NotNull Function<@NotNull JsonPointer, @NotNull Class<T>> func) {
+    public final <T> T read(Function<JsonPointer, Class<T>> func) {
         try {
             JsonPointer jsonPointer = JsonPointer.create();
             Class<T> tClass = func.apply(jsonPointer);

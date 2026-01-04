@@ -7,7 +7,7 @@ import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -107,7 +107,7 @@ class AbstractMetricRecorderUnitTest {
         }
 
         @Override
-        protected @NotNull Future<Void> handleForTopic(@NotNull String topic, @NotNull List<@NotNull MetricRecord> buffer) {
+        protected Future<Void> handleForTopic(String topic, List<MetricRecord> buffer) {
             processedCount.addAndGet(buffer.size());
             processedRecords.addAll(buffer);
             return Future.succeededFuture();

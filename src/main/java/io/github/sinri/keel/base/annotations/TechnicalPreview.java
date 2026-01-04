@@ -1,5 +1,7 @@
 package io.github.sinri.keel.base.annotations;
 
+import org.jspecify.annotations.NullMarked;
+
 import java.lang.annotation.*;
 
 /**
@@ -11,6 +13,7 @@ import java.lang.annotation.*;
         ElementType.CONSTRUCTOR, ElementType.LOCAL_VARIABLE, ElementType.PACKAGE,
         ElementType.ANNOTATION_TYPE, ElementType.TYPE_USE, ElementType.TYPE_PARAMETER
 })
+@NullMarked
 public @interface TechnicalPreview {
     /**
      * 指定该特性或组件从哪个版本开始处于技术预览阶段。

@@ -3,7 +3,7 @@ package io.github.sinri.keel.base.logger.adapter;
 import io.github.sinri.keel.logger.api.adapter.BaseLogWriter;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NullMarked;
 
 import java.util.List;
 import java.util.Map;
@@ -13,24 +13,24 @@ import java.util.Map;
  *
  * @since 5.0.0
  */
+@NullMarked
 public final class StdoutLogWriter extends BaseLogWriter {
-    @NotNull
     private static final StdoutLogWriter instance = new StdoutLogWriter();
 
     private StdoutLogWriter() {
     }
 
-    public static @NotNull StdoutLogWriter getInstance() {
+    public static StdoutLogWriter getInstance() {
         return instance;
     }
 
     @Override
-    public @NotNull String renderClassification(@NotNull List<@NotNull String> classification) {
+    public String renderClassification(List<String> classification) {
         return new JsonArray(classification).encode();
     }
 
     @Override
-    public @NotNull String renderContext(@NotNull Map<String, Object> context) {
+    public String renderContext(Map<String, Object> context) {
         return new JsonObject(context).encodePrettily();
     }
 }

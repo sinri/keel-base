@@ -9,7 +9,7 @@ import io.github.sinri.keel.logger.api.factory.BaseLoggerFactory;
 import io.github.sinri.keel.logger.api.log.SpecificLog;
 import io.github.sinri.keel.logger.api.logger.Logger;
 import io.github.sinri.keel.logger.api.logger.SpecificLogger;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NullMarked;
 
 import java.util.function.Supplier;
 
@@ -18,29 +18,29 @@ import java.util.function.Supplier;
  *
  * @since 5.0.0
  */
+@NullMarked
 public final class StdoutLoggerFactory extends BaseLoggerFactory {
-    @NotNull
     private static final StdoutLoggerFactory instance = new StdoutLoggerFactory();
 
     private StdoutLoggerFactory() {
     }
 
-    public static @NotNull StdoutLoggerFactory getInstance() {
+    public static StdoutLoggerFactory getInstance() {
         return instance;
     }
 
     @Override
-    public @NotNull LogWriterAdapter sharedAdapter() {
+    public LogWriterAdapter sharedAdapter() {
         return StdoutLogWriter.getInstance();
     }
 
     @Override
-    public @NotNull Logger createLogger(@NotNull String topic) {
+    public Logger createLogger(String topic) {
         return new StdoutLogger(topic);
     }
 
     @Override
-    public <L extends SpecificLog<L>> @NotNull SpecificLogger<L> createLogger(@NotNull String topic, @NotNull Supplier<L> specificLogSupplier) {
+    public <L extends SpecificLog<L>> SpecificLogger<L> createLogger(String topic, Supplier<L> specificLogSupplier) {
         return new StdoutSpecificLogger<>(topic, specificLogSupplier);
     }
 }

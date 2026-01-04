@@ -1,10 +1,13 @@
 package io.github.sinri.keel.base.async;
 
+import org.jspecify.annotations.NullMarked;
+
 /**
  * Keel 异步能力调用的总成接口。
  *
  * @since 5.0.0
  */
+@NullMarked
 public interface KeelAsyncMixin extends KeelAsyncMixinParallel, KeelAsyncMixinLock, KeelAsyncMixinBlock {
 
 }
