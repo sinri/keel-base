@@ -40,7 +40,7 @@ public class JsonifiedThrowable extends JsonifiableDataUnitImpl {
      * @return JSON 化的异常对象
      */
     public static JsonifiedThrowable wrap(Throwable throwable) {
-        return wrap(throwable, LoggingStackSpecification.IgnorableCallStackPackage, true);
+        return wrap(throwable, LoggingStackSpecification.IgnorableCallStackPackageSet, true);
     }
 
     /**
