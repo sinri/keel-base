@@ -54,7 +54,7 @@ public abstract class AbstractKeelVerticle extends AbstractVerticle implements K
     }
 
     @Override
-    public JsonObject config() throws UnexpectedVerticleRunningState {
+    public @Nullable JsonObject config() throws UnexpectedVerticleRunningState {
         if (this.context == null) throw new UnexpectedVerticleRunningState();
         return context.config();
     }

@@ -5,6 +5,7 @@ import io.github.sinri.keel.base.KeelHolder;
 import io.vertx.core.*;
 import io.vertx.core.json.JsonObject;
 import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.function.Function;
@@ -67,7 +68,7 @@ public interface KeelVerticle extends Verticle, KeelHolder {
      * @return 包含当前 verticle 配置的 {@link JsonObject}
      * @throws UnexpectedVerticleRunningState 如果尚未部署
      */
-    JsonObject config() throws UnexpectedVerticleRunningState;
+    @Nullable JsonObject config() throws UnexpectedVerticleRunningState;
 
     /**
      * 获取当前 verticle 的信息。
