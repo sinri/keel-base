@@ -20,8 +20,7 @@ import java.util.UUID;
 public abstract class AbstractKeelVerticle extends AbstractVerticle implements KeelVerticle {
     private final Keel keel;
     private KeelVerticleRunningStateEnum runningState;
-    @Nullable
-    private String deploymentInstanceCode;
+    private @Nullable String deploymentInstanceCode;
 
     public AbstractKeelVerticle(Keel keel) {
         this.runningState = KeelVerticleRunningStateEnum.BEFORE_RUNNING;
@@ -34,32 +33,29 @@ public abstract class AbstractKeelVerticle extends AbstractVerticle implements K
     }
 
     @Override
-    public final Vertx getVertx() {
+    public final Vertx getVertx() throws UnexpectedVerticleRunningState {
         Vertx v = super.getVertx();
         if (v == null) {
-            return keel.getVertx();
+            throw new UnexpectedVerticleRunningState();
         }
         return v;
     }
 
     @Override
-    @Nullable
-    public final ThreadingModel contextThreadModel() {
-        if (this.context == null) return null;
+    public final ThreadingModel contextThreadModel() throws UnexpectedVerticleRunningState {
+        if (this.context == null) throw new UnexpectedVerticleRunningState();
         return this.context.threadingModel();
     }
 
-    @Nullable
     @Override
-    public String deploymentID() {
-        if (this.context == null) return null;
+    public String deploymentID() throws UnexpectedVerticleRunningState {
+        if (this.context == null) throw new UnexpectedVerticleRunningState();
         return context.deploymentID();
     }
 
-    @Nullable
     @Override
-    public JsonObject config() {
-        if (this.context == null) return null;
+    public JsonObject config() throws UnexpectedVerticleRunningState {
+        if (this.context == null) throw new UnexpectedVerticleRunningState();
         return context.config();
     }
 
@@ -76,7 +72,7 @@ public abstract class AbstractKeelVerticle extends AbstractVerticle implements K
     @Override
     public final void start(Promise<Void> startPromise) {
         runningState = KeelVerticleRunningStateEnum.RUNNING;
-        deploymentInstanceCode = UUID.randomUUID().toString();
+        deploymentInstanceCode = buildDeploymentInstanceCode();
         Future.succeededFuture()
               .compose(v -> startVerticle())
               .andThen(ar -> {
@@ -87,6 +83,10 @@ public abstract class AbstractKeelVerticle extends AbstractVerticle implements K
                       startPromise.fail(ar.cause());
                   }
               });
+    }
+
+    protected String buildDeploymentInstanceCode() {
+        return UUID.randomUUID().toString();
     }
 
     /**

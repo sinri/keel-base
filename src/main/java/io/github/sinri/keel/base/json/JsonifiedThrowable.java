@@ -129,7 +129,7 @@ public class JsonifiedThrowable extends JsonifiableDataUnitImpl {
      * @param stackTraceItemConsumer         处理不可忽略的堆栈项的回调
      */
     private static void filterStackTrace(
-            @Nullable StackTraceElement[] stackTrace,
+            @Nullable StackTraceElement @Nullable [] stackTrace,
             Set<String> ignorableStackPackageSet,
             BiConsumer<String, Integer> ignoredStackTraceItemsConsumer,
             Consumer<StackTraceElement> stackTraceItemConsumer
@@ -190,8 +190,7 @@ public class JsonifiedThrowable extends JsonifiableDataUnitImpl {
      *
      * @return 异常消息，如果异常没有消息则返回 null
      */
-    @Nullable
-    public String getThrowableMessage() {
+    public @Nullable String getThrowableMessage() {
         return readString("message");
     }
 

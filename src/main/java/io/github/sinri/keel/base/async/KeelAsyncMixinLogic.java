@@ -51,16 +51,16 @@ interface KeelAsyncMixinLogic extends KeelAsyncMixinCore {
      * @param batchSize      批量执行量
      * @return 异步循环执行结果
      */
-    default <T> Future<Void> asyncCallIteratively(
-            Iterator<@Nullable T> iterator,
-            BiFunction<List<@Nullable T>, RepeatedlyCallTask, Future<Void>> itemsProcessor,
+    default <T extends @Nullable Object> Future<Void> asyncCallIteratively(
+            Iterator<T> iterator,
+            BiFunction<List<T>, RepeatedlyCallTask, Future<Void>> itemsProcessor,
             int batchSize
     ) {
         if (batchSize <= 0)
             throw new IllegalArgumentException("batchSize must be greater than 0");
 
         return asyncCallRepeatedly(repeatedlyCallTask -> {
-            List<@Nullable T> buffer = new ArrayList<>();
+            List<T> buffer = new ArrayList<>();
 
             while (buffer.size() < batchSize) {
                 if (iterator.hasNext()) {
@@ -87,9 +87,9 @@ interface KeelAsyncMixinLogic extends KeelAsyncMixinCore {
      * @param batchSize      批量执行量
      * @return 异步循环执行结果
      */
-    default <T> Future<Void> asyncCallIteratively(
-            Iterator<@Nullable T> iterator,
-            Function<List<@Nullable T>, Future<Void>> itemsProcessor,
+    default <T extends @Nullable Object> Future<Void> asyncCallIteratively(
+            Iterator<T> iterator,
+            Function<List<T>, Future<Void>> itemsProcessor,
             int batchSize
     ) {
         return asyncCallIteratively(
@@ -107,9 +107,9 @@ interface KeelAsyncMixinLogic extends KeelAsyncMixinCore {
      * @param batchSize      批量执行量
      * @return 异步循环执行结果
      */
-    default <T> Future<Void> asyncCallIteratively(
-            Iterable<@Nullable T> iterable,
-            BiFunction<List<@Nullable T>, RepeatedlyCallTask, Future<Void>> itemsProcessor,
+    default <T extends @Nullable Object> Future<Void> asyncCallIteratively(
+            Iterable<T> iterable,
+            BiFunction<List<T>, RepeatedlyCallTask, Future<Void>> itemsProcessor,
             int batchSize
     ) {
         return asyncCallIteratively(iterable.iterator(), itemsProcessor, batchSize);
@@ -123,9 +123,9 @@ interface KeelAsyncMixinLogic extends KeelAsyncMixinCore {
      * @param itemProcessor 迭代执行逻辑
      * @return 异步循环执行结果
      */
-    default <T> Future<Void> asyncCallIteratively(
-            Iterator<@Nullable T> iterator,
-            BiFunction<@Nullable T, RepeatedlyCallTask, Future<Void>> itemProcessor
+    default <T extends @Nullable Object> Future<Void> asyncCallIteratively(
+            Iterator<T> iterator,
+            BiFunction<T, RepeatedlyCallTask, Future<Void>> itemProcessor
     ) {
         return asyncCallRepeatedly(routineResult -> Future
                 .succeededFuture()
@@ -147,9 +147,9 @@ interface KeelAsyncMixinLogic extends KeelAsyncMixinCore {
      * @param itemProcessor 迭代执行逻辑
      * @return 异步循环执行结果
      */
-    default <T> Future<Void> asyncCallIteratively(
-            Iterator<@Nullable T> iterator,
-            Function<@Nullable T, Future<Void>> itemProcessor) {
+    default <T extends @Nullable Object> Future<Void> asyncCallIteratively(
+            Iterator<T> iterator,
+            Function<T, Future<Void>> itemProcessor) {
         return asyncCallIteratively(
                 iterator,
                 (t, repeatedlyCallTask) -> itemProcessor.apply(t)
@@ -163,9 +163,9 @@ interface KeelAsyncMixinLogic extends KeelAsyncMixinCore {
      * @param itemProcessor 迭代执行逻辑
      * @return 异步循环执行结果
      */
-    default <T> Future<Void> asyncCallIteratively(
-            Iterable<@Nullable T> iterable,
-            Function<@Nullable T, Future<Void>> itemProcessor) {
+    default <T extends @Nullable Object> Future<Void> asyncCallIteratively(
+            Iterable<T> iterable,
+            Function<T, Future<Void>> itemProcessor) {
         return asyncCallIteratively(iterable.iterator(), itemProcessor);
     }
 
@@ -177,9 +177,9 @@ interface KeelAsyncMixinLogic extends KeelAsyncMixinCore {
      * @param itemProcessor 迭代执行逻辑
      * @return 异步循环执行结果
      */
-    default <T> Future<Void> asyncCallIteratively(
-            Iterable<@Nullable T> iterable,
-            BiFunction<@Nullable T, RepeatedlyCallTask, Future<Void>> itemProcessor) {
+    default <T extends @Nullable Object> Future<Void> asyncCallIteratively(
+            Iterable<T> iterable,
+            BiFunction<T, RepeatedlyCallTask, Future<Void>> itemProcessor) {
         return asyncCallIteratively(iterable.iterator(), itemProcessor);
     }
 

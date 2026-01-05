@@ -142,7 +142,7 @@ public class UnmodifiableJsonifiableEntityImplUnitTest {
         };
 
         assertNull(entity.readString("key"));
-        assertTrue(entity.readBoolean("purified"));
+        assertEquals(Boolean.TRUE, entity.readBoolean("purified"));
     }
 
     @Test
@@ -167,7 +167,7 @@ public class UnmodifiableJsonifiableEntityImplUnitTest {
     @Test
     void testReadBoolean() {
         Boolean value = entity.readBoolean("active");
-        assertTrue(value);
+        assertEquals(Boolean.TRUE, value);
     }
 
     @Test

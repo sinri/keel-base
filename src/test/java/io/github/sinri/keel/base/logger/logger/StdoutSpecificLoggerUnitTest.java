@@ -1,5 +1,6 @@
 package io.github.sinri.keel.base.logger.logger;
 
+import io.github.sinri.keel.logger.api.log.Log;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -13,14 +14,14 @@ class StdoutSpecificLoggerUnitTest {
 
     @Test
     void testCreateLogger() {
-        StdoutSpecificLogger<?> logger = new StdoutSpecificLogger<>("test-topic", () -> null);
+        StdoutSpecificLogger<Log> logger = new StdoutSpecificLogger<>("test-topic", Log::new);
         assertNotNull(logger);
     }
 
     @Test
     void testCreateLoggerWithDifferentTopics() {
-        StdoutSpecificLogger<?> logger1 = new StdoutSpecificLogger<>("topic1", () -> null);
-        StdoutSpecificLogger<?> logger2 = new StdoutSpecificLogger<>("topic2", () -> null);
+        StdoutSpecificLogger<Log> logger1 = new StdoutSpecificLogger<>("topic1", Log::new);
+        StdoutSpecificLogger<Log> logger2 = new StdoutSpecificLogger<>("topic2", Log::new);
 
         assertNotNull(logger1);
         assertNotNull(logger2);

@@ -2,8 +2,10 @@ package io.github.sinri.keel.base.logger.factory;
 
 import io.github.sinri.keel.base.KeelSampleImpl;
 import io.github.sinri.keel.base.logger.adapter.FileLogWriterAdapter;
+import io.github.sinri.keel.logger.api.log.Log;
 import io.github.sinri.keel.logger.api.logger.Logger;
 import io.github.sinri.keel.logger.api.logger.SpecificLogger;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -58,13 +60,16 @@ class FileLoggerFactoryTest {
 
     @Test
     void testCreateSpecificLogger() {
-        SpecificLogger<?> logger = factory.createLogger("test-topic", () -> null);
+        //noinspection DataFlowIssue
+        SpecificLogger<Log> logger = factory.createLogger("test-topic", () -> null);
         assertNotNull(logger, "创建的SpecificLogger不应为null");
     }
 
     @Test
     void testCreateSpecificLoggerWithDifferentTopics() {
+        //noinspection DataFlowIssue
         SpecificLogger<?> logger1 = factory.createLogger("topic1", () -> null);
+        //noinspection DataFlowIssue
         SpecificLogger<?> logger2 = factory.createLogger("topic2", () -> null);
 
         assertNotNull(logger1, "topic1的SpecificLogger不应为null");
@@ -83,19 +88,16 @@ class FileLoggerFactoryTest {
     /**
      * 测试用的FileLoggerFactory实现。
      */
+    @NullMarked
     private static class TestFileLoggerFactory extends FileLoggerFactory {
-        private final File logFile;
-        private FileLogWriterAdapter adapter;
+        private final FileLogWriterAdapter adapter;
 
         TestFileLoggerFactory(File logFile) {
-            this.logFile = logFile;
+            this.adapter = new TestFileLogWriterAdapter(logFile);
         }
 
         @Override
         public FileLogWriterAdapter sharedAdapter() {
-            if (adapter == null) {
-                adapter = new TestFileLogWriterAdapter(logFile);
-            }
             return adapter;
         }
     }
@@ -113,7 +115,7 @@ class FileLoggerFactoryTest {
         }
 
         @Override
-        protected java.io.FileWriter getFileWriterForTopic(String topic) {
+        protected java.io.FileWriter getFileWriterForTopic(@NonNull String topic) {
             return fileWriterMap.computeIfAbsent(topic, k -> {
                 try {
                     return new FileWriter(logFile, true);

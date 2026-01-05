@@ -1,6 +1,7 @@
 package io.github.sinri.keel.base.logger.factory;
 
 import io.github.sinri.keel.base.logger.adapter.StdoutLogWriter;
+import io.github.sinri.keel.logger.api.log.Log;
 import io.github.sinri.keel.logger.api.logger.Logger;
 import io.github.sinri.keel.logger.api.logger.SpecificLogger;
 import org.junit.jupiter.api.Test;
@@ -52,7 +53,7 @@ class StdoutLoggerFactoryUnitTest {
     @Test
     void testCreateSpecificLogger() {
         StdoutLoggerFactory factory = StdoutLoggerFactory.getInstance();
-        SpecificLogger<?> logger = factory.createLogger("test-topic", () -> null);
+        SpecificLogger<Log> logger = factory.createLogger("test-topic", Log::new);
 
         assertNotNull(logger);
     }

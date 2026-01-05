@@ -111,7 +111,7 @@ public class UnmodifiableJsonifiableEntityImpl implements UnmodifiableJsonifiabl
      * @return 包含所有键值对的迭代器
      */
     @Override
-    public Iterator<Map.Entry<String, Object>> iterator() {
+    public Iterator<Map.Entry<String, @Nullable Object>> iterator() {
         return jsonObject.iterator();
     }
 

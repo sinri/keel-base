@@ -98,6 +98,7 @@ class AbstractMetricRecorderUnitTest {
     /**
      * 测试用的MetricRecorder实现。
      */
+    @NullMarked
     private static class TestMetricRecorder extends AbstractMetricRecorder {
         private final AtomicInteger processedCount = new AtomicInteger(0);
         private final List<MetricRecord> processedRecords = new ArrayList<>();

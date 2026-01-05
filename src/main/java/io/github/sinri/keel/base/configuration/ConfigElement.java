@@ -15,20 +15,23 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @NullMarked
 public class ConfigElement {
+    private final List<String> parentKeyChain;
     private final Map<String, ConfigElement> children;
     private final String elementName;
-    private String elementValue = "";
+    private String elementValue;
 
     public ConfigElement(String elementName) {
         this.elementName = elementName;
         this.elementValue = "";
         this.children = new ConcurrentHashMap<>();
+        this.parentKeyChain = new ArrayList<>();
     }
 
     public ConfigElement(ConfigElement another) {
         this.elementName = another.elementName;
         this.elementValue = another.elementValue;
         this.children = another.children;
+        this.parentKeyChain = another.parentKeyChain;
     }
 
     public static Properties loadLocalPropertiesFile(String propertiesFileName, Charset charset) throws IOException {
@@ -48,6 +51,22 @@ public class ConfigElement {
             properties.load(resourceAsStream);
         }
         return properties;
+    }
+
+    static List<String> mergeListOfKeys(List<String> parentKeychain, String key) {
+        List<String> list = new ArrayList<>(parentKeychain);
+        list.add(key);
+        return list;
+    }
+
+    static List<String> mergeListOfKeys(List<String> parentKeychain, List<String> keychain) {
+        List<String> list = new ArrayList<>(parentKeychain);
+        list.addAll(keychain);
+        return list;
+    }
+
+    public List<String> getAbsoluteKeyChain() {
+        return mergeListOfKeys(parentKeyChain, elementName);
     }
 
     public void loadPropertiesFile(String propertiesFileName) throws IOException {
@@ -75,7 +94,7 @@ public class ConfigElement {
      */
     public String getElementValue() throws NotConfiguredException {
         if (!isLeafNode()) {
-            throw new NotConfiguredException(List.of(elementName));
+            throw new NotConfiguredException(getAbsoluteKeyChain());
         }
         return elementValue;
     }
@@ -107,7 +126,12 @@ public class ConfigElement {
      * @return 子节点，可能为新创建的或已存在的，不为 null
      */
     public ConfigElement ensureChild(String childName) {
-        return children.computeIfAbsent(childName, ConfigElement::new);
+        return children.computeIfAbsent(childName, s -> {
+            var ce = new ConfigElement(s);
+            ce.parentKeyChain.addAll(this.parentKeyChain);
+            ce.parentKeyChain.add(this.elementName);
+            return ce;
+        });
     }
 
     /**
@@ -134,8 +158,22 @@ public class ConfigElement {
      * @param childName 子节点的名称
      * @return 子节点，如果不存在就返回 null
      */
-    public @Nullable ConfigElement getChild(String childName) {
+    public @Nullable ConfigElement tryToGetChild(String childName) {
         return children.get(childName);
+    }
+
+    /**
+     * 获取指定名称对应的配置节点的子项
+     *
+     * @param childName 子节点的名称
+     * @return 子节点，如果不存在就返回 null
+     */
+    public ConfigElement getChild(String childName) throws NotConfiguredException {
+        var x = children.get(childName);
+        if (x == null) {
+            throw new NotConfiguredException(parentKeyChain, childName);
+        }
+        return x;
     }
 
     /**
@@ -152,7 +190,10 @@ public class ConfigElement {
             if (keyArray.length > 0) {
                 ConfigElement configElement = children.computeIfAbsent(
                         keyArray[0],
-                        x -> new ConfigElement(keyArray[0]));
+                        x -> {
+                            //  the parent keychain is empty as top
+                            return new ConfigElement(x);
+                        });
                 if (keyArray.length == 1) {
                     configElement.setElementValue(v.toString());
                 } else {
@@ -187,7 +228,7 @@ public class ConfigElement {
     public @Nullable ConfigElement extract(List<String> keychain) {
         ConfigElement configElement = this;
         for (String key : keychain) {
-            configElement = configElement.getChild(key);
+            configElement = configElement.tryToGetChild(key);
             if (configElement == null) {
                 return null;
             }
@@ -207,7 +248,7 @@ public class ConfigElement {
         Collections.sort(keys);
         for (String key : keys) {
             // System.out.println("transformChildrenToPropertyList for " + key);
-            ConfigElement child = this.getChild(key);
+            ConfigElement child = this.tryToGetChild(key);
             if (child != null) {
                 dfsTransform(child, new ArrayList<>(List.of(key)), properties);
             }
@@ -240,10 +281,9 @@ public class ConfigElement {
         Collections.sort(keys);
         for (String k : keys) {
             // System.out.println("dfsTransform for " + k);
-            ConfigElement child = node.getChild(k);
+            ConfigElement child = node.tryToGetChild(k);
             if (child != null) {
-                List<String> nextPath = new ArrayList<>(path);
-                nextPath.add(k);
+                List<String> nextPath = mergeListOfKeys(path, k);
                 dfsTransform(child, nextPath, out);
             }
         }
@@ -262,7 +302,8 @@ public class ConfigElement {
         if (extract != null && extract.isLeafNode()) {
             return extract.getElementValue();
         } else {
-            throw new NotConfiguredException(keychain);
+            var mergedListOfKeys = mergeListOfKeys(parentKeyChain, keychain);
+            throw new NotConfiguredException(mergedListOfKeys);
         }
     }
 
@@ -342,7 +383,9 @@ public class ConfigElement {
     }
 
     String debugToString(int level) {
-        StringBuilder sb = new StringBuilder("ConfigElement(" + elementName + ": `" + elementValue + "` :" + children.size() + ")");
+        StringBuilder sb = new StringBuilder();
+        sb.append("ConfigElement(").append(elementName).append(": `").append(elementValue).append("` :")
+          .append(children.size()).append("):").append(String.join(">", parentKeyChain));
         if (isLeafNode()) {
             return sb.toString();
         }

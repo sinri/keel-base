@@ -1,7 +1,5 @@
 package io.github.sinri.keel.base.verticles;
 
-import org.jspecify.annotations.NullMarked;
-
 /**
  * Verticle 运行状态机枚举。
  * <p>
@@ -13,7 +11,6 @@ import org.jspecify.annotations.NullMarked;
  *
  * @since 5.0.0
  */
-@NullMarked
 public enum KeelVerticleRunningStateEnum {
     BEFORE_RUNNING,
     RUNNING,

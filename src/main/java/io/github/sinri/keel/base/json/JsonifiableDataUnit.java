@@ -60,7 +60,7 @@ public interface JsonifiableDataUnit
      * @return 包含所有键值对的迭代器
      */
     @Override
-    default Iterator<Map.Entry<String, Object>> iterator() {
+    default Iterator<Map.Entry<String, @Nullable Object>> iterator() {
         return toJsonObject().iterator();
     }
 

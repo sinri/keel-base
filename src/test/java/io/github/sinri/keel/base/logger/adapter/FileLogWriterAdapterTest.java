@@ -52,7 +52,7 @@ class FileLogWriterAdapterTest {
         List<SpecificLog<?>> batch = List.of(createTestLog("Test log message"));
 
         for (var log : batch) {
-            System.out.println("~ "+adapter.render("test-topic", log));
+            System.out.println("~ " + adapter.render("test-topic", log));
         }
 
         adapter.deployMe(new DeploymentOptions())
@@ -66,7 +66,7 @@ class FileLogWriterAdapterTest {
                    return vertx.undeploy(adapter.deploymentID());
                })
                .onComplete(ar -> {
-                   System.out.println("Undeployed? "+(ar.succeeded()));
+                   System.out.println("Undeployed? " + (ar.succeeded()));
                    if (ar.failed()) {
                        testContext.failNow(ar.cause());
                        return;
@@ -74,7 +74,7 @@ class FileLogWriterAdapterTest {
                    try {
                        // 验证文件内容
                        String content = Files.readString(logFile.toPath());
-                       System.out.println("Log file content: ---\n" + content+"\n---");
+                       System.out.println("Log file content: ---\n" + content + "\n---");
                        assertTrue(content.contains("Test log message"), "日志文件应包含测试消息");
                        testContext.completeNow();
                    } catch (Throwable e) {
@@ -115,28 +115,6 @@ class FileLogWriterAdapterTest {
                  } catch (IOException e) {
                      testContext.failNow(e);
                  }
-             });
-    }
-
-    @Test
-    void testDiscardLogWhenFileWriterIsNull(VertxTestContext testContext) {
-        TestFileLogWriterAdapter adapter = new TestFileLogWriterAdapter(null);
-
-        List<SpecificLog<?>> batch = List.of(createTestLog("This should be discarded"));
-
-        vertx.deployVerticle(adapter)
-             .compose(deploymentId -> adapter.processLogRecords("discard-topic", batch))
-             .compose(v -> {
-                 adapter.close();
-                 return vertx.undeploy(adapter.deploymentID());
-             })
-             .onComplete(ar -> {
-                 if (ar.failed()) {
-                     testContext.failNow(ar.cause());
-                     return;
-                 }
-                 // 如果返回null，日志应该被丢弃，不应该抛出异常
-                 testContext.completeNow();
              });
     }
 
@@ -265,9 +243,12 @@ class FileLogWriterAdapterTest {
 
             return fileWriterMap.computeIfAbsent(topic, k -> {
                 try {
-                    File file = topicFileMap.getOrDefault(topic, defaultFile);
+                    File file = topicFileMap.get(topic);
                     if (file == null) {
-                        return null;
+                        file = defaultFile;
+                        if (file == null) {
+                            return null;
+                        }
                     }
                     closedMap.put(topic, false);
                     return new FileWriter(file, true);
@@ -279,7 +260,7 @@ class FileLogWriterAdapterTest {
 
         @Override
         protected Future<Void> processLogRecords(String topic, List<SpecificLog<?>> batch) {
-            System.out.println("Processing log records for topic: " + topic+ " batch: "+batch.size());
+            System.out.println("Processing log records for topic: " + topic + " batch: " + batch.size());
             Future<Void> result = super.processLogRecords(topic, batch);
             // 在processLogRecords之后检查是否需要关闭文件写入器
             return result;

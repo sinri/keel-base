@@ -90,6 +90,7 @@ class QueuedLogWriterAdapterUnitTest {
     /**
      * 测试用的QueuedLogWriterAdapter实现。
      */
+    @NullMarked
     private static class TestQueuedLogWriterAdapter extends QueuedLogWriterAdapter {
         private final AtomicInteger processedCount = new AtomicInteger(0);
 

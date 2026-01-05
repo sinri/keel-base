@@ -19,4 +19,14 @@ public class NotConfiguredException extends Exception {
     public NotConfiguredException(List<String> keychain) {
         super("Provided Keychain Not Configured: " + String.join(".", keychain));
     }
+
+    /**
+     * 使用指定的键链构造异常。
+     *
+     */
+    public NotConfiguredException(List<String> parentKeychain, String key) {
+        this(ConfigElement.mergeListOfKeys(parentKeychain, key));
+    }
+
+
 }

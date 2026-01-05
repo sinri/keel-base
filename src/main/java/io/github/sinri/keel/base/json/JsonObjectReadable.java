@@ -26,8 +26,7 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
      * @param <T>  返回值的类型
      * @return 从 JSON Pointer 位置读取的值，如果值不存在或无法转换为指定类型则返回 null
      */
-    @Nullable
-    <T> T read(Function<JsonPointer, Class<T>> func);
+    <T> @Nullable T read(Function<JsonPointer, Class<T>> func);
 
     /**
      * 使用指定的 JSON Pointer 参数从 JSON 结构中读取字符串值。
@@ -110,10 +109,9 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
      * @return 非空的 Long 值
      * @throws NullPointerException 如果值为 null
      */
-    default Long readLongRequired(String... args) {
+    default long readLongRequired(String... args) {
         var r = readLong(args);
-        Objects.requireNonNull(r);
-        return r;
+        return Objects.requireNonNull(r);
     }
 
     /**
@@ -137,10 +135,9 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
      * @return 非空的 Integer 值
      * @throws NullPointerException 如果值为 null
      */
-    default Integer readIntegerRequired(String... args) {
+    default int readIntegerRequired(String... args) {
         var r = readInteger(args);
-        Objects.requireNonNull(r);
-        return r;
+        return Objects.requireNonNull(r);
     }
 
     /**
@@ -164,10 +161,9 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
      * @return 非空的 Float 值
      * @throws NullPointerException 如果值为 null
      */
-    default Float readFloatRequired(String... args) {
+    default float readFloatRequired(String... args) {
         var r = readFloat(args);
-        Objects.requireNonNull(r);
-        return r;
+        return Objects.requireNonNull(r);
     }
 
     /**
@@ -191,10 +187,9 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
      * @return 非空的 Double 值
      * @throws NullPointerException 如果值为 null
      */
-    default Double readDoubleRequired(String... args) {
+    default double readDoubleRequired(String... args) {
         var r = readDouble(args);
-        Objects.requireNonNull(r);
-        return r;
+        return Objects.requireNonNull(r);
     }
 
     /**
@@ -221,10 +216,9 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
      * @return 非空的 Boolean 值
      * @throws NullPointerException 如果值为 null
      */
-    default Boolean readBooleanRequired(String... args) {
+    default boolean readBooleanRequired(String... args) {
         var r = readBoolean(args);
-        Objects.requireNonNull(r);
-        return r;
+        return Objects.requireNonNull(r);
     }
 
     /**
@@ -568,8 +562,7 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
      */
     default Object readValueRequired(String... args) {
         var r = readValue(args);
-        Objects.requireNonNull(r);
-        return r;
+        return Objects.requireNonNull(r);
     }
 
     /**
@@ -608,5 +601,5 @@ public interface JsonObjectReadable extends Iterable<Map.Entry<String, Object>> 
      * @return 包含所有键值对的迭代器
      */
     @Override
-    Iterator<Map.Entry<String, Object>> iterator();
+    Iterator<Map.Entry<String, @Nullable Object>> iterator();
 }

@@ -50,7 +50,7 @@ class ConfigElementUnitTest {
     }
 
     @Test
-    void testGetChildNames() {
+    void testTryToGetChildNames() {
         assertTrue(configElement.getChildNames().isEmpty());
 
         configElement.ensureChild("child1");
@@ -63,7 +63,7 @@ class ConfigElementUnitTest {
     }
 
     @Test
-    void testGetChildNamesReturnsUnmodifiableSet() {
+    void testTryToGetChildNamesReturnsUnmodifiableSet() {
         Set<String> childNames = configElement.getChildNames();
         assertThrows(UnsupportedOperationException.class, () -> childNames.add("newChild"));
     }
@@ -93,7 +93,7 @@ class ConfigElementUnitTest {
         configElement.addChild(child);
 
         assertTrue(configElement.getChildNames().contains("childNode"));
-        assertEquals(child, configElement.getChild("childNode"));
+        assertEquals(child, configElement.tryToGetChild("childNode"));
     }
 
     @Test
@@ -108,17 +108,17 @@ class ConfigElementUnitTest {
     }
 
     @Test
-    void testGetChild() {
+    void testTryToGetChild() {
         ConfigElement child = configElement.ensureChild("child");
-        ConfigElement retrieved = configElement.getChild("child");
+        ConfigElement retrieved = configElement.tryToGetChild("child");
 
         assertNotNull(retrieved);
         assertSame(child, retrieved);
     }
 
     @Test
-    void testGetChildReturnsNullForNonExistent() {
-        ConfigElement child = configElement.getChild("nonExistent");
+    void testTryToGetChildReturnsNullForNonExistent() {
+        ConfigElement child = configElement.tryToGetChild("nonExistent");
         assertNull(child);
     }
 
@@ -148,7 +148,7 @@ class ConfigElementUnitTest {
         assertEquals("localhost", server.getChild("host").getElementValue());
         assertEquals("8080", server.getChild("port").getElementValue());
 
-        ConfigElement database = configElement.getChild("database");
+        ConfigElement database = configElement.tryToGetChild("database");
         assertNotNull(database);
         assertEquals("jdbc:mysql://localhost", database.getChild("url").getElementValue());
     }
@@ -160,13 +160,13 @@ class ConfigElementUnitTest {
 
         configElement.loadData(properties);
 
-        ConfigElement a = configElement.getChild("a");
+        ConfigElement a = configElement.tryToGetChild("a");
         assertNotNull(a);
-        ConfigElement b = a.getChild("b");
+        ConfigElement b = a.tryToGetChild("b");
         assertNotNull(b);
-        ConfigElement c = b.getChild("c");
+        ConfigElement c = b.tryToGetChild("c");
         assertNotNull(c);
-        ConfigElement d = c.getChild("d");
+        ConfigElement d = c.tryToGetChild("d");
         assertNotNull(d);
         assertEquals("deepValue", d.getElementValue());
     }
@@ -211,9 +211,25 @@ class ConfigElementUnitTest {
     @Test
     void testTransformChildrenToPropertyList() {
         Properties properties = new Properties();
+        // 一层属性（顶层）
+        properties.setProperty("version", "1.0.0");
+        properties.setProperty("environment", "production");
+
+        // 二层属性
         properties.setProperty("server.host", "localhost");
         properties.setProperty("server.port", "8080");
         properties.setProperty("database.url", "jdbc:mysql://localhost");
+
+        // 三层属性
+        properties.setProperty("server.ssl.enabled", "true");
+        properties.setProperty("server.ssl.port", "8443");
+        properties.setProperty("database.connection.timeout", "30");
+        properties.setProperty("database.connection.maxPoolSize", "10");
+
+        // 四层属性
+        properties.setProperty("logging.handler.file.path", "/var/log/app.log");
+        properties.setProperty("logging.handler.file.maxSize", "10MB");
+        properties.setProperty("cache.redis.cluster.nodes", "localhost:6379");
 
         configElement.loadData(properties);
 
@@ -221,20 +237,56 @@ class ConfigElementUnitTest {
 
         List<ConfigProperty> propertyList = configElement.transformChildrenToPropertyList();
 
-        assertEquals(3, propertyList.size());
+        assertEquals(12, propertyList.size());
 
         // 验证属性按字典序排列
-        ConfigProperty first = propertyList.get(0);
-        assertEquals("jdbc:mysql://localhost", first.getPropertyValue());
-        assertEquals("database.url", first.getPropertyName());
+        // cache.redis.cluster.nodes
+        assertEquals("cache.redis.cluster.nodes", propertyList.get(0).getPropertyName());
+        assertEquals("localhost:6379", propertyList.get(0).getPropertyValue());
 
-        ConfigProperty second = propertyList.get(1);
-        assertEquals("localhost", second.getPropertyValue());
-        assertEquals("server.host", second.getPropertyName());
+        // database.connection.maxPoolSize
+        assertEquals("database.connection.maxPoolSize", propertyList.get(1).getPropertyName());
+        assertEquals("10", propertyList.get(1).getPropertyValue());
 
-        ConfigProperty third = propertyList.get(2);
-        assertEquals("8080", third.getPropertyValue());
-        assertEquals("server.port", third.getPropertyName());
+        // database.connection.timeout
+        assertEquals("database.connection.timeout", propertyList.get(2).getPropertyName());
+        assertEquals("30", propertyList.get(2).getPropertyValue());
+
+        // database.url
+        assertEquals("database.url", propertyList.get(3).getPropertyName());
+        assertEquals("jdbc:mysql://localhost", propertyList.get(3).getPropertyValue());
+
+        // environment
+        assertEquals("environment", propertyList.get(4).getPropertyName());
+        assertEquals("production", propertyList.get(4).getPropertyValue());
+
+        // logging.handler.file.maxSize
+        assertEquals("logging.handler.file.maxSize", propertyList.get(5).getPropertyName());
+        assertEquals("10MB", propertyList.get(5).getPropertyValue());
+
+        // logging.handler.file.path
+        assertEquals("logging.handler.file.path", propertyList.get(6).getPropertyName());
+        assertEquals("/var/log/app.log", propertyList.get(6).getPropertyValue());
+
+        // server.host
+        assertEquals("server.host", propertyList.get(7).getPropertyName());
+        assertEquals("localhost", propertyList.get(7).getPropertyValue());
+
+        // server.port
+        assertEquals("server.port", propertyList.get(8).getPropertyName());
+        assertEquals("8080", propertyList.get(8).getPropertyValue());
+
+        // server.ssl.enabled
+        assertEquals("server.ssl.enabled", propertyList.get(9).getPropertyName());
+        assertEquals("true", propertyList.get(9).getPropertyValue());
+
+        // server.ssl.port
+        assertEquals("server.ssl.port", propertyList.get(10).getPropertyName());
+        assertEquals("8443", propertyList.get(10).getPropertyValue());
+
+        // version
+        assertEquals("version", propertyList.get(11).getPropertyName());
+        assertEquals("1.0.0", propertyList.get(11).getPropertyValue());
     }
 
     @Test

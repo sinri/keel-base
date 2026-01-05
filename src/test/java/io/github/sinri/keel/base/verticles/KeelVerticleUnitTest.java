@@ -53,7 +53,7 @@ public class KeelVerticleUnitTest {
         verticle.deployMe(new DeploymentOptions())
                 .compose(deploymentId -> {
                     // Try to deploy again - should throw exception
-                    assertThrows(IllegalStateException.class, () -> {
+                    assertThrows(KeelVerticle.UnexpectedVerticleRunningState.class, () -> {
                         verticle.deployMe(new DeploymentOptions());
                     });
                     return verticle.undeployMe();
@@ -86,7 +86,7 @@ public class KeelVerticleUnitTest {
     void testUndeployMeNotDeployed() {
         TestKeelVerticle verticle = new TestKeelVerticle();
 
-        assertThrows(IllegalStateException.class, () -> {
+        assertThrows(KeelVerticle.UnexpectedVerticleRunningState.class, () -> {
             verticle.undeployMe();
         });
     }
@@ -130,7 +130,13 @@ public class KeelVerticleUnitTest {
                 .compose(deploymentId -> {
                     String identity = verticle.verticleIdentity();
                     assertNotNull(identity);
-                    assertTrue(identity.startsWith("my-verticle@"));
+                    // 格式应该是: my-verticle@{deploymentId}:{uuid}
+                    assertTrue(identity.contains("my-verticle@"));
+                    assertTrue(identity.contains(":"));
+                    String[] parts = identity.split(":");
+                    assertEquals(2, parts.length);
+                    assertTrue(parts[0].startsWith("my-verticle@"));
+                    assertFalse(parts[1].isEmpty());
                     return verticle.undeployMe();
                 })
                 .onComplete(ar -> {
@@ -150,12 +156,127 @@ public class KeelVerticleUnitTest {
                 .compose(deploymentId -> {
                     String identity = verticle.verticleIdentity();
                     assertNotNull(identity);
+                    // 格式应该是: {className}@{deploymentId}:{uuid}
                     assertTrue(identity.contains(TestKeelVerticle.class.getName()));
                     assertTrue(identity.contains("@"));
+                    assertTrue(identity.contains(":"));
+                    String[] parts = identity.split(":");
+                    assertEquals(2, parts.length);
+                    assertFalse(parts[1].isEmpty());
                     return verticle.undeployMe();
                 })
                 .onComplete(ar -> {
                     if (ar.succeeded()) {
+                        testContext.completeNow();
+                    } else {
+                        testContext.failNow(ar.cause());
+                    }
+                });
+    }
+
+    @Test
+    void testGetVerticleInfoBeforeDeployment() {
+        TestKeelVerticle verticle = new TestKeelVerticle();
+        assertThrows(KeelVerticle.UnexpectedVerticleRunningState.class, verticle::getVerticleInfo);
+    }
+
+    @Test
+    void testUndeployMeAfterAlreadyUndeployed(VertxTestContext testContext) {
+        TestKeelVerticle verticle = new TestKeelVerticle();
+
+        verticle.deployMe(new DeploymentOptions())
+                .compose(deploymentId -> verticle.undeployMe())
+                .compose(v -> {
+                    // 尝试再次解除部署应该失败
+                    return verticle.undeployMe();
+                })
+                .onComplete(ar -> {
+                    if (ar.failed()) {
+                        // 预期失败，因为已经解除部署
+                        testContext.completeNow();
+                    } else {
+                        testContext.failNow(new AssertionError("Should have failed when undeploying already undeployed verticle"));
+                    }
+                });
+    }
+
+    @Test
+    void testDeployMeWithCustomThreadingModel(VertxTestContext testContext) {
+        // 如果当前 JDK 版本小于 21，则跳过测试
+        String version = System.getProperty("java.version");
+        int majorVersion;
+        if (version.startsWith("1.")) {
+            majorVersion = Integer.parseInt(version.substring(2, 3));
+        } else {
+            int dotPos = version.indexOf(".");
+            majorVersion = dotPos != -1 ? Integer.parseInt(version.substring(0, dotPos)) : Integer.parseInt(version);
+        }
+        if (majorVersion < 21) {
+            testContext.completeNow();
+            return;
+        }
+
+        DeploymentOptions options = new DeploymentOptions()
+                .setThreadingModel(io.vertx.core.ThreadingModel.VIRTUAL_THREAD);
+
+        TestKeelVerticle verticle = new TestKeelVerticle();
+
+        verticle.deployMe(options)
+                .compose(deploymentId -> {
+                    assertEquals(io.vertx.core.ThreadingModel.VIRTUAL_THREAD, verticle.contextThreadModel());
+                    return verticle.undeployMe();
+                })
+                .onComplete(ar -> {
+                    if (ar.succeeded()) {
+                        testContext.completeNow();
+                    } else {
+                        testContext.failNow(ar.cause());
+                    }
+                });
+    }
+
+    @Test
+    void testGetKeel(VertxTestContext testContext) {
+        TestKeelVerticle verticle = new TestKeelVerticle();
+
+        // 在部署前后都应该能获取 Keel 实例
+        assertNotNull(verticle.getKeel());
+        assertEquals(KeelSampleImpl.Keel, verticle.getKeel());
+
+        verticle.deployMe(new DeploymentOptions())
+                .compose(deploymentId -> {
+                    assertNotNull(verticle.getKeel());
+                    assertEquals(KeelSampleImpl.Keel, verticle.getKeel());
+                    return verticle.undeployMe();
+                })
+                .onComplete(ar -> {
+                    if (ar.succeeded()) {
+                        assertNotNull(verticle.getKeel());
+                        assertEquals(KeelSampleImpl.Keel, verticle.getKeel());
+                        testContext.completeNow();
+                    } else {
+                        testContext.failNow(ar.cause());
+                    }
+                });
+    }
+
+    @Test
+    void testGetRunningState(VertxTestContext testContext) {
+        TestKeelVerticle verticle = new TestKeelVerticle();
+
+        // 初始状态
+        assertEquals(KeelVerticleRunningStateEnum.BEFORE_RUNNING, verticle.getRunningState());
+
+        verticle.deployMe(new DeploymentOptions())
+                .compose(deploymentId -> {
+                    // 运行状态
+                    assertEquals(KeelVerticleRunningStateEnum.RUNNING, verticle.getRunningState());
+                    return verticle.undeployMe();
+                })
+                .onComplete(ar -> {
+                    if (ar.succeeded()) {
+                        // 停止后状态
+                        assertEquals(KeelVerticleRunningStateEnum.AFTER_RUNNING, verticle.getRunningState());
                         testContext.completeNow();
                     } else {
                         testContext.failNow(ar.cause());

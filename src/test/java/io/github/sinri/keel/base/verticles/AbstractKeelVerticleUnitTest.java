@@ -21,8 +21,9 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 @ExtendWith(VertxExtension.class)
 @NullMarked
+@SuppressWarnings("NullAway")
 public class AbstractKeelVerticleUnitTest {
-    private Vertx vertx;
+    private Vertx vertx; // Initialized by @BeforeEach
 
     @BeforeEach
     void setUp(Vertx vertx, VertxTestContext testContext) {
@@ -57,7 +58,7 @@ public class AbstractKeelVerticleUnitTest {
         TestKeelVerticle verticle = new TestKeelVerticle();
 
         // Before deployment, should return Keel's vertx
-        assertEquals(vertx, verticle.getVertx());
+        assertThrows(KeelVerticle.UnexpectedVerticleRunningState.class, verticle::getVertx);
 
         vertx.deployVerticle(verticle)
              .compose(deploymentId -> {
@@ -90,11 +91,10 @@ public class AbstractKeelVerticleUnitTest {
             return;
         }
 
-
         TestKeelVerticle verticle = new TestKeelVerticle();
 
-        // Before deployment, should return null
-        assertNull(verticle.contextThreadModel());
+        // Before deployment, should throw exception
+        assertThrows(KeelVerticle.UnexpectedVerticleRunningState.class, verticle::contextThreadModel);
 
         DeploymentOptions options = new DeploymentOptions()
                 .setThreadingModel(io.vertx.core.ThreadingModel.VIRTUAL_THREAD);
@@ -121,8 +121,8 @@ public class AbstractKeelVerticleUnitTest {
 
         TestKeelVerticle verticle = new TestKeelVerticle();
 
-        // Before deployment, should return null
-        assertNull(verticle.config());
+        // Before deployment, should throw exception
+        assertThrows(KeelVerticle.UnexpectedVerticleRunningState.class, verticle::config);
 
         vertx.deployVerticle(verticle, options)
              .compose(deploymentId -> {
@@ -151,8 +151,14 @@ public class AbstractKeelVerticleUnitTest {
              .compose(deploymentId -> {
                  String identity = verticle.verticleIdentity();
                  assertNotNull(identity);
-                 assertTrue(identity.contains("custom-identity"));
+                 // 格式应该是: custom-identity@{deploymentId}:{uuid}
+                 assertTrue(identity.contains("custom-identity@"));
                  assertTrue(identity.contains(":"));
+                 // 验证包含两个部分：标记@部署ID 和 UUID
+                 String[] parts = identity.split(":");
+                 assertEquals(2, parts.length);
+                 assertTrue(parts[0].startsWith("custom-identity@"));
+                 assertFalse(parts[1].isEmpty()); // UUID 部分
                  return vertx.undeploy(deploymentId);
              })
              .onComplete(ar -> {
@@ -172,8 +178,14 @@ public class AbstractKeelVerticleUnitTest {
              .compose(deploymentId -> {
                  String identity = verticle.verticleIdentity();
                  assertNotNull(identity);
+                 // 格式应该是: {className}@{deploymentId}:{uuid}
                  assertTrue(identity.contains(TestKeelVerticle.class.getName()));
+                 assertTrue(identity.contains("@"));
                  assertTrue(identity.contains(":"));
+                 // 验证包含两个部分：类名@部署ID 和 UUID
+                 String[] parts = identity.split(":");
+                 assertEquals(2, parts.length);
+                 assertFalse(parts[1].isEmpty()); // UUID 部分
                  return vertx.undeploy(deploymentId);
              })
              .onComplete(ar -> {
@@ -212,6 +224,96 @@ public class AbstractKeelVerticleUnitTest {
         assertEquals(KeelVerticleRunningStateEnum.BEFORE_RUNNING, verticle.getRunningState());
     }
 
+    @Test
+    void testStopVerticle(VertxTestContext testContext) {
+        TestKeelVerticleWithStop verticle = new TestKeelVerticleWithStop();
+
+        vertx.deployVerticle(verticle)
+             .compose(deploymentId -> {
+                 assertEquals(KeelVerticleRunningStateEnum.RUNNING, verticle.getRunningState());
+                 assertFalse(verticle.isStopCalled());
+                 return vertx.undeploy(deploymentId);
+             })
+             .onComplete(ar -> {
+                 if (ar.succeeded()) {
+                     assertEquals(KeelVerticleRunningStateEnum.AFTER_RUNNING, verticle.getRunningState());
+                     assertTrue(verticle.isStopCalled());
+                     testContext.completeNow();
+                 } else {
+                     testContext.failNow(ar.cause());
+                 }
+             });
+    }
+
+    @Test
+    void testStopVerticleWithFailure(VertxTestContext testContext) {
+        TestKeelVerticleWithStopFailure verticle = new TestKeelVerticleWithStopFailure();
+
+        vertx.deployVerticle(verticle)
+             .compose(deploymentId -> vertx.undeploy(deploymentId))
+             .onComplete(ar -> {
+                 if (ar.succeeded()) {
+                     // 即使 stopVerticle 失败，undeploy 仍然会完成
+                     assertEquals(KeelVerticleRunningStateEnum.AFTER_RUNNING, verticle.getRunningState());
+                     testContext.completeNow();
+                 } else {
+                     testContext.failNow(ar.cause());
+                 }
+             });
+    }
+
+    @Test
+    void testGetVertxBeforeDeployment() {
+        TestKeelVerticle verticle = new TestKeelVerticle();
+        assertThrows(KeelVerticle.UnexpectedVerticleRunningState.class, verticle::getVertx);
+    }
+
+    @Test
+    void testContextThreadModelBeforeDeployment() {
+        TestKeelVerticle verticle = new TestKeelVerticle();
+        assertThrows(KeelVerticle.UnexpectedVerticleRunningState.class, verticle::contextThreadModel);
+    }
+
+    @Test
+    void testDeploymentIdBeforeDeployment() {
+        TestKeelVerticle verticle = new TestKeelVerticle();
+        assertThrows(KeelVerticle.UnexpectedVerticleRunningState.class, verticle::deploymentID);
+    }
+
+    @Test
+    void testConfigBeforeDeployment() {
+        TestKeelVerticle verticle = new TestKeelVerticle();
+        assertThrows(KeelVerticle.UnexpectedVerticleRunningState.class, verticle::config);
+    }
+
+    @Test
+    void testVerticleIdentityBeforeDeployment() {
+        TestKeelVerticle verticle = new TestKeelVerticle();
+        assertThrows(KeelVerticle.UnexpectedVerticleRunningState.class, verticle::verticleIdentity);
+    }
+
+    @Test
+    void testRunningFailedState(VertxTestContext testContext) {
+        TestKeelVerticle verticle = new TestKeelVerticle() {
+            @Override
+            protected Future<Void> startVerticle() {
+                return Future.failedFuture(new RuntimeException("Start failure"));
+            }
+        };
+
+        assertEquals(KeelVerticleRunningStateEnum.BEFORE_RUNNING, verticle.getRunningState());
+
+        vertx.deployVerticle(verticle)
+             .onComplete(ar -> {
+                 if (ar.failed()) {
+                     assertEquals(KeelVerticleRunningStateEnum.RUNNING_FAILED, verticle.getRunningState());
+                     testContext.completeNow();
+                 } else {
+                     testContext.failNow(new AssertionError("Should have failed"));
+                 }
+             });
+    }
+
     /**
      * 测试用的KeelVerticle实现。
      */
@@ -223,6 +325,51 @@ public class AbstractKeelVerticleUnitTest {
         @Override
         protected Future<Void> startVerticle() {
             return Future.succeededFuture();
+        }
+    }
+
+    /**
+     * 测试 stopVerticle 方法的 Verticle 实现。
+     */
+    private static class TestKeelVerticleWithStop extends AbstractKeelVerticle {
+        private boolean stopCalled = false;
+
+        TestKeelVerticleWithStop() {
+            super(KeelSampleImpl.Keel);
+        }
+
+        @Override
+        protected Future<Void> startVerticle() {
+            return Future.succeededFuture();
+        }
+
+        @Override
+        protected Future<Void> stopVerticle() {
+            stopCalled = true;
+            return Future.succeededFuture();
+        }
+
+        public boolean isStopCalled() {
+            return stopCalled;
+        }
+    }
+
+    /**
+     * 测试 stopVerticle 失败的 Verticle 实现。
+     */
+    private static class TestKeelVerticleWithStopFailure extends AbstractKeelVerticle {
+        TestKeelVerticleWithStopFailure() {
+            super(KeelSampleImpl.Keel);
+        }
+
+        @Override
+        protected Future<Void> startVerticle() {
+            return Future.succeededFuture();
+        }
+
+        @Override
+        protected Future<Void> stopVerticle() {
+            return Future.failedFuture(new RuntimeException("Stop failure"));
         }
     }
 }
