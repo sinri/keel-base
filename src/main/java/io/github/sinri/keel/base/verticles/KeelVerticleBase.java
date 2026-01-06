@@ -1,21 +1,20 @@
 package io.github.sinri.keel.base.verticles;
 
 import io.github.sinri.keel.base.Keel;
+import io.github.sinri.keel.logger.api.LateObject;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Future;
 import io.vertx.core.VerticleBase;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import org.jspecify.annotations.NullMarked;
-import org.jspecify.annotations.Nullable;
 
-import java.util.Objects;
 import java.util.function.Function;
 
 @NullMarked
 abstract public class KeelVerticleBase extends VerticleBase {
+    private final LateObject<Keel> lateKeel = new LateObject<>();
     private KeelVerticleRunningStateEnum runningState;
-    private @Nullable Keel keel;
 
     public KeelVerticleBase() {
         this.runningState = KeelVerticleRunningStateEnum.BEFORE_RUNNING;
@@ -127,14 +126,15 @@ abstract public class KeelVerticleBase extends VerticleBase {
     }
 
     protected final Keel getKeel() {
-        Vertx mappedVertx = getVertx();
-        if (keel == null) {
-            synchronized (this) {
-                if (keel == null) {
-                    keel = Keel.wrap(mappedVertx);
-                }
-            }
-        }
-        return Objects.requireNonNull(keel);
+        return lateKeel.ensure(() -> Keel.wrap(getVertx()));
+        //        Vertx mappedVertx = getVertx();
+        //        if (keel == null) {
+        //            synchronized (this) {
+        //                if (keel == null) {
+        //                    keel = Keel.wrap(mappedVertx);
+        //                }
+        //            }
+        //        }
+        //        return Objects.requireNonNull(keel);
     }
 }

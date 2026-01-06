@@ -14,9 +14,9 @@ import java.util.Objects;
 public class TestFileLogWriter extends FileLogWriterAdapter {
     private final String logDir;
 
-    public TestFileLogWriter(Keel keel) {
-        super(keel);
-        this.logDir = Objects.requireNonNull(keel.getConfiguration().readString("log_dir"));
+    public TestFileLogWriter() {
+        super();
+        this.logDir = Objects.requireNonNull(Keel.SHARED_CONFIGURATION.readString("log_dir"));
     }
 
     @Override

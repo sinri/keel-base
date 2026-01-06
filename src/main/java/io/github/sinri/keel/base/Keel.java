@@ -3,7 +3,7 @@ package io.github.sinri.keel.base;
 
 import io.github.sinri.keel.base.async.KeelAsyncMixin;
 import io.github.sinri.keel.base.configuration.ConfigElement;
-import io.github.sinri.keel.logger.api.factory.BaseLoggerFactory;
+import io.github.sinri.keel.base.logger.factory.StdoutLoggerFactory;
 import io.github.sinri.keel.logger.api.factory.LoggerFactory;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicReference;
 @NullMarked
 public interface Keel extends KeelAsyncMixin {
     ConfigElement SHARED_CONFIGURATION = new ConfigElement("");
-    AtomicReference<LoggerFactory> SHARED_LOGGER_FACTORY_REF = new AtomicReference<>(BaseLoggerFactory.getInstance());
+    AtomicReference<LoggerFactory> SHARED_LOGGER_FACTORY_REF = new AtomicReference<>(StdoutLoggerFactory.getInstance());
 
     static Keel wrap(Vertx vertx) {
         return () -> vertx;

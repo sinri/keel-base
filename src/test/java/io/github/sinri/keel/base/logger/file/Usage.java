@@ -14,7 +14,7 @@ public class Usage {
         KeelSampleImpl.Keel.getConfiguration()
                            .loadData(ConfigElement.loadLocalPropertiesFile("config.properties", StandardCharsets.UTF_8));
 
-        TestFileLoggerFactory loggerFactory = new TestFileLoggerFactory(KeelSampleImpl.Keel);
+        TestFileLoggerFactory loggerFactory = new TestFileLoggerFactory(KeelSampleImpl.Keel.getVertx());
         Logger logger = loggerFactory.createLogger("test");
         logger.info("hello world");
 

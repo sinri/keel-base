@@ -1,7 +1,5 @@
 package io.github.sinri.keel.base;
 
-import io.github.sinri.keel.base.configuration.ConfigElement;
-import io.github.sinri.keel.base.logger.factory.StdoutLoggerFactory;
 import io.github.sinri.keel.logger.api.factory.LoggerFactory;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
@@ -21,6 +19,11 @@ import java.util.Objects;
 @NullMarked
 public final class KeelSampleImpl implements Keel {
 
+    /**
+     * 测试用的单例 Keel 实例。
+     */
+    public static final KeelSampleImpl Keel = new KeelSampleImpl();
+
     static {
         String loggingProperty = System.getProperty("vertx.logger-delegate-factory-class-name");
         if (loggingProperty == null) {
@@ -30,42 +33,15 @@ public final class KeelSampleImpl implements Keel {
         }
     }
 
-    /**
-     * 测试用的单例 Keel 实例。
-     */
-    public static final KeelSampleImpl Keel = new KeelSampleImpl();
-
-    private final ConfigElement configuration;
     @Nullable
     private Vertx vertx;
-    private LoggerFactory loggerFactory;
 
     /**
      * 私有构造函数，用于创建单例实例。
      * <p>
      * 初始化配置树和默认的日志工厂。
      */
-    public KeelSampleImpl() {
-        this.configuration = new ConfigElement("");
-        this.loggerFactory = StdoutLoggerFactory.getInstance();
-    }
-
-    /**
-     * 获取配置树。
-     *
-     * @return 配置树实例
-     */
-    public ConfigElement getConfiguration() {
-        return configuration;
-    }
-
-    /**
-     * 获取日志工厂。
-     *
-     * @return 当前使用的日志工厂实例
-     */
-    public LoggerFactory getLoggerFactory() {
-        return loggerFactory;
+    private KeelSampleImpl() {
     }
 
     /**
@@ -74,7 +50,7 @@ public final class KeelSampleImpl implements Keel {
      * @param loggerFactory 要设置的日志工厂
      */
     public void setLoggerFactory(LoggerFactory loggerFactory) {
-        this.loggerFactory = loggerFactory;
+        SHARED_LOGGER_FACTORY_REF.set(loggerFactory);
     }
 
     /**
@@ -178,15 +154,6 @@ public final class KeelSampleImpl implements Keel {
             this.vertx.close();
         }
         this.vertx = vertx;
-    }
-
-    /**
-     * 检查当前是否运行在 Vert.x 集群模式中。
-     *
-     * @return 如果运行在集群模式中则返回 true，否则返回 false
-     */
-    public boolean isRunningInVertxCluster() {
-        return getVertx().isClustered();
     }
 
     /**

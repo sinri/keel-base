@@ -1,15 +1,17 @@
 package io.github.sinri.keel.base.logger.adapter;
 
 import io.github.sinri.keel.base.KeelSampleImpl;
+import io.github.sinri.keel.logger.api.log.Log;
 import io.github.sinri.keel.logger.api.log.SpecificLog;
+import io.github.sinri.keel.logger.api.logger.Logger;
 import io.vertx.core.DeploymentOptions;
-import io.vertx.core.Future;
-import io.vertx.core.Promise;
+import io.vertx.core.ThreadingModel;
 import io.vertx.core.Vertx;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,7 +25,9 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -32,258 +36,262 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @since 5.0.0
  */
 @ExtendWith(VertxExtension.class)
+@NullMarked
 class FileLogWriterAdapterTest {
-    private Vertx vertx;
+
+    @TempDir
+    Path tempDir;
+
+    private KeelSampleImpl keel;
+    private TestFileLogWriterAdapter adapter;
+    private TestLoggerFactory loggerFactory;
 
     @BeforeEach
     void setUp(Vertx vertx, VertxTestContext testContext) {
-        this.vertx = vertx;
-        KeelSampleImpl.Keel.initializeVertx(vertx);
+        keel = KeelSampleImpl.Keel;
+        keel.initializeVertx(vertx);
+
+        adapter = new TestFileLogWriterAdapter(tempDir);
+        loggerFactory = new TestLoggerFactory(adapter);
+
+        adapter.deployMe(
+                vertx,
+                new DeploymentOptions().setThreadingModel(ThreadingModel.WORKER)
+        ).onComplete(testContext.succeedingThenComplete());
+    }
+
+    @AfterEach
+    void tearDown(VertxTestContext testContext) throws IOException {
+        adapter.close();
+        adapter.undeployMe()
+               .onComplete(ar -> testContext.completeNow());
+    }
+
+    /**
+     * 测试写入单个日志记录到文件。
+     * <p>
+     * 验证日志是否正确写入文件。
+     */
+    @Test
+    void testWriteSingleLogRecord(VertxTestContext testContext) throws Throwable {
+        String topic = "test-topic";
+        Logger logger = loggerFactory.createLogger(topic);
+        logger.info("Test log message");
+
+        testContext.awaitCompletion(3, TimeUnit.SECONDS);
+
+        Path logFile = tempDir.resolve(topic + ".log");
+        assertTrue(Files.exists(logFile), "Log file should exist");
+
+        List<String> lines = Files.readAllLines(logFile);
+        assertFalse(lines.isEmpty(), "Log file should not be empty");
+
+        boolean found = lines.stream()
+                             .anyMatch(line -> line.contains("Test log message"));
+        assertTrue(found, "Log message should be found in the file");
+
         testContext.completeNow();
     }
 
+    /**
+     * 测试写入多个日志记录到同一个文件。
+     * <p>
+     * 验证多条日志是否都正确写入文件。
+     */
     @Test
-    void testWriteLogToFile(@TempDir Path tempDir, VertxTestContext testContext) throws IOException {
-        File logFile = tempDir.resolve("test.log").toFile();
-        System.out.println("Log file: " + logFile.getAbsolutePath());
-        TestFileLogWriterAdapter adapter = new TestFileLogWriterAdapter(logFile);
+    void testWriteMultipleLogRecordsToSameTopic(VertxTestContext testContext) throws Throwable {
+        String topic = "multi-test";
+        Logger logger = loggerFactory.createLogger(topic);
 
-        // 直接测试 processLogRecords 方法
-        List<SpecificLog<?>> batch = List.of(createTestLog("Test log message"));
-
-        for (var log : batch) {
-            System.out.println("~ " + adapter.render("test-topic", log));
+        for (int i = 1; i <= 5; i++) {
+            logger.info("Log message " + i);
         }
 
-        adapter.deployMe(new DeploymentOptions())
-               .compose(deploymentId -> adapter.processLogRecords("test-topic", batch))
-               .compose(v -> {
-                   System.out.println("Sleeping 1 second...");
-                   return KeelSampleImpl.Keel.asyncSleep(1000L);
-               })
-               .compose(v -> {
-                   adapter.close();
-                   return vertx.undeploy(adapter.deploymentID());
-               })
-               .onComplete(ar -> {
-                   System.out.println("Undeployed? " + (ar.succeeded()));
-                   if (ar.failed()) {
-                       testContext.failNow(ar.cause());
-                       return;
-                   }
-                   try {
-                       // 验证文件内容
-                       String content = Files.readString(logFile.toPath());
-                       System.out.println("Log file content: ---\n" + content + "\n---");
-                       assertTrue(content.contains("Test log message"), "日志文件应包含测试消息");
-                       testContext.completeNow();
-                   } catch (Throwable e) {
-                       testContext.failNow(e);
-                   }
-               });
-    }
+        testContext.awaitCompletion(3, TimeUnit.SECONDS);
 
-    @Test
-    void testMultipleTopics(@TempDir Path tempDir, VertxTestContext testContext) throws IOException {
-        File logFile1 = tempDir.resolve("topic1.log").toFile();
-        File logFile2 = tempDir.resolve("topic2.log").toFile();
-        TestFileLogWriterAdapter adapter = new TestFileLogWriterAdapter(logFile1, logFile2);
+        Path logFile = tempDir.resolve(topic + ".log");
+        assertTrue(Files.exists(logFile), "Log file should exist");
 
-        List<SpecificLog<?>> batch1 = List.of(createTestLog("Topic 1 message"));
-        List<SpecificLog<?>> batch2 = List.of(createTestLog("Topic 2 message"));
+        List<String> lines = Files.readAllLines(logFile);
+        assertFalse(lines.isEmpty(), "Log file should not be empty");
 
-        vertx.deployVerticle(adapter)
-             .compose(deploymentId -> {
-                 return adapter.processLogRecords("topic1", batch1)
-                               .compose(v -> adapter.processLogRecords("topic2", batch2));
-             })
-             .compose(v -> {
-                 adapter.close();
-                 return vertx.undeploy(adapter.deploymentID());
-             })
-             .onComplete(ar -> {
-                 if (ar.failed()) {
-                     testContext.failNow(ar.cause());
-                     return;
-                 }
-                 try {
-                     String content1 = Files.readString(logFile1.toPath());
-                     String content2 = Files.readString(logFile2.toPath());
-                     assertTrue(content1.contains("Topic 1 message"), "topic1日志文件应包含相应消息");
-                     assertTrue(content2.contains("Topic 2 message"), "topic2日志文件应包含相应消息");
-                     testContext.completeNow();
-                 } catch (IOException e) {
-                     testContext.failNow(e);
-                 }
-             });
-    }
-
-    @Test
-    void testMultipleLogsInBatch(@TempDir Path tempDir, VertxTestContext testContext) throws IOException {
-        File logFile = tempDir.resolve("batch.log").toFile();
-        TestFileLogWriterAdapter adapter = new TestFileLogWriterAdapter(logFile);
-
-        List<SpecificLog<?>> batch = List.of(
-                createTestLog("Log 1"),
-                createTestLog("Log 2"),
-                createTestLog("Log 3")
-        );
-
-        vertx.deployVerticle(adapter)
-             .compose(deploymentId -> adapter.processLogRecords("batch-topic", batch))
-             .compose(v -> {
-                 adapter.close();
-                 return vertx.undeploy(adapter.deploymentID());
-             })
-             .onComplete(ar -> {
-                 if (ar.failed()) {
-                     testContext.failNow(ar.cause());
-                     return;
-                 }
-                 try {
-                     String content = Files.readString(logFile.toPath());
-                     assertTrue(content.contains("Log 1"), "应包含Log 1");
-                     assertTrue(content.contains("Log 2"), "应包含Log 2");
-                     assertTrue(content.contains("Log 3"), "应包含Log 3");
-                     testContext.completeNow();
-                 } catch (IOException e) {
-                     testContext.failNow(e);
-                 }
-             });
-    }
-
-    @Test
-    void testCloseClosesFileWriters(@TempDir Path tempDir, VertxTestContext testContext) throws IOException {
-        File logFile = tempDir.resolve("close-test.log").toFile();
-        TestFileLogWriterAdapter adapter = new TestFileLogWriterAdapter(logFile);
-
-        List<SpecificLog<?>> batch = List.of(createTestLog("Test message"));
-
-        vertx.deployVerticle(adapter)
-             .compose(deploymentId -> {
-                 // 保存 deploymentId，因为 close() 后可能会自动 undeploy
-                 String savedDeploymentId = deploymentId;
-                 return adapter.processLogRecords("close-topic", batch)
-                               .compose(v -> {
-                                   adapter.close();
-                                   // 等待关闭完成
-                                   Promise<Void> promise = Promise.promise();
-                                   vertx.setTimer(200, id -> promise.complete());
-                                   return promise.future();
-                               })
-                               .compose(v -> {
-                                   // 尝试 undeploy，如果已经 undeploy 则忽略错误
-                                   return vertx.undeploy(savedDeploymentId)
-                                               .recover(throwable -> {
-                                                   // 如果 deployment 不存在，忽略错误
-                                                   if (throwable.getMessage() != null && throwable.getMessage()
-                                                                                                  .contains("Unknown deployment")) {
-                                                       return Future.succeededFuture();
-                                                   }
-                                                   return Future.failedFuture(throwable);
-                                               });
-                               });
-             })
-             .onComplete(ar -> {
-                 if (ar.failed()) {
-                     testContext.failNow(ar.cause());
-                     return;
-                 }
-                 // 验证文件写入器已关闭
-                 assertTrue(adapter.isFileWriterClosed("close-topic"), "文件写入器应该已关闭");
-                 testContext.completeNow();
-             });
-    }
-
-    /**
-     * 创建测试用的SpecificLog对象。
-     */
-    private SpecificLog<?> createTestLog(String message) {
-        return new TestSpecificLog(message);
-    }
-
-    /**
-     * 测试用的SpecificLog实现类。
-     */
-    private static class TestSpecificLog extends SpecificLog<TestSpecificLog> {
-
-        TestSpecificLog(String message) {
-            super();
-            this.message(message);
+        for (int i = 1; i <= 5; i++) {
+            final int index = i;
+            boolean found = lines.stream()
+                                 .anyMatch(line -> line.contains("Log message " + index));
+            assertTrue(found, "Log message " + i + " should be found in the file");
         }
+
+        testContext.completeNow();
     }
 
     /**
-     * 测试用的FileLogWriterAdapter实现。
+     * 测试写入日志到不同的主题。
+     * <p>
+     * 验证不同主题的日志是否写入到不同的文件。
      */
-    @NullMarked
+    @Test
+    void testWriteLogsToDifferentTopics(VertxTestContext testContext) throws Throwable {
+        String topic1 = "topic1";
+        String topic2 = "topic2";
+
+        Logger logger1 = loggerFactory.createLogger(topic1);
+        Logger logger2 = loggerFactory.createLogger(topic2);
+
+        logger1.info("Message for topic1");
+        logger2.info("Message for topic2");
+
+        testContext.awaitCompletion(3, TimeUnit.SECONDS);
+
+        Path logFile1 = tempDir.resolve(topic1 + ".log");
+        Path logFile2 = tempDir.resolve(topic2 + ".log");
+
+        assertTrue(Files.exists(logFile1), "Log file 1 should exist");
+        assertTrue(Files.exists(logFile2), "Log file 2 should exist");
+
+        List<String> lines1 = Files.readAllLines(logFile1);
+        List<String> lines2 = Files.readAllLines(logFile2);
+
+        boolean found1 = lines1.stream()
+                               .anyMatch(line -> line.contains("Message for topic1"));
+        assertTrue(found1, "Topic1 message should be in file 1");
+
+        boolean found2 = lines2.stream()
+                               .anyMatch(line -> line.contains("Message for topic2"));
+        assertTrue(found2, "Topic2 message should be in file 2");
+
+        testContext.completeNow();
+    }
+
+    /**
+     * 测试当getFileWriterForTopic返回null时，日志应被丢弃。
+     * <p>
+     * 验证返回null的主题不会创建日志文件。
+     */
+    @Test
+    void testDiscardLogsWhenFileWriterIsNull(VertxTestContext testContext) throws Throwable {
+        String nullTopic = "null-topic";
+        Logger logger = loggerFactory.createLogger(nullTopic);
+        logger.info("This should be discarded");
+
+        testContext.awaitCompletion(3, TimeUnit.SECONDS);
+
+        Path logFile = tempDir.resolve(nullTopic + ".log");
+        assertFalse(Files.exists(logFile), "Log file should not exist for null-topic");
+
+        testContext.completeNow();
+    }
+
+    /**
+     * 测试日志记录的渲染功能。
+     * <p>
+     * 验证render方法是否被正确调用并格式化日志内容。
+     */
+    @Test
+    void testLogRendering(VertxTestContext testContext) throws Throwable {
+        String topic = "render-test";
+        Logger logger = loggerFactory.createLogger(topic);
+        logger.info("Test rendering");
+
+        testContext.awaitCompletion(3, TimeUnit.SECONDS);
+
+        Path logFile = tempDir.resolve(topic + ".log");
+        assertTrue(Files.exists(logFile), "Log file should exist");
+
+        List<String> lines = Files.readAllLines(logFile);
+        assertFalse(lines.isEmpty(), "Log file should not be empty");
+
+        boolean found = lines.stream()
+                             .anyMatch(line -> line.contains("[render-test]") && line.contains("Test rendering"));
+        assertTrue(found, "Rendered log should contain topic and message");
+
+        testContext.completeNow();
+    }
+
+    /**
+     * 测试直接通过accept方法写入日志。
+     * <p>
+     * 验证adapter的accept方法可以直接接收SpecificLog并写入文件。
+     */
+    @Test
+    void testDirectAccept(VertxTestContext testContext) throws Throwable {
+        String topic = "direct-test";
+        Log log = new Log();
+        log.message("Direct accept test");
+
+        adapter.accept(topic, log);
+
+        testContext.awaitCompletion(3, TimeUnit.SECONDS);
+
+        Path logFile = tempDir.resolve(topic + ".log");
+        assertTrue(Files.exists(logFile), "Log file should exist");
+
+        List<String> lines = Files.readAllLines(logFile);
+        assertFalse(lines.isEmpty(), "Log file should not be empty");
+
+        boolean found = lines.stream()
+                             .anyMatch(line -> line.contains("Direct accept test"));
+        assertTrue(found, "Direct accept message should be found in the file");
+
+        testContext.completeNow();
+    }
+
+    /**
+     * 测试用的 FileLogWriterAdapter 实现。
+     * <p>
+     * 为每个主题创建独立的日志文件，除了 "null-topic" 返回 null。
+     */
     private static class TestFileLogWriterAdapter extends FileLogWriterAdapter {
-        private final Map<String, File> topicFileMap = new ConcurrentHashMap<>();
-        private final Map<String, FileWriter> fileWriterMap = new ConcurrentHashMap<>();
-        private final Map<String, Boolean> closedMap = new ConcurrentHashMap<>();
-        private final @Nullable File defaultFile;
+        private final Path logDir;
+        private final Map<String, FileWriter> fileWriters = new ConcurrentHashMap<>();
 
-        TestFileLogWriterAdapter(File defaultFile) {
-            super(KeelSampleImpl.Keel);
-            this.defaultFile = defaultFile;
-        }
-
-        TestFileLogWriterAdapter(File file1, File file2) {
-            super(KeelSampleImpl.Keel);
-            this.defaultFile = null;
-            topicFileMap.put("topic1", file1);
-            topicFileMap.put("topic2", file2);
+        public TestFileLogWriterAdapter(Path logDir) {
+            super();
+            this.logDir = logDir;
         }
 
         @Override
         protected @Nullable FileWriter getFileWriterForTopic(String topic) {
-            if (defaultFile == null && !topicFileMap.containsKey(topic)) {
+            if ("null-topic".equals(topic)) {
                 return null;
             }
 
-            return fileWriterMap.computeIfAbsent(topic, k -> {
+            return fileWriters.computeIfAbsent(topic, t -> {
                 try {
-                    File file = topicFileMap.get(topic);
-                    if (file == null) {
-                        file = defaultFile;
-                        if (file == null) {
-                            return null;
-                        }
-                    }
-                    closedMap.put(topic, false);
+                    File file = logDir.resolve(t + ".log").toFile();
                     return new FileWriter(file, true);
                 } catch (IOException e) {
-                    throw new RuntimeException(e);
+                    throw new RuntimeException("Failed to create FileWriter for topic: " + t, e);
                 }
             });
         }
 
         @Override
-        protected Future<Void> processLogRecords(String topic, List<SpecificLog<?>> batch) {
-            System.out.println("Processing log records for topic: " + topic + " batch: " + batch.size());
-            Future<Void> result = super.processLogRecords(topic, batch);
-            // 在processLogRecords之后检查是否需要关闭文件写入器
-            return result;
+        public String render(String topic, SpecificLog<?> log) {
+            String message = log.message();
+            if (message == null) {
+                message = "";
+            }
+            return String.format("[%s] %s", topic, message);
         }
 
-        @Override
-        public void close() {
-            // 关闭所有文件写入器
-            fileWriterMap.forEach((topic, writer) -> {
-                try {
-                    writer.close();
-                    closedMap.put(topic, true);
-                } catch (IOException e) {
-                    // 忽略关闭错误
-                    e.printStackTrace();
-                }
-            });
-            fileWriterMap.clear();
-            super.close();
+        public void close() throws IOException {
+            for (FileWriter writer : fileWriters.values()) {
+                writer.flush();
+                writer.close();
+            }
+            fileWriters.clear();
         }
+    }
 
-        boolean isFileWriterClosed(String topic) {
-            return closedMap.getOrDefault(topic, true);
+    /**
+     * 测试用的 LoggerFactory 实现。
+     * <p>
+     * 使用指定的 FileLogWriterAdapter 创建 Logger 实例。
+     */
+    private static class TestLoggerFactory extends io.github.sinri.keel.logger.api.factory.BaseLoggerFactory {
+        public TestLoggerFactory(TestFileLogWriterAdapter adapter) {
+            super(adapter);
         }
     }
 }

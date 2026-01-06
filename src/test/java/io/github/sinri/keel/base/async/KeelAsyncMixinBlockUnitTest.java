@@ -3,7 +3,7 @@ package io.github.sinri.keel.base.async;
 import io.github.sinri.keel.base.Keel;
 import io.github.sinri.keel.base.KeelSampleImpl;
 import io.github.sinri.keel.base.logger.logger.StdoutLogger;
-import io.github.sinri.keel.base.verticles.KeelVerticle;
+import io.github.sinri.keel.base.verticles.KeelVerticleBase;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Future;
 import io.vertx.core.ThreadingModel;
@@ -119,8 +119,7 @@ public class KeelAsyncMixinBlockUnitTest {
     public void testBlockAwait(VertxTestContext testContext) {
         // This test needs to run in a worker thread context
         Future<String> future = asyncMixin.asyncSleep(50).map(v -> "success");
-        var verticle = KeelVerticle.instant(KeelSampleImpl.Keel, keelVerticle -> {
-
+        KeelVerticleBase verticle = KeelVerticleBase.wrap(keelVerticle -> {
             keelVerticle.getVertx().setTimer(100L, id -> {
                 try {
                     ThreadingModel threadingModel = Vertx.currentContext().threadingModel();
@@ -139,7 +138,7 @@ public class KeelAsyncMixinBlockUnitTest {
 
             return Future.succeededFuture();
         });
-        verticle.deployMe(new DeploymentOptions().setThreadingModel(ThreadingModel.WORKER))
+        verticle.deployMe(KeelSampleImpl.Keel.getVertx(), new DeploymentOptions().setThreadingModel(ThreadingModel.WORKER))
                 .onComplete(ar -> {
                     if (ar.failed()) {
                         testContext.failNow(ar.cause());
