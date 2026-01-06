@@ -1,6 +1,7 @@
 package io.github.sinri.keel.base.verticles;
 
 import io.github.sinri.keel.base.Keel;
+import io.github.sinri.keel.base.async.KeelAsyncMixin;
 import io.github.sinri.keel.logger.api.LateObject;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Future;
@@ -12,7 +13,7 @@ import org.jspecify.annotations.NullMarked;
 import java.util.function.Function;
 
 @NullMarked
-abstract public class KeelVerticleBase extends VerticleBase {
+abstract public class KeelVerticleBase extends VerticleBase implements KeelAsyncMixin {
     private final LateObject<Keel> lateKeel = new LateObject<>();
     private KeelVerticleRunningStateEnum runningState;
 
