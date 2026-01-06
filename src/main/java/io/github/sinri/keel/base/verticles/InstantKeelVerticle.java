@@ -1,6 +1,5 @@
 package io.github.sinri.keel.base.verticles;
 
-import io.github.sinri.keel.base.Keel;
 import io.vertx.core.Future;
 import org.jspecify.annotations.NullMarked;
 
@@ -12,6 +11,7 @@ import java.util.function.Function;
  *
  * @since 5.0.0
  */
+@Deprecated(since = "5.0.0")
 @NullMarked
 public final class InstantKeelVerticle extends AbstractKeelVerticle {
     private final Function<KeelVerticle, Future<Void>> verticleStartFunc;
@@ -21,8 +21,8 @@ public final class InstantKeelVerticle extends AbstractKeelVerticle {
      *
      * @param verticleStartFunc 在 verticle 启动时执行的函数，接收当前 verticle 实例并返回异步完成结果
      */
-    InstantKeelVerticle(Keel keel, Function<KeelVerticle, Future<Void>> verticleStartFunc) {
-        super(keel);
+    InstantKeelVerticle(Function<KeelVerticle, Future<Void>> verticleStartFunc) {
+        super();
         this.verticleStartFunc = verticleStartFunc;
     }
 

@@ -1,13 +1,12 @@
 package io.github.sinri.keel.base.logger.metric;
 
-import io.github.sinri.keel.base.Keel;
-import io.github.sinri.keel.base.verticles.AbstractKeelVerticle;
+import io.github.sinri.keel.base.verticles.KeelVerticleBase;
 import io.github.sinri.keel.logger.api.metric.MetricRecord;
 import io.github.sinri.keel.logger.api.metric.MetricRecorder;
 import io.vertx.core.Future;
+import io.vertx.core.Promise;
 import org.jspecify.annotations.NullMarked;
 
-import java.io.Closeable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
@@ -20,12 +19,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @since 5.0.0
  */
 abstract @NullMarked
-public class AbstractMetricRecorder extends AbstractKeelVerticle implements MetricRecorder, Closeable {
+public class AbstractMetricRecorder extends KeelVerticleBase implements MetricRecorder {
     private final AtomicBoolean endSwitch = new AtomicBoolean(false);
+    private final Promise<Void> endedPromise = Promise.promise();
     private final Queue<MetricRecord> metricRecordQueue = new ConcurrentLinkedQueue<>();
 
-    public AbstractMetricRecorder(Keel keel) {
-        super(keel);
+    public AbstractMetricRecorder() {
+        super();
     }
 
     public void recordMetric(MetricRecord metricRecord) {
@@ -43,6 +43,7 @@ public class AbstractMetricRecorder extends AbstractKeelVerticle implements Metr
 
     /**
      * 重载以改变指标记录的主题。
+     *
      * @return 指标记录的主题
      */
     protected String topic() {
@@ -51,6 +52,11 @@ public class AbstractMetricRecorder extends AbstractKeelVerticle implements Metr
 
     @Override
     protected Future<Void> startVerticle() {
+        runLoop();
+        return Future.succeededFuture();
+    }
+
+    private void runLoop() {
         Future.succeededFuture()
               .compose(v -> {
                   List<MetricRecord> buffer = new ArrayList<>();
@@ -73,22 +79,18 @@ public class AbstractMetricRecorder extends AbstractKeelVerticle implements Metr
               })
               .andThen(ar -> {
                   if (!endSwitch.get()) {
-                      context.owner().setTimer(1000L, id -> start());
+                      getVertx().setTimer(100L, id -> startVerticle());
+                  } else {
+                      endedPromise.handle(ar);
                   }
               });
-        return Future.succeededFuture();
     }
 
-    /**
-     * 标记结束，停止记录。
-     * <p>
-     * 一旦调用此方法，记录器将停止处理，并且不会记录额外的指标。
-     * <p>
-     * 应该调用此方法来正确终止记录器的生命周期并释放相关资源，如有必要则重载以完善。
-     */
     @Override
-    public void close() {
+    protected Future<?> stopVerticle() {
         endSwitch.set(true);
+        return endedPromise.future()
+                           .eventually(Future::succeededFuture);
     }
 
     /**

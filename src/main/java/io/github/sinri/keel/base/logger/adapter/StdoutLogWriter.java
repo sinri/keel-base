@@ -4,6 +4,7 @@ import io.github.sinri.keel.logger.api.adapter.BaseLogWriter;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
@@ -30,7 +31,7 @@ public final class StdoutLogWriter extends BaseLogWriter {
     }
 
     @Override
-    public String renderContext(Map<String, Object> context) {
+    public String renderContext(Map<String, @Nullable Object> context) {
         return new JsonObject(context).encodePrettily();
     }
 }

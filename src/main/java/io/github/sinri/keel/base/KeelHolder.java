@@ -8,6 +8,7 @@ import org.jspecify.annotations.NullMarked;
  *
  * @since 5.0.0
  */
+@Deprecated(since = "5.0.0", forRemoval = true)
 @NullMarked
 public interface KeelHolder extends VertxHolder {
     Keel getKeel();

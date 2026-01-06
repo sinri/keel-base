@@ -2,7 +2,7 @@ package io.github.sinri.keel.base.async;
 
 import io.github.sinri.keel.base.Keel;
 import io.github.sinri.keel.base.annotations.TechnicalPreview;
-import io.github.sinri.keel.base.verticles.KeelVerticle;
+import io.github.sinri.keel.base.verticles.KeelVerticleBase;
 import io.vertx.core.*;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
@@ -32,15 +32,20 @@ interface KeelAsyncMixinBlock extends KeelAsyncMixinLogic {
      */
     @TechnicalPreview(notice = "Require JDK 21+")
     default Future<Void> runInVerticleOnVirtualThread(Keel keel, Supplier<Future<Void>> function) {
-        return KeelVerticle.instant(
-                                   keel,
-                                   keelVerticle -> function.get()
-                                                           .onComplete(ar -> keel.getVertx().setTimer(10, timer -> {
-                                                               keelVerticle.undeployMe();
-                                                           }))
-                           )
-                           .deployMe(new DeploymentOptions().setThreadingModel(ThreadingModel.VIRTUAL_THREAD))
-                           .compose(s -> Future.succeededFuture());
+        return KeelVerticleBase
+                .wrap(keelVerticle -> function
+                        .get()
+                        .onComplete(ar -> keelVerticle.getVertx()
+                                                      .setTimer(10, timer -> {
+                                                          keelVerticle.undeployMe();
+                                                      }))
+                )
+                .deployMe(
+                        keel.getVertx(),
+                        new DeploymentOptions()
+                                .setThreadingModel(ThreadingModel.VIRTUAL_THREAD)
+                )
+                .compose(s -> Future.succeededFuture());
     }
 
     /**

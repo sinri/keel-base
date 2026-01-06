@@ -1,7 +1,9 @@
 package io.github.sinri.keel.base.verticles;
 
-import io.github.sinri.keel.base.Keel;
-import io.vertx.core.*;
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Future;
+import io.vertx.core.Promise;
+import io.vertx.core.ThreadingModel;
 import io.vertx.core.json.JsonObject;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
@@ -15,47 +17,33 @@ import java.util.UUID;
  * Note: a possibility to base this class on {@link io.vertx.core.VerticleBase}.
  *
  * @since 5.0.0
+ * @deprecated use {@link KeelVerticleBase}
  */
+@Deprecated(since = "5.0.0")
 @NullMarked
 public abstract class AbstractKeelVerticle extends AbstractVerticle implements KeelVerticle {
-    private final Keel keel;
     private KeelVerticleRunningStateEnum runningState;
     private @Nullable String deploymentInstanceCode;
 
-    public AbstractKeelVerticle(Keel keel) {
+    public AbstractKeelVerticle() {
         this.runningState = KeelVerticleRunningStateEnum.BEFORE_RUNNING;
-        this.keel = keel;
     }
 
     @Override
-    public final Keel getKeel() {
-        return keel;
-    }
-
-    @Override
-    public final Vertx getVertx() throws UnexpectedVerticleRunningState {
-        Vertx v = super.getVertx();
-        if (v == null) {
-            throw new UnexpectedVerticleRunningState();
-        }
-        return v;
-    }
-
-    @Override
-    public final ThreadingModel contextThreadModel() throws UnexpectedVerticleRunningState {
-        if (this.context == null) throw new UnexpectedVerticleRunningState();
+    public final ThreadingModel contextThreadModel() {
+        if (this.context == null) throw new IllegalStateException();
         return this.context.threadingModel();
     }
 
     @Override
-    public String deploymentID() throws UnexpectedVerticleRunningState {
-        if (this.context == null) throw new UnexpectedVerticleRunningState();
+    public String deploymentID() {
+        if (this.context == null) throw new IllegalStateException();
         return context.deploymentID();
     }
 
     @Override
-    public @Nullable JsonObject config() throws UnexpectedVerticleRunningState {
-        if (this.context == null) throw new UnexpectedVerticleRunningState();
+    public @Nullable JsonObject config() {
+        if (this.context == null) throw new IllegalStateException();
         return context.config();
     }
 
@@ -79,7 +67,7 @@ public abstract class AbstractKeelVerticle extends AbstractVerticle implements K
                   if (ar.succeeded()) {
                       startPromise.complete();
                   } else {
-                      runningState = KeelVerticleRunningStateEnum.RUNNING_FAILED;
+                      runningState = KeelVerticleRunningStateEnum.DEPLOY_FAILED;
                       startPromise.fail(ar.cause());
                   }
               });

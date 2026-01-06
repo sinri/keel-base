@@ -1,6 +1,5 @@
 package io.github.sinri.keel.base.logger.adapter;
 
-import io.github.sinri.keel.base.Keel;
 import io.github.sinri.keel.logger.api.adapter.LogTextRender;
 import io.github.sinri.keel.logger.api.log.SpecificLog;
 import io.vertx.core.Future;
@@ -18,8 +17,8 @@ import java.util.List;
  */
 @NullMarked
 public abstract class FileLogWriterAdapter extends QueuedLogWriterAdapter implements LogTextRender {
-    public FileLogWriterAdapter(Keel keel) {
-        super(keel);
+    public FileLogWriterAdapter() {
+        super();
     }
 
     /**

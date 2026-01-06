@@ -1,10 +1,10 @@
 package io.github.sinri.keel.base.logger.adapter;
 
-import io.github.sinri.keel.base.Keel;
-import io.github.sinri.keel.base.verticles.AbstractKeelVerticle;
-import io.github.sinri.keel.logger.api.adapter.PersistentLogWriterAdapter;
+import io.github.sinri.keel.base.verticles.KeelVerticleBase;
+import io.github.sinri.keel.logger.api.adapter.LogWriterAdapter;
 import io.github.sinri.keel.logger.api.log.SpecificLog;
 import io.vertx.core.Future;
+import io.vertx.core.Promise;
 import org.jspecify.annotations.NullMarked;
 
 import java.util.*;
@@ -19,12 +19,13 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @since 5.0.0
  */
 @NullMarked
-public abstract class QueuedLogWriterAdapter extends AbstractKeelVerticle implements PersistentLogWriterAdapter {
+public abstract class QueuedLogWriterAdapter extends KeelVerticleBase implements LogWriterAdapter {
     private final Map<String, Queue<SpecificLog<?>>> queueMap = new ConcurrentHashMap<>();
     private final AtomicBoolean closeFlag = new AtomicBoolean(false);
+    private final Promise<Void> endedPromise = Promise.promise();
 
-    public QueuedLogWriterAdapter(Keel keel) {
-        super(keel);
+    public QueuedLogWriterAdapter() {
+        super();
     }
 
     /**
@@ -40,6 +41,11 @@ public abstract class QueuedLogWriterAdapter extends AbstractKeelVerticle implem
 
     @Override
     protected Future<Void> startVerticle() {
+        runLoop();
+        return Future.succeededFuture();
+    }
+
+    private void runLoop() {
         getKeel().asyncCallRepeatedly(repeatedlyCallTask -> {
                      Set<String> topics = this.queueMap.keySet();
                      AtomicInteger counter = new AtomicInteger(0);
@@ -72,10 +78,7 @@ public abstract class QueuedLogWriterAdapter extends AbstractKeelVerticle implem
                                          }
                                      });
                  })
-                 .onComplete(ar -> {
-                     this.undeployMe();
-                 });
-        return Future.succeededFuture();
+                 .onComplete(endedPromise::handle);
     }
 
     @Override
@@ -85,7 +88,9 @@ public abstract class QueuedLogWriterAdapter extends AbstractKeelVerticle implem
     }
 
     @Override
-    public void close() {
+    protected Future<?> stopVerticle() {
         closeFlag.set(true);
+        return endedPromise.future()
+                           .eventually(Future::succeededFuture);
     }
 }

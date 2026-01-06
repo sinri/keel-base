@@ -15,5 +15,5 @@ public enum KeelVerticleRunningStateEnum {
     BEFORE_RUNNING,
     RUNNING,
     AFTER_RUNNING,
-    RUNNING_FAILED,
+    DEPLOY_FAILED,
 }
