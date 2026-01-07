@@ -1,17 +1,18 @@
 package io.github.sinri.keel.base.async;
 
+import io.github.sinri.keel.base.KeelJUnit5Test;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 /**
  * RepeatedlyCallTask单元测试。
@@ -19,12 +20,17 @@ import static org.junit.jupiter.api.Assertions.*;
  * @since 5.0.0
  */
 @ExtendWith(VertxExtension.class)
-class RepeatedlyCallTaskUnitTest {
-    private Vertx vertx;
+class RepeatedlyCallTaskUnitTest extends KeelJUnit5Test {
 
-    @BeforeEach
-    void setUp(Vertx vertx) {
-        this.vertx = vertx;
+    /**
+     * 构造方法。
+     * <p>本方法在 {@code @BeforeAll} 注解的静态方法运行后运行。
+     * <p>注意，本构造方法会注册 {@code JsonifiableSerializer} 所载 JSON 序列化能力。
+     *
+     * @param vertx 由 VertxExtension 提供的 Vertx 实例。
+     */
+    public RepeatedlyCallTaskUnitTest(Vertx vertx) {
+        super(vertx);
     }
 
     @Test
@@ -39,7 +45,7 @@ class RepeatedlyCallTaskUnitTest {
         });
 
         Promise<Void> promise = Promise.promise();
-        RepeatedlyCallTask.start(vertx, task, promise);
+        RepeatedlyCallTask.start(getVertx(), task, promise);
 
         promise.future().onComplete(ar -> {
             if (ar.succeeded()) {
@@ -58,7 +64,7 @@ class RepeatedlyCallTaskUnitTest {
         });
 
         Promise<Void> promise = Promise.promise();
-        RepeatedlyCallTask.start(vertx, task, promise);
+        RepeatedlyCallTask.start(getVertx(), task, promise);
 
         promise.future().onComplete(ar -> {
             if (ar.failed()) {
@@ -81,7 +87,7 @@ class RepeatedlyCallTaskUnitTest {
         });
 
         Promise<Void> promise = Promise.promise();
-        RepeatedlyCallTask.start(vertx, task, promise);
+        RepeatedlyCallTask.start(getVertx(), task, promise);
 
         promise.future().onComplete(ar -> {
             if (ar.succeeded()) {
@@ -105,7 +111,7 @@ class RepeatedlyCallTaskUnitTest {
         task.stop();
 
         Promise<Void> promise = Promise.promise();
-        RepeatedlyCallTask.start(vertx, task, promise);
+        RepeatedlyCallTask.start(getVertx(), task, promise);
 
         promise.future().onComplete(ar -> {
             if (ar.succeeded()) {

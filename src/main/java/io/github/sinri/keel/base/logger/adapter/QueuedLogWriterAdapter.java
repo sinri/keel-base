@@ -46,39 +46,39 @@ public abstract class QueuedLogWriterAdapter extends KeelVerticleBase implements
     }
 
     private void runLoop() {
-        getKeel().asyncCallRepeatedly(repeatedlyCallTask -> {
-                     Set<String> topics = this.queueMap.keySet();
-                     AtomicInteger counter = new AtomicInteger(0);
-                     return getKeel().asyncCallIteratively(topics, topic -> {
-                                         Queue<SpecificLog<?>> queue = this.queueMap.get(topic);
-                                         List<SpecificLog<?>> bufferOfTopic = new ArrayList<>();
-                                         while (true) {
-                                             SpecificLog<?> r = queue.poll();
-                                             if (r == null) break;
-                                             bufferOfTopic.add(r);
-                                             counter.incrementAndGet();
-                                             if (bufferOfTopic.size() >= this.bufferSize()) {
-                                                 break;
-                                             }
-                                         }
+        asyncCallRepeatedly(repeatedlyCallTask -> {
+            Set<String> topics = this.queueMap.keySet();
+            AtomicInteger counter = new AtomicInteger(0);
+            return asyncCallIteratively(topics, topic -> {
+                Queue<SpecificLog<?>> queue = this.queueMap.get(topic);
+                List<SpecificLog<?>> bufferOfTopic = new ArrayList<>();
+                while (true) {
+                    SpecificLog<?> r = queue.poll();
+                    if (r == null) break;
+                    bufferOfTopic.add(r);
+                    counter.incrementAndGet();
+                    if (bufferOfTopic.size() >= this.bufferSize()) {
+                        break;
+                    }
+                }
 
-                                         if (bufferOfTopic.isEmpty()) return Future.succeededFuture();
+                if (bufferOfTopic.isEmpty()) return Future.succeededFuture();
 
-                                         return processLogRecords(topic, bufferOfTopic);
-                                     })
-                                     .eventually(() -> {
-                                         if (counter.get() == 0) {
-                                             if (closeFlag.get()) {
-                                                 repeatedlyCallTask.stop();
-                                                 return Future.succeededFuture();
-                                             }
-                                             return getKeel().asyncSleep(100L);
-                                         } else {
-                                             return Future.succeededFuture();
-                                         }
-                                     });
-                 })
-                 .onComplete(endedPromise::handle);
+                return processLogRecords(topic, bufferOfTopic);
+            })
+                    .eventually(() -> {
+                        if (counter.get() == 0) {
+                            if (closeFlag.get()) {
+                                repeatedlyCallTask.stop();
+                                return Future.succeededFuture();
+                            }
+                            return asyncSleep(100L);
+                        } else {
+                            return Future.succeededFuture();
+                        }
+                    });
+        })
+                .onComplete(endedPromise::handle);
     }
 
     @Override

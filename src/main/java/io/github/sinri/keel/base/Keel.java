@@ -3,14 +3,11 @@ package io.github.sinri.keel.base;
 
 import io.github.sinri.keel.base.async.KeelAsyncMixin;
 import io.github.sinri.keel.base.configuration.ConfigElement;
-import io.github.sinri.keel.base.logger.factory.StdoutLoggerFactory;
 import io.github.sinri.keel.logger.api.factory.LoggerFactory;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
-
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * 需要被运行时实例初始化（比如在 keel-app 中）以发挥作用。
@@ -18,27 +15,32 @@ import java.util.concurrent.atomic.AtomicReference;
  * Make it a vertx wrapper that could be created as needed.
  *
  * @since 5.0.0
+ * @deprecated for most usage, use {@link KeelAsyncMixin} directly
  */
+@Deprecated(since = "5.0.0", forRemoval = true)
 @NullMarked
 public interface Keel extends KeelAsyncMixin {
-    ConfigElement SHARED_CONFIGURATION = new ConfigElement("");
-    AtomicReference<LoggerFactory> SHARED_LOGGER_FACTORY_REF = new AtomicReference<>(StdoutLoggerFactory.getInstance());
-
     static Keel wrap(Vertx vertx) {
         return () -> vertx;
     }
 
+    /**
+     * @deprecated use {@link ConfigElement#root()} instead
+     */
+    @Deprecated(since = "5.0.0")
     default ConfigElement getConfiguration() {
-        return SHARED_CONFIGURATION;
-    }
-
-    default LoggerFactory getLoggerFactory() {
-        return SHARED_LOGGER_FACTORY_REF.get();
+        return ConfigElement.root();
     }
 
     /**
-     *
-     * @see Keel#getConfiguration()
+     * @deprecated use {@link LoggerFactory#getShared()} instead
+     */
+    @Deprecated(since = "5.0.0")
+    default LoggerFactory getLoggerFactory() {
+        return LoggerFactory.getShared();
+    }
+
+    /**
      * @deprecated use {@link ConfigElement#readString(String)} instead
      */
     @Deprecated(since = "5.0.0")

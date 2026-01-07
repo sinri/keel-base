@@ -18,8 +18,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *
  * @since 5.0.0
  */
-abstract @NullMarked
-public class AbstractMetricRecorder extends KeelVerticleBase implements MetricRecorder {
+@NullMarked
+public abstract class AbstractMetricRecorder extends KeelVerticleBase implements MetricRecorder {
     private final AtomicBoolean endSwitch = new AtomicBoolean(false);
     private final Promise<Void> endedPromise = Promise.promise();
     private final Queue<MetricRecord> metricRecordQueue = new ConcurrentLinkedQueue<>();

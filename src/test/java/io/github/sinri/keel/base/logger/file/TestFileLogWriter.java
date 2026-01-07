@@ -1,6 +1,6 @@
 package io.github.sinri.keel.base.logger.file;
 
-import io.github.sinri.keel.base.Keel;
+import io.github.sinri.keel.base.configuration.ConfigElement;
 import io.github.sinri.keel.base.logger.adapter.FileLogWriterAdapter;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
@@ -16,7 +16,7 @@ public class TestFileLogWriter extends FileLogWriterAdapter {
 
     public TestFileLogWriter() {
         super();
-        this.logDir = Objects.requireNonNull(Keel.SHARED_CONFIGURATION.readString("log_dir"));
+        this.logDir = Objects.requireNonNull(ConfigElement.root().readString("log_dir"));
     }
 
     @Override

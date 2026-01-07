@@ -1,6 +1,6 @@
 package io.github.sinri.keel.base.verticles;
 
-import io.github.sinri.keel.base.KeelSampleImpl;
+import io.github.sinri.keel.base.KeelJUnit5Test;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Future;
 import io.vertx.core.ThreadingModel;
@@ -10,7 +10,6 @@ import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -27,11 +26,17 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 @ExtendWith(VertxExtension.class)
 @NullMarked
-class KeelVerticleBaseTest {
+class KeelVerticleBaseTest extends KeelJUnit5Test {
 
-    @BeforeEach
-    void setUp(Vertx vertx) {
-        KeelSampleImpl.Keel.initializeVertx(vertx);
+    /**
+     * 构造方法。
+     * <p>本方法在 {@code @BeforeAll} 注解的静态方法运行后运行。
+     * <p>注意，本构造方法会注册 {@code JsonifiableSerializer} 所载 JSON 序列化能力。
+     *
+     * @param vertx 由 VertxExtension 提供的 Vertx 实例。
+     */
+    public KeelVerticleBaseTest(Vertx vertx) {
+        super(vertx);
     }
 
     @AfterEach
@@ -262,27 +267,6 @@ class KeelVerticleBaseTest {
     }
 
     /**
-     * 测试 getKeel 方法。
-     * <p>
-     * 验证能够正确获取 Keel 实例。
-     */
-    @Test
-    void testGetKeel(Vertx vertx, VertxTestContext testContext) throws Throwable {
-        TestVerticle verticle = new TestVerticle();
-
-        verticle.deployMe(vertx, new DeploymentOptions())
-                .onComplete(testContext.succeeding(deploymentId -> {
-                    assertNotNull(verticle.getKeelInstance(), "Keel instance should not be null");
-                    assertEquals(vertx, verticle.getKeelInstance().getVertx(),
-                            "Keel should have the same Vertx instance");
-
-                    verticle.undeployMe().onComplete(ar -> testContext.completeNow());
-                }));
-
-        testContext.awaitCompletion(3, TimeUnit.SECONDS);
-    }
-
-    /**
      * 测试在未部署时访问 Vertx 实例。
      * <p>
      * 验证在 verticle 未部署时访问 Vertx 会抛出异常。
@@ -291,7 +275,7 @@ class KeelVerticleBaseTest {
     void testGetVertxBeforeDeployment() {
         TestVerticle verticle = new TestVerticle();
 
-        assertThrows(IllegalStateException.class, verticle::getVertxInstance,
+        assertThrows(IllegalStateException.class, verticle::getVertx,
                 "Getting Vertx before deployment should throw IllegalStateException");
     }
 
@@ -362,13 +346,6 @@ class KeelVerticleBaseTest {
             return stopped;
         }
 
-        public Vertx getVertxInstance() {
-            return getVertx();
-        }
-
-        public io.github.sinri.keel.base.Keel getKeelInstance() {
-            return getKeel();
-        }
     }
 
     /**
@@ -396,7 +373,7 @@ class KeelVerticleBaseTest {
         }
 
         @Override
-        protected String getVerticleIdentity() {
+        public String getVerticleIdentity() {
             return customIdentity;
         }
 

@@ -1,12 +1,10 @@
 package io.github.sinri.keel.base.async;
 
-import io.github.sinri.keel.base.Keel;
-import io.github.sinri.keel.base.KeelSampleImpl;
+import io.github.sinri.keel.base.KeelJUnit5Test;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -21,22 +19,27 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
  * @since 5.0.0
  */
 @ExtendWith(VertxExtension.class)
-class KeelAsyncMixinLockUnitTest {
-    private Keel asyncMixin;
+class KeelAsyncMixinLockUnitTest extends KeelJUnit5Test {
 
-    @BeforeEach
-    void setUp(Vertx vertx) {
-        KeelSampleImpl.Keel.initializeVertx(vertx);
-        asyncMixin = KeelSampleImpl.Keel;
+    /**
+     * 构造方法。
+     * <p>本方法在 {@code @BeforeAll} 注解的静态方法运行后运行。
+     * <p>注意，本构造方法会注册 {@code JsonifiableSerializer} 所载 JSON 序列化能力。
+     *
+     * @param vertx 由 VertxExtension 提供的 Vertx 实例。
+     */
+    public KeelAsyncMixinLockUnitTest(Vertx vertx) {
+        super(vertx);
     }
+
 
     @Test
     void testAsyncCallExclusively(VertxTestContext testContext) {
         AtomicInteger counter = new AtomicInteger(0);
 
-        asyncMixin.asyncCallExclusively("test-lock", () -> {
+        asyncCallExclusively("test-lock", () -> {
             counter.incrementAndGet();
-            return asyncMixin.asyncSleep(10).map(v -> "success");
+            return asyncSleep(10).map(v -> "success");
         }).onComplete(ar -> {
             if (ar.succeeded()) {
                 assertEquals("success", ar.result());
@@ -52,9 +55,9 @@ class KeelAsyncMixinLockUnitTest {
     void testAsyncCallExclusivelyWithTimeout(VertxTestContext testContext) {
         AtomicInteger counter = new AtomicInteger(0);
 
-        asyncMixin.asyncCallExclusively("test-lock-timeout", 1000, () -> {
+        asyncCallExclusively("test-lock-timeout", 1000, () -> {
             counter.incrementAndGet();
-            return asyncMixin.asyncSleep(10).map(v -> "success");
+            return asyncSleep(10).map(v -> "success");
         }).onComplete(ar -> {
             if (ar.succeeded()) {
                 assertEquals("success", ar.result());
@@ -71,14 +74,14 @@ class KeelAsyncMixinLockUnitTest {
         AtomicInteger counter = new AtomicInteger(0);
 
         // First call
-        asyncMixin.asyncCallExclusively("sequential-lock", () -> {
+        asyncCallExclusively("sequential-lock", () -> {
             counter.incrementAndGet();
-            return asyncMixin.asyncSleep(50).map(v -> "first");
+            return asyncSleep(50).map(v -> "first");
         }).compose(firstResult -> {
             // Second call should wait for first to complete
-            return asyncMixin.asyncCallExclusively("sequential-lock", () -> {
+            return asyncCallExclusively("sequential-lock", () -> {
                 counter.incrementAndGet();
-                return asyncMixin.asyncSleep(10).map(v -> "second");
+                return asyncSleep(10).map(v -> "second");
             });
         }).onComplete(ar -> {
             if (ar.succeeded()) {
@@ -93,7 +96,7 @@ class KeelAsyncMixinLockUnitTest {
 
     @Test
     void testAsyncCallExclusivelyWithFailure(VertxTestContext testContext) {
-        asyncMixin.asyncCallExclusively("failure-lock", () -> {
+        asyncCallExclusively("failure-lock", () -> {
             return Future.failedFuture(new RuntimeException("Test failure"));
         }).onComplete(ar -> {
             if (ar.failed()) {

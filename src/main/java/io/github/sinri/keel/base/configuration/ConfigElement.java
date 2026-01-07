@@ -15,6 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @NullMarked
 public class ConfigElement {
+    private final static ConfigElement ROOT_CONFIG_ELEMENT = new ConfigElement("");
     private final List<String> parentKeyChain;
     private final Map<String, ConfigElement> children;
     private final String elementName;
@@ -32,6 +33,15 @@ public class ConfigElement {
         this.elementValue = another.elementValue;
         this.children = another.children;
         this.parentKeyChain = another.parentKeyChain;
+    }
+
+    /**
+     * 全局唯一的配置树的根节点。
+     *
+     * @return 作为全局唯一的配置树的根节点的{@link ConfigElement}实例。
+     */
+    public static ConfigElement root() {
+        return ROOT_CONFIG_ELEMENT;
     }
 
     public static Properties loadLocalPropertiesFile(String propertiesFileName, Charset charset) throws IOException {

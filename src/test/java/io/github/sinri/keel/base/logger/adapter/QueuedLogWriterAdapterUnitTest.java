@@ -1,6 +1,6 @@
 package io.github.sinri.keel.base.logger.adapter;
 
-import io.github.sinri.keel.base.KeelSampleImpl;
+import io.github.sinri.keel.base.KeelJUnit5Test;
 import io.github.sinri.keel.logger.api.log.Log;
 import io.github.sinri.keel.logger.api.log.SpecificLog;
 import io.vertx.core.DeploymentOptions;
@@ -31,17 +31,26 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 @ExtendWith(VertxExtension.class)
 @NullMarked
-class QueuedLogWriterAdapterUnitTest {
+class QueuedLogWriterAdapterUnitTest extends KeelJUnit5Test {
 
     private TestQueuedLogWriterAdapter adapter;
 
-    @BeforeEach
-    void setUp(Vertx vertx, VertxTestContext testContext) {
-        KeelSampleImpl.Keel.initializeVertx(vertx);
+    /**
+     * 构造方法。
+     * <p>本方法在 {@code @BeforeAll} 注解的静态方法运行后运行。
+     * <p>注意，本构造方法会注册 {@code JsonifiableSerializer} 所载 JSON 序列化能力。
+     *
+     * @param vertx 由 VertxExtension 提供的 Vertx 实例。
+     */
+    public QueuedLogWriterAdapterUnitTest(Vertx vertx) {
+        super(vertx);
+    }
 
+    @BeforeEach
+    void setUp(VertxTestContext testContext) {
         adapter = new TestQueuedLogWriterAdapter();
         adapter.deployMe(
-                vertx,
+                getVertx(),
                 new DeploymentOptions().setThreadingModel(ThreadingModel.WORKER)
         ).onComplete(testContext.succeedingThenComplete());
     }

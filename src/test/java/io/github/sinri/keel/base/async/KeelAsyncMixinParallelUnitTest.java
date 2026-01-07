@@ -1,12 +1,10 @@
 package io.github.sinri.keel.base.async;
 
-import io.github.sinri.keel.base.Keel;
-import io.github.sinri.keel.base.KeelSampleImpl;
+import io.github.sinri.keel.base.KeelJUnit5Test;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -23,13 +21,17 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @since 5.0.0
  */
 @ExtendWith(VertxExtension.class)
-class KeelAsyncMixinParallelUnitTest {
-    private Keel asyncMixin;
+class KeelAsyncMixinParallelUnitTest extends KeelJUnit5Test {
 
-    @BeforeEach
-    void setUp(Vertx vertx) {
-        KeelSampleImpl.Keel.initializeVertx(vertx);
-        asyncMixin = KeelSampleImpl.Keel;
+    /**
+     * 构造方法。
+     * <p>本方法在 {@code @BeforeAll} 注解的静态方法运行后运行。
+     * <p>注意，本构造方法会注册 {@code JsonifiableSerializer} 所载 JSON 序列化能力。
+     *
+     * @param vertx 由 VertxExtension 提供的 Vertx 实例。
+     */
+    public KeelAsyncMixinParallelUnitTest(Vertx vertx) {
+        super(vertx);
     }
 
     @Test
@@ -37,9 +39,9 @@ class KeelAsyncMixinParallelUnitTest {
         List<String> items = Arrays.asList("a", "b", "c");
         AtomicInteger processed = new AtomicInteger(0);
 
-        asyncMixin.parallelForAllSuccess(items, item -> {
+        parallelForAllSuccess(items, item -> {
             processed.incrementAndGet();
-            return asyncMixin.asyncSleep(50);
+            return asyncSleep(50);
         }).onComplete(ar -> {
             if (ar.succeeded()) {
                 assertEquals(3, processed.get());
@@ -54,11 +56,11 @@ class KeelAsyncMixinParallelUnitTest {
     void testParallelForAllSuccessWithFailure(VertxTestContext testContext) {
         List<String> items = Arrays.asList("a", "b", "c");
 
-        asyncMixin.parallelForAllSuccess(items, item -> {
+        parallelForAllSuccess(items, item -> {
             if ("b".equals(item)) {
                 return Future.failedFuture(new RuntimeException("Test failure"));
             }
-            return asyncMixin.asyncSleep(10);
+            return asyncSleep(10);
         }).onComplete(ar -> {
             if (ar.failed()) {
                 testContext.completeNow();
@@ -72,14 +74,14 @@ class KeelAsyncMixinParallelUnitTest {
     void testParallelForAllSuccessWithEmptyList(VertxTestContext testContext) {
         List<String> items = List.of();
 
-        asyncMixin.parallelForAllSuccess(items, item -> asyncMixin.asyncSleep(10))
-                  .onComplete(ar -> {
-                      if (ar.succeeded()) {
-                          testContext.completeNow();
-                      } else {
-                          testContext.failNow(ar.cause());
-                      }
-                  });
+        parallelForAllSuccess(items, item -> asyncSleep(10))
+                .onComplete(ar -> {
+                    if (ar.succeeded()) {
+                        testContext.completeNow();
+                    } else {
+                        testContext.failNow(ar.cause());
+                    }
+                });
     }
 
     @Test
@@ -87,9 +89,9 @@ class KeelAsyncMixinParallelUnitTest {
         List<String> items = Arrays.asList("a", "b", "c");
         AtomicInteger processed = new AtomicInteger(0);
 
-        asyncMixin.parallelForAnySuccess(items, item -> {
+        parallelForAnySuccess(items, item -> {
             processed.incrementAndGet();
-            return asyncMixin.asyncSleep(50);
+            return asyncSleep(50);
         }).onComplete(ar -> {
             if (ar.succeeded()) {
                 // At least one should be processed
@@ -105,9 +107,9 @@ class KeelAsyncMixinParallelUnitTest {
     void testParallelForAnySuccessWithOneSuccess(VertxTestContext testContext) {
         List<String> items = Arrays.asList("a", "b", "c");
 
-        asyncMixin.parallelForAnySuccess(items, item -> {
+        parallelForAnySuccess(items, item -> {
             if ("a".equals(item)) {
-                return asyncMixin.asyncSleep(10);
+                return asyncSleep(10);
             }
             return Future.failedFuture(new RuntimeException("Failure"));
         }).onComplete(ar -> {
@@ -125,9 +127,9 @@ class KeelAsyncMixinParallelUnitTest {
         AtomicInteger processed = new AtomicInteger(0);
 
         // Test that all tasks complete successfully
-        asyncMixin.parallelForAllComplete(items, item -> {
+        parallelForAllComplete(items, item -> {
             processed.incrementAndGet();
-            return asyncMixin.asyncSleep(10);
+            return asyncSleep(10);
         }).onComplete(ar -> {
             if (ar.succeeded()) {
                 // All 3 items should be processed
@@ -143,14 +145,14 @@ class KeelAsyncMixinParallelUnitTest {
     void testParallelForAllCompleteWithEmptyList(VertxTestContext testContext) {
         List<String> items = List.of();
 
-        asyncMixin.parallelForAllComplete(items, item -> asyncMixin.asyncSleep(10))
-                  .onComplete(ar -> {
-                      if (ar.succeeded()) {
-                          testContext.completeNow();
-                      } else {
-                          testContext.failNow(ar.cause());
-                      }
-                  });
+        parallelForAllComplete(items, item -> asyncSleep(10))
+                .onComplete(ar -> {
+                    if (ar.succeeded()) {
+                        testContext.completeNow();
+                    } else {
+                        testContext.failNow(ar.cause());
+                    }
+                });
     }
 
     @Test
@@ -158,9 +160,9 @@ class KeelAsyncMixinParallelUnitTest {
         List<String> items = Arrays.asList("x", "y", "z");
         AtomicInteger processed = new AtomicInteger(0);
 
-        asyncMixin.parallelForAllSuccess(items.iterator(), item -> {
+        parallelForAllSuccess(items.iterator(), item -> {
             processed.incrementAndGet();
-            return asyncMixin.asyncSleep(10);
+            return asyncSleep(10);
         }).onComplete(ar -> {
             if (ar.succeeded()) {
                 assertEquals(3, processed.get());

@@ -1,16 +1,13 @@
 package io.github.sinri.keel.base.async;
 
-import io.github.sinri.keel.base.Keel;
-import io.github.sinri.keel.base.KeelSampleImpl;
+import io.github.sinri.keel.base.KeelJUnit5Test;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -19,24 +16,24 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @since 5.0.0
  */
 @ExtendWith(VertxExtension.class)
-class KeelAsyncMixinCoreUnitTest {
-    private Keel asyncMixin;
+class KeelAsyncMixinCoreUnitTest extends KeelJUnit5Test {
 
-    @BeforeEach
-    void setUp(Vertx vertx) {
-        KeelSampleImpl.Keel.initializeVertx(vertx);
-        asyncMixin = KeelSampleImpl.Keel;
+    /**
+     * 构造方法。
+     * <p>本方法在 {@code @BeforeAll} 注解的静态方法运行后运行。
+     * <p>注意，本构造方法会注册 {@code JsonifiableSerializer} 所载 JSON 序列化能力。
+     *
+     * @param vertx 由 VertxExtension 提供的 Vertx 实例。
+     */
+    public KeelAsyncMixinCoreUnitTest(Vertx vertx) {
+        super(vertx);
     }
 
-    @Test
-    void testGetVertx(Vertx vertx) {
-        assertEquals(vertx, asyncMixin.getVertx());
-    }
 
     @Test
     void testAsyncSleep(VertxTestContext testContext) {
         long startTime = System.currentTimeMillis();
-        asyncMixin.asyncSleep(100)
+        asyncSleep(100)
                   .onComplete(ar -> {
                       if (ar.succeeded()) {
                           long elapsed = System.currentTimeMillis() - startTime;
@@ -52,7 +49,7 @@ class KeelAsyncMixinCoreUnitTest {
     void testAsyncSleepWithInterrupter(VertxTestContext testContext) {
         Promise<Void> interrupter = Promise.promise();
 
-        asyncMixin.asyncSleep(1000, interrupter)
+        asyncSleep(1000, interrupter)
                   .onComplete(ar -> {
                       if (ar.succeeded()) {
                           testContext.completeNow();
@@ -62,13 +59,13 @@ class KeelAsyncMixinCoreUnitTest {
                   });
 
         // Interrupt after 50ms
-        asyncMixin.getVertx().setTimer(50, id -> interrupter.complete());
+        getVertx().setTimer(50, id -> interrupter.complete());
     }
 
     @Test
     void testAsyncSleepMinimumTime(VertxTestContext testContext) {
         long startTime = System.currentTimeMillis();
-        asyncMixin.asyncSleep(0) // Should be treated as 1ms minimum
+        asyncSleep(0) // Should be treated as 1ms minimum
                   .onComplete(ar -> {
                       if (ar.succeeded()) {
                           long elapsed = System.currentTimeMillis() - startTime;
@@ -83,7 +80,7 @@ class KeelAsyncMixinCoreUnitTest {
     @Test
     void testAsyncSleepNegativeTime(VertxTestContext testContext) {
         long startTime = System.currentTimeMillis();
-        asyncMixin.asyncSleep(-100) // Should be treated as 1ms minimum
+        asyncSleep(-100) // Should be treated as 1ms minimum
                   .onComplete(ar -> {
                       if (ar.succeeded()) {
                           long elapsed = System.currentTimeMillis() - startTime;

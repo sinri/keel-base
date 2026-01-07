@@ -1,20 +1,19 @@
 package io.github.sinri.keel.base.verticles;
 
-import io.github.sinri.keel.base.Keel;
 import io.github.sinri.keel.base.async.KeelAsyncMixin;
-import io.github.sinri.keel.logger.api.LateObject;
-import io.vertx.core.DeploymentOptions;
-import io.vertx.core.Future;
-import io.vertx.core.VerticleBase;
-import io.vertx.core.Vertx;
+import io.vertx.core.*;
 import io.vertx.core.json.JsonObject;
 import org.jspecify.annotations.NullMarked;
 
 import java.util.function.Function;
 
+/**
+ * 基于{@link KeelVerticle}，提供 {@link KeelAsyncMixin} 和自部署功能支持的 {@link VerticleBase} 标准范式。
+ *
+ * @since 5.0.0
+ */
 @NullMarked
-abstract public class KeelVerticleBase extends VerticleBase implements KeelAsyncMixin {
-    private final LateObject<Keel> lateKeel = new LateObject<>();
+abstract public class KeelVerticleBase extends VerticleBase implements KeelVerticle {
     private KeelVerticleRunningStateEnum runningState;
 
     public KeelVerticleBase() {
@@ -48,6 +47,10 @@ abstract public class KeelVerticleBase extends VerticleBase implements KeelAsync
         throw new IllegalStateException("Vertx of this verticle not initialized yet");
     }
 
+    public ThreadingModel getCurrentThreadingModel() {
+        return context.threadingModel();
+    }
+
     public final JsonObject getVerticleInfo() {
         if (context == null) {
             throw new IllegalStateException("Context of this verticle not initialized yet");
@@ -57,7 +60,7 @@ abstract public class KeelVerticleBase extends VerticleBase implements KeelAsync
                 .put("class", this.getClass().getName())
                 .put("config", this.config())
                 .put("deployment_id", this.deploymentID())
-                .put("thread_model", context.threadingModel().name());
+                .put("thread_model", getCurrentThreadingModel().name());
     }
 
     public final KeelVerticleRunningStateEnum getRunningState() {
@@ -97,15 +100,8 @@ abstract public class KeelVerticleBase extends VerticleBase implements KeelAsync
         return String.format("%s@%s", getVerticleIdentity(), deploymentID());
     }
 
-    /**
-     * 获取当前 verticle 类的唯一标识或 "身份"。
-     */
-    protected String getVerticleIdentity() {
-        return this.getClass().getName();
-    }
-
     @Override
-    public final Future<?> start() throws Exception {
+    public final Future<?> start() {
         runningState = KeelVerticleRunningStateEnum.RUNNING;
         return Future.succeededFuture()
                      .compose(v -> startVerticle())
@@ -124,18 +120,5 @@ abstract public class KeelVerticleBase extends VerticleBase implements KeelAsync
 
     protected Future<?> stopVerticle() {
         return Future.succeededFuture();
-    }
-
-    protected final Keel getKeel() {
-        return lateKeel.ensure(() -> Keel.wrap(getVertx()));
-        //        Vertx mappedVertx = getVertx();
-        //        if (keel == null) {
-        //            synchronized (this) {
-        //                if (keel == null) {
-        //                    keel = Keel.wrap(mappedVertx);
-        //                }
-        //            }
-        //        }
-        //        return Objects.requireNonNull(keel);
     }
 }
