@@ -8,7 +8,8 @@ import org.jspecify.annotations.Nullable;
 /**
  * 这是一个介于 {@link Deployable} 和 {@link VerticleBase} 之间的拟合接口，通过 {@link KeelAsyncMixin} 提供了基于 Vertx 的异步特性。
  * <p>
- *     通常，应尽可能使用 {@link KeelVerticleBase} 作为父类实现所需的类；除非唯一父类被占用。
+ * 通常，应尽可能使用 {@link KeelVerticleBase} 作为父类实现所需的类；除非唯一父类被占用。
+ *
  * @since 5.0.0
  */
 public interface KeelVerticle extends Deployable, KeelAsyncMixin {
@@ -92,9 +93,22 @@ public interface KeelVerticle extends Deployable, KeelAsyncMixin {
         return vertx.deployVerticle(this, deploymentOptions);
     }
 
+    /**
+     * 解除本类的 deployment。
+     * <p>
+     * 本方法不应在 {@link KeelVerticle#start()} 返回前调用。
+     */
     default Future<Void> undeployMe() {
         String deploymentID = deploymentID();
         return getVertx().undeploy(deploymentID);
     }
 
+    /**
+     * 获取当前 verticle 的卸载 Future。
+     * <p>
+     * 在 stop 执行后（undeploy）返回。
+     *
+     * @return 当前 verticle 的卸载 Future
+     */
+    Future<Void> undeployed();
 }

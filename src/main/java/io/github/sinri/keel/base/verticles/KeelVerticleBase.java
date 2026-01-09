@@ -15,6 +15,7 @@ import java.util.function.Function;
 @NullMarked
 abstract public class KeelVerticleBase extends VerticleBase implements KeelVerticle {
     private KeelVerticleRunningStateEnum runningState;
+    private final Promise<Void> undeployPromise = Promise.promise();
 
     public KeelVerticleBase() {
         this.runningState = KeelVerticleRunningStateEnum.BEFORE_RUNNING;
@@ -115,10 +116,16 @@ abstract public class KeelVerticleBase extends VerticleBase implements KeelVerti
         return stopVerticle()
                 .onSuccess(ar -> {
                     runningState = KeelVerticleRunningStateEnum.AFTER_RUNNING;
+                    undeployPromise.complete();
                 });
     }
 
     protected Future<?> stopVerticle() {
         return Future.succeededFuture();
+    }
+
+    @Override
+    public final Future<Void> undeployed() {
+        return undeployPromise.future();
     }
 }

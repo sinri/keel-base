@@ -6,6 +6,7 @@ import io.vertx.core.Future;
 import io.vertx.core.ThreadingModel;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
+import io.vertx.junit5.Checkpoint;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
 import org.jspecify.annotations.NullMarked;
@@ -317,6 +318,27 @@ class KeelVerticleBaseTest extends KeelJUnit5Test {
         testContext.awaitCompletion(5, TimeUnit.SECONDS);
     }
 
+    @Test
+    void testUndeployedPromise(VertxTestContext testContext) {
+        Checkpoint checkpoint1 = testContext.checkpoint();
+        Checkpoint checkpoint2 = testContext.checkpoint();
+        KeelVerticleBase verticle = new TestVerticle2();
+        verticle.deployMe(getVertx(), new DeploymentOptions())
+                .onSuccess(deploymentId -> {
+                    getUnitTestLogger().info("deploymentId: " + deploymentId);
+                    checkpoint1.flag();
+                })
+                .onFailure(throwable -> {
+                    throwable.printStackTrace();
+                    getUnitTestLogger().error(x -> x.exception(throwable));
+                    testContext.failNow(throwable);
+                });
+        verticle.undeployed()
+                .onComplete(ar -> {
+                    checkpoint2.flag();
+                });
+    }
+
     /**
      * 测试用的基础 verticle 实现。
      * <p>
@@ -380,6 +402,19 @@ class KeelVerticleBaseTest extends KeelJUnit5Test {
         @Override
         protected Future<?> startVerticle() {
             return Future.succeededFuture();
+        }
+    }
+
+    private static class TestVerticle2 extends KeelVerticleBase {
+
+        @Override
+        protected Future<?> startVerticle() {
+            System.out.println("starting: " + deploymentID());
+            return asyncSleep(2000L)
+                    .andThen(v -> {
+                        System.out.println("slept");
+                        getVertx().setTimer(100L, id -> undeployMe());
+                    });
         }
     }
 }
