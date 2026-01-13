@@ -269,6 +269,11 @@ class QueuedLogWriterAdapterUnitTest extends KeelJUnit5Test {
             return Future.succeededFuture();
         }
 
+        @Override
+        protected Future<Void> prepareForLoop() {
+            return Future.succeededFuture();
+        }
+
         public Map<String, List<SpecificLog<?>>> getProcessedLogs() {
             return processedLogs;
         }
@@ -281,5 +286,6 @@ class QueuedLogWriterAdapterUnitTest extends KeelJUnit5Test {
             return customBufferSize;
         }
     }
+
 }
 

@@ -2,6 +2,7 @@ package io.github.sinri.keel.base.logger.file;
 
 import io.github.sinri.keel.base.configuration.ConfigElement;
 import io.github.sinri.keel.base.logger.adapter.FileLogWriterAdapter;
+import io.vertx.core.Future;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
@@ -17,6 +18,11 @@ public class TestFileLogWriter extends FileLogWriterAdapter {
     public TestFileLogWriter() {
         super();
         this.logDir = Objects.requireNonNull(ConfigElement.root().readString("log_dir"));
+    }
+
+    @Override
+    protected Future<Void> prepareForLoop() {
+        return Future.succeededFuture();
     }
 
     @Override

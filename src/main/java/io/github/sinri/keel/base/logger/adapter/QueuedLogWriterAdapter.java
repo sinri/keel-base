@@ -41,9 +41,17 @@ public abstract class QueuedLogWriterAdapter extends KeelVerticleBase implements
 
     @Override
     protected Future<Void> startVerticle() {
-        runLoop();
-        return Future.succeededFuture();
+        System.out.println("Starting LogWriterAdapter preparation");
+        return prepareForLoop()
+                .compose(v -> {
+                    System.out.println("Starting LogWriterAdapter prepared");
+                    runLoop();
+                    System.out.println("Started Loop of LogWriterAdapter");
+                    return Future.succeededFuture();
+                });
     }
+
+    protected abstract Future<Void> prepareForLoop();
 
     private void runLoop() {
         asyncCallRepeatedly(repeatedlyCallTask -> {
@@ -83,6 +91,7 @@ public abstract class QueuedLogWriterAdapter extends KeelVerticleBase implements
 
     @Override
     public void accept(String topic, SpecificLog<?> log) {
+        if (closeFlag.get()) return;
         this.queueMap.computeIfAbsent(topic, k -> new ConcurrentLinkedQueue<>())
                      .add(log);
     }

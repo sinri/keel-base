@@ -5,6 +5,7 @@ import io.github.sinri.keel.logger.api.log.Log;
 import io.github.sinri.keel.logger.api.log.SpecificLog;
 import io.github.sinri.keel.logger.api.logger.Logger;
 import io.vertx.core.DeploymentOptions;
+import io.vertx.core.Future;
 import io.vertx.core.ThreadingModel;
 import io.vertx.core.Vertx;
 import io.vertx.junit5.VertxExtension;
@@ -288,6 +289,11 @@ class FileLogWriterAdapterTest extends KeelJUnit5Test {
                 writer.close();
             }
             fileWriters.clear();
+        }
+
+        @Override
+        protected Future<Void> prepareForLoop() {
+            return Future.succeededFuture();
         }
     }
 
