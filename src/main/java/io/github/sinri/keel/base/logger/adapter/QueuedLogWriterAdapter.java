@@ -40,7 +40,7 @@ public abstract class QueuedLogWriterAdapter extends KeelVerticleBase implements
     abstract protected Future<Void> processLogRecords(String topic, List<SpecificLog<?>> batch);
 
     @Override
-    protected Future<Void> startVerticle() {
+    protected final Future<Void> startVerticle() {
         System.out.println("Starting LogWriterAdapter preparation");
         return prepareForLoop()
                 .compose(v -> {
