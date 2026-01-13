@@ -379,6 +379,11 @@ class AbstractMetricRecorderTest extends KeelJUnit5Test {
         }
 
         @Override
+        protected Future<Void> prepareForLoop() {
+            return Future.succeededFuture();
+        }
+
+        @Override
         protected Future<Void> handleForTopic(String topic, List<MetricRecord> buffer) {
             processedMetrics.computeIfAbsent(topic, k -> new ArrayList<>())
                             .addAll(buffer);
@@ -417,6 +422,11 @@ class AbstractMetricRecorderTest extends KeelJUnit5Test {
         @Override
         protected String topic() {
             return customTopic;
+        }
+
+        @Override
+        protected Future<Void> prepareForLoop() {
+            return Future.succeededFuture();
         }
 
         @Override

@@ -51,39 +51,45 @@ public abstract class AbstractMetricRecorder extends KeelVerticleBase implements
     }
 
     @Override
-    protected Future<Void> startVerticle() {
-        runLoop();
-        return Future.succeededFuture();
+    protected final Future<Void> startVerticle() {
+        return prepareForLoop()
+                .onSuccess(prepared -> runLoop());
     }
 
+    abstract protected Future<Void> prepareForLoop();
+
     private void runLoop() {
-        Future.succeededFuture()
-              .compose(v -> {
-                  List<MetricRecord> buffer = new ArrayList<>();
+        asyncCallRepeatedly(repeatedlyCallTask -> {
+            return Future.succeededFuture()
+                         .compose(v -> {
+                             List<MetricRecord> buffer = new ArrayList<>();
 
-                  while (true) {
-                      MetricRecord metricRecord = metricRecordQueue.poll();
-                      if (metricRecord == null)
-                          break;
+                             while (true) {
+                                 MetricRecord metricRecord = metricRecordQueue.poll();
+                                 if (metricRecord == null)
+                                     break;
 
-                      buffer.add(metricRecord);
-                      if (buffer.size() >= bufferSize())
-                          break;
-                  }
+                                 buffer.add(metricRecord);
+                                 if (buffer.size() >= bufferSize())
+                                     break;
+                             }
 
-                  if (!buffer.isEmpty()) {
-                      return handleForTopic(topic(), buffer);
-                  }
+                             if (!buffer.isEmpty()) {
+                                 return handleForTopic(topic(), buffer);
+                             }
 
-                  return Future.succeededFuture();
-              })
-              .andThen(ar -> {
-                  if (!endSwitch.get()) {
-                      getVertx().setTimer(100L, id -> startVerticle());
-                  } else {
-                      endedPromise.handle(ar);
-                  }
-              });
+                             return Future.succeededFuture();
+                         })
+                         .eventually(() -> {
+                             if (endSwitch.get()) {
+                                 repeatedlyCallTask.stop();
+                                 return Future.succeededFuture();
+                             } else {
+                                 return asyncSleep(10L);
+                             }
+                         });
+        })
+                .andThen(endedPromise::handle);
     }
 
     @Override
