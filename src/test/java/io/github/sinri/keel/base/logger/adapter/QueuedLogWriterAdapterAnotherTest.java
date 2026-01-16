@@ -6,7 +6,6 @@ import io.github.sinri.keel.logger.api.log.SpecificLog;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Future;
 import io.vertx.core.ThreadingModel;
-import io.vertx.core.Vertx;
 import io.vertx.junit5.VertxTestContext;
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.Test;
@@ -23,8 +22,8 @@ public class QueuedLogWriterAdapterAnotherTest extends KeelJUnit5Test {
      *
      * @param vertx 由 VertxExtension 提供的 Vertx 实例。
      */
-    public QueuedLogWriterAdapterAnotherTest(Vertx vertx) {
-        super(vertx);
+    public QueuedLogWriterAdapterAnotherTest() {
+        super();
     }
 
     @Test

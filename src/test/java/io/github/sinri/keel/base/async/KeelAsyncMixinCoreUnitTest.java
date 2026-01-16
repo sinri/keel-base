@@ -2,7 +2,6 @@ package io.github.sinri.keel.base.async;
 
 import io.github.sinri.keel.base.KeelJUnit5Test;
 import io.vertx.core.Promise;
-import io.vertx.core.Vertx;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
 import org.junit.jupiter.api.Test;
@@ -23,10 +22,9 @@ class KeelAsyncMixinCoreUnitTest extends KeelJUnit5Test {
      * <p>本方法在 {@code @BeforeAll} 注解的静态方法运行后运行。
      * <p>注意，本构造方法会注册 {@code JsonifiableSerializer} 所载 JSON 序列化能力。
      *
-     * @param vertx 由 VertxExtension 提供的 Vertx 实例。
      */
-    public KeelAsyncMixinCoreUnitTest(Vertx vertx) {
-        super(vertx);
+    public KeelAsyncMixinCoreUnitTest() {
+        super();
     }
 
 

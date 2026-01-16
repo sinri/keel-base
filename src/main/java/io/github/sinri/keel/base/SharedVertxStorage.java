@@ -38,14 +38,21 @@ public final class SharedVertxStorage {
     }
 
     /**
-     * 强行重新设置共享的 Vertx 实例，如果已经设置了 Vertx 实例会被关闭。
+     * 确保所给定的 Vertx 实例为共享的 Vertx 实例。
+     * <p>
+     * 当当前共享的 Vertx 不存在时，设置之；
+     * 当当前共享的 Vertx 与给定的 Vertx 实例不一致时，关闭当前 Vertx 实例并重新设置。
      *
-     * @param vertx 共享的 Vertx 实例
+     * @param vertx 需要共享的 Vertx 实例
+     * @throws IllegalStateException 如果发生意外
      */
-    public static synchronized void forceSet(Vertx vertx) throws IllegalStateException {
-        if (sharedVertx != null) {
+    public static synchronized void ensure(Vertx vertx) throws IllegalStateException {
+        if (sharedVertx == null) {
+            sharedVertx = vertx;
+        } else if (sharedVertx != vertx) {
+            System.err.println("Vertx is changed from " + sharedVertx + " to " + vertx);
             sharedVertx.close();
+            sharedVertx = vertx;
         }
-        sharedVertx = vertx;
     }
 }

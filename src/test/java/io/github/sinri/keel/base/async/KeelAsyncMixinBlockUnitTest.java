@@ -25,8 +25,8 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(VertxExtension.class)
 public class KeelAsyncMixinBlockUnitTest extends KeelJUnit5Test {
 
-    public KeelAsyncMixinBlockUnitTest(Vertx vertx) {
-        super(vertx);
+    public KeelAsyncMixinBlockUnitTest() {
+        super();
     }
 
     @Test
