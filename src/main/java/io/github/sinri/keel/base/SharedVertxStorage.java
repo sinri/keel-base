@@ -31,10 +31,10 @@ public final class SharedVertxStorage {
      * @throws IllegalStateException 如果 Vertx 实例已初始化
      */
     public static synchronized void set(Vertx vertx) throws IllegalStateException {
-        if (sharedVertx == null) {
-            sharedVertx = vertx;
+        if (sharedVertx != null) {
+            throw new IllegalStateException("Vertx is already initialized!");
         }
-        throw new IllegalStateException("Vertx is already initialized!");
+        sharedVertx = vertx;
     }
 
     /**
@@ -50,7 +50,7 @@ public final class SharedVertxStorage {
         if (sharedVertx == null) {
             sharedVertx = vertx;
         } else if (sharedVertx != vertx) {
-            System.err.println("Vertx is changed from " + sharedVertx + " to " + vertx);
+            // System.err.println("Vertx is changed from " + sharedVertx + " to " + vertx);
             sharedVertx.close();
             sharedVertx = vertx;
         }
