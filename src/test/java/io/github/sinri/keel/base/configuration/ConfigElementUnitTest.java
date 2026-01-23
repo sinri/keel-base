@@ -173,14 +173,13 @@ class ConfigElementUnitTest {
 
 
     @Test
-    void testExtractWithVarargs() {
+    void testExtractWithVarargs() throws NotConfiguredException {
         Properties properties = new Properties();
         properties.setProperty("server.host", "localhost");
 
         configElement.loadData(properties);
 
         ConfigElement extracted = configElement.extract("server", "host");
-        assertNotNull(extracted);
         assertEquals("host", extracted.getElementName());
     }
 
@@ -198,13 +197,13 @@ class ConfigElementUnitTest {
 
     @Test
     void testExtractReturnsNullForNonExistent() {
-        ConfigElement extracted = configElement.extract("nonExistent", "path");
+        ConfigElement extracted = configElement.tryToExtract("nonExistent", "path");
         assertNull(extracted);
     }
 
     @Test
     void testExtractWithEmptyKeychain() {
-        ConfigElement extracted = configElement.extract(List.of());
+        ConfigElement extracted = configElement.tryToExtract(List.of());
         assertSame(configElement, extracted);
     }
 
@@ -326,13 +325,13 @@ class ConfigElementUnitTest {
 
         configElement.loadData(properties);
 
-        String value = configElement.readString("app.version");
+        String value = configElement.readProperty("app.version");
         assertEquals("1.0.0", value);
     }
 
     @Test
     void testReadStringWithDotJoinedKeyChainReturnsNullForNonExistent() {
-        String value = configElement.readString("nonExistent.key");
+        String value = configElement.readProperty("nonExistent.key");
         assertNull(value);
     }
 

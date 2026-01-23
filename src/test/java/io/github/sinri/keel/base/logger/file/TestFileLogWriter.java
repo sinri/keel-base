@@ -17,7 +17,7 @@ public class TestFileLogWriter extends FileLogWriterAdapter {
 
     public TestFileLogWriter() {
         super();
-        this.logDir = Objects.requireNonNull(ConfigElement.root().readString("log_dir"));
+        this.logDir = Objects.requireNonNull(ConfigElement.root().readProperty("log_dir"));
     }
 
     @Override

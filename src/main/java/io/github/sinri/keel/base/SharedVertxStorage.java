@@ -1,5 +1,6 @@
 package io.github.sinri.keel.base;
 
+import io.github.sinri.keel.base.async.KeelAsyncMixin;
 import io.vertx.core.Vertx;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
@@ -10,6 +11,7 @@ import org.jspecify.annotations.Nullable;
 @NullMarked
 public final class SharedVertxStorage {
     private static @Nullable Vertx sharedVertx;
+    private static @Nullable KeelAsyncMixin keelAsyncMixin;
 
     /**
      * 获取共享的 Vertx 实例。
@@ -53,6 +55,14 @@ public final class SharedVertxStorage {
             // System.err.println("Vertx is changed from " + sharedVertx + " to " + vertx);
             sharedVertx.close();
             sharedVertx = vertx;
+            keelAsyncMixin = null;
         }
+    }
+
+    public static KeelAsyncMixin getKeelAsyncMixin() throws IllegalStateException {
+        if (keelAsyncMixin == null) {
+            keelAsyncMixin = KeelAsyncMixin.wrap(get());
+        }
+        return keelAsyncMixin;
     }
 }

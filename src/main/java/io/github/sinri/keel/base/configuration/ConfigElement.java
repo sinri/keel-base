@@ -223,9 +223,10 @@ public class ConfigElement {
      * 根据指定的键链，层层抽取出以配置子项为根的配置节点。
      *
      * @param keychain 键链，表示要提取的子项路径
-     * @return 提取的子项，如果不存在则返回 null
+     * @return 提取的子项
+     * @throws NotConfiguredException 如果在键链中找不到对应的配置项
      */
-    public @Nullable ConfigElement extract(String... keychain) {
+    public ConfigElement extract(String... keychain) throws NotConfiguredException {
         return extract(java.util.Arrays.asList(keychain));
     }
 
@@ -235,15 +236,41 @@ public class ConfigElement {
      * @param keychain 键链，表示要提取的子项路径
      * @return 提取的子项，如果不存在则返回 null
      */
-    public @Nullable ConfigElement extract(List<String> keychain) {
+    public @Nullable ConfigElement tryToExtract(String... keychain) {
+        return tryToExtract(java.util.Arrays.asList(keychain));
+    }
+
+    /**
+     * 根据指定的键链，层层抽取出以配置子项为根的配置节点。
+     *
+     * @param keychain 键链，表示要提取的子项路径
+     * @return 提取的子项
+     * @throws NotConfiguredException 如果在键链中找不到对应的配置项
+     */
+    public ConfigElement extract(List<String> keychain) throws NotConfiguredException {
         ConfigElement configElement = this;
         for (String key : keychain) {
+            List<String> absoluteKeyChain = configElement.getAbsoluteKeyChain();
             configElement = configElement.tryToGetChild(key);
             if (configElement == null) {
-                return null;
+                throw new NotConfiguredException(absoluteKeyChain, key);
             }
         }
         return configElement;
+    }
+
+    /**
+     * 根据指定的键链，层层抽取出以配置子项为根的配置节点。
+     *
+     * @param keychain 键链，表示要提取的子项路径
+     * @return 提取的子项，如果不存在则返回 null
+     */
+    public @Nullable ConfigElement tryToExtract(List<String> keychain) {
+        try {
+            return extract(keychain);
+        } catch (NotConfiguredException e) {
+            return null;
+        }
     }
 
     /**
@@ -273,11 +300,7 @@ public class ConfigElement {
      * @param path 给定的配置节点在完整的配置树中的路径，自根节点到当前节点
      * @param out  通过遍历收集到的配置项将加入到这个 {@link ConfigProperty} 列表中
      */
-    private void dfsTransform(
-            ConfigElement node,
-            List<String> path,
-            List<ConfigProperty> out
-    ) {
+    private void dfsTransform(ConfigElement node, List<String> path, List<ConfigProperty> out) {
         // System.out.println("dfsTransform on " + path);
         // 当前节点若有值，则输出一条属性
         if (node.isLeafNode()) {
@@ -309,7 +332,7 @@ public class ConfigElement {
     public String readString(List<String> keychain) throws NotConfiguredException {
         ConfigElement extract = extract(keychain);
 
-        if (extract != null && extract.isLeafNode()) {
+        if (extract.isLeafNode()) {
             return extract.getElementValue();
         } else {
             var mergedListOfKeys = mergeListOfKeys(parentKeyChain, keychain);
@@ -383,7 +406,7 @@ public class ConfigElement {
         return Double.parseDouble(value);
     }
 
-    public @Nullable String readString(String dotJoinedKeyChain) {
+    public @Nullable String readProperty(String dotJoinedKeyChain) {
         String[] split = dotJoinedKeyChain.split("\\.");
         try {
             return readString(List.of(split));
