@@ -1,6 +1,5 @@
 package io.github.sinri.keel.base.async;
 
-import io.github.sinri.keel.base.SharedVertxStorage;
 import io.vertx.core.Vertx;
 import org.jspecify.annotations.NullMarked;
 
@@ -13,9 +12,5 @@ import org.jspecify.annotations.NullMarked;
 public interface KeelAsyncMixin extends KeelAsyncMixinParallel, KeelAsyncMixinLock, KeelAsyncMixinBlock {
     static KeelAsyncMixin wrap(Vertx vertx) {
         return () -> vertx;
-    }
-
-    static KeelAsyncMixin shared() {
-        return SharedVertxStorage.getKeelAsyncMixin();
     }
 }

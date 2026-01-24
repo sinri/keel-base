@@ -1,6 +1,8 @@
 package io.github.sinri.keel.base.verticles;
 
+import io.github.sinri.keel.base.async.Keel;
 import io.github.sinri.keel.base.async.KeelAsyncMixin;
+import io.github.sinri.keel.logger.api.LateObject;
 import io.vertx.core.*;
 import io.vertx.core.json.JsonObject;
 import org.jspecify.annotations.NullMarked;
@@ -14,8 +16,9 @@ import java.util.function.Function;
  */
 @NullMarked
 abstract public class KeelVerticleBase extends VerticleBase implements KeelVerticle {
-    private KeelVerticleRunningStateEnum runningState;
+    private final LateObject<Keel> lateKeel = new LateObject<>();
     private final Promise<Void> undeployPromise = Promise.promise();
+    private KeelVerticleRunningStateEnum runningState;
 
     public KeelVerticleBase() {
         this.runningState = KeelVerticleRunningStateEnum.BEFORE_RUNNING;
@@ -48,6 +51,18 @@ abstract public class KeelVerticleBase extends VerticleBase implements KeelVerti
         throw new IllegalStateException("Vertx of this verticle not initialized yet");
     }
 
+    @Override
+    public final Keel getKeel() {
+        if (vertx == null) {
+            throw new IllegalStateException("Vertx of this verticle not initialized yet");
+        }
+        if (vertx instanceof Keel keel) {
+            return lateKeel.ensure(() -> keel);
+        } else {
+            return lateKeel.ensure(() -> new Keel(vertx));
+        }
+    }
+
     public ThreadingModel getCurrentThreadingModel() {
         return context.threadingModel();
     }
@@ -68,18 +83,28 @@ abstract public class KeelVerticleBase extends VerticleBase implements KeelVerti
         return runningState;
     }
 
+    public final Future<String> deployMe(Vertx vertx, DeploymentOptions deploymentOptions) {
+        Keel x;
+        if(vertx instanceof Keel keel){
+            x=keel;
+        }else{
+            x=new Keel(vertx);
+        }
+        return deployMe(x, deploymentOptions);
+    }
+
     /**
-     * 在指定Vertx实例下部署当前 verticle 并使用指定的部署选项。
+     * 在指定Keel实例下部署当前 verticle 并使用指定的部署选项。
      *
-     * @param vertx             Vertx 实例
+     * @param keel             Keel 实例
      * @param deploymentOptions 部署选项
      * @return 一个异步完成，如果部署成功则返回部署唯一标识，如果部署失败则返回异常
      */
-    public final Future<String> deployMe(Vertx vertx, DeploymentOptions deploymentOptions) {
+    public final Future<String> deployMe(Keel keel, DeploymentOptions deploymentOptions) {
         if (getRunningState() != KeelVerticleRunningStateEnum.BEFORE_RUNNING) {
             return Future.failedFuture(new IllegalStateException("current verticle status is " + getRunningState()));
         }
-        return vertx.deployVerticle(this, deploymentOptions);
+        return keel.deployVerticle(this, deploymentOptions);
     }
 
     /**

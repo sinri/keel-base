@@ -1,5 +1,6 @@
 package io.github.sinri.keel.base;
 
+import io.github.sinri.keel.base.async.Keel;
 import io.github.sinri.keel.base.async.KeelAsyncMixin;
 import io.github.sinri.keel.base.configuration.ConfigElement;
 import io.github.sinri.keel.base.json.JsonifiableSerializer;
@@ -56,7 +57,7 @@ public abstract class KeelJUnit5Test implements KeelAsyncMixin {
 
     @BeforeAll
     static void beforeAll() {
-        SharedVertxStorage.ensure(rtoc.vertx());
+        Keel.share(rtoc.vertx());
     }
 
     /**

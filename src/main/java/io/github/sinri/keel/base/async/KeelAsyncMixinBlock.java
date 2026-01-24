@@ -30,7 +30,7 @@ interface KeelAsyncMixinBlock extends KeelAsyncMixinLogic {
      * @return 在虚拟线程中运行给定逻辑之后的 Future，或相关失败 Future。
      */
     @TechnicalPreview(notice = "Require JDK 21+")
-    default Future<Void> runInVerticleOnVirtualThread(Vertx vertx, Supplier<Future<Void>> function) {
+    default Future<Void> runInVerticleOnVirtualThread(Supplier<Future<Void>> function) {
         return KeelVerticleBase
                 .wrap(keelVerticle -> function
                         .get()
@@ -40,7 +40,7 @@ interface KeelAsyncMixinBlock extends KeelAsyncMixinLogic {
                                                       }))
                 )
                 .deployMe(
-                        vertx,
+                        getVertx(),
                         new DeploymentOptions()
                                 .setThreadingModel(ThreadingModel.VIRTUAL_THREAD)
                 )

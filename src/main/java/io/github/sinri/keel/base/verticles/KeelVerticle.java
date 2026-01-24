@@ -1,5 +1,6 @@
 package io.github.sinri.keel.base.verticles;
 
+import io.github.sinri.keel.base.async.Keel;
 import io.github.sinri.keel.base.async.KeelAsyncMixin;
 import io.vertx.core.*;
 import io.vertx.core.json.JsonObject;
@@ -89,8 +90,10 @@ public interface KeelVerticle extends Deployable, KeelAsyncMixin {
 
     ThreadingModel getCurrentThreadingModel();
 
-    default Future<String> deployMe(Vertx vertx, DeploymentOptions deploymentOptions) {
-        return vertx.deployVerticle(this, deploymentOptions);
+    Keel getKeel();
+
+    default Future<String> deployMe(Keel keel, DeploymentOptions deploymentOptions) {
+        return keel.deployVerticle(this, deploymentOptions);
     }
 
     /**
