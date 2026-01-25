@@ -1,7 +1,7 @@
 package io.github.sinri.keel.base.async;
 
 import io.github.sinri.keel.base.KeelJUnit5Test;
-import io.github.sinri.keel.base.internal.async.RepeatedlyCallTask;
+import io.github.sinri.keel.base.internal.async.RepeatedlyCallTaskImpl;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.junit5.VertxExtension;
@@ -35,7 +35,7 @@ class RepeatedlyCallTaskUnitTest extends KeelJUnit5Test {
     @Test
     void testRepeatedlyCallTaskStop(VertxTestContext testContext) {
         AtomicInteger count = new AtomicInteger(0);
-        RepeatedlyCallTask task = new RepeatedlyCallTask(repeatedlyCallTask -> {
+        RepeatedlyCallTaskImpl task = new RepeatedlyCallTaskImpl(repeatedlyCallTask -> {
             int current = count.incrementAndGet();
             if (current >= 3) {
                 repeatedlyCallTask.stop();
@@ -44,7 +44,7 @@ class RepeatedlyCallTaskUnitTest extends KeelJUnit5Test {
         });
 
         Promise<Void> promise = Promise.promise();
-        RepeatedlyCallTask.start(getVertx(), task, promise);
+        RepeatedlyCallTaskImpl.start(getVertx(), task, promise);
 
         promise.future().onComplete(ar -> {
             if (ar.succeeded()) {
@@ -58,12 +58,12 @@ class RepeatedlyCallTaskUnitTest extends KeelJUnit5Test {
 
     @Test
     void testRepeatedlyCallTaskWithFailure(VertxTestContext testContext) {
-        RepeatedlyCallTask task = new RepeatedlyCallTask(repeatedlyCallTask -> {
+        RepeatedlyCallTaskImpl task = new RepeatedlyCallTaskImpl(repeatedlyCallTask -> {
             return Future.failedFuture(new RuntimeException("Test failure"));
         });
 
         Promise<Void> promise = Promise.promise();
-        RepeatedlyCallTask.start(getVertx(), task, promise);
+        RepeatedlyCallTaskImpl.start(getVertx(), task, promise);
 
         promise.future().onComplete(ar -> {
             if (ar.failed()) {
@@ -79,14 +79,14 @@ class RepeatedlyCallTaskUnitTest extends KeelJUnit5Test {
     @Test
     void testRepeatedlyCallTaskStopImmediately(VertxTestContext testContext) {
         AtomicInteger count = new AtomicInteger(0);
-        RepeatedlyCallTask task = new RepeatedlyCallTask(repeatedlyCallTask -> {
+        RepeatedlyCallTaskImpl task = new RepeatedlyCallTaskImpl(repeatedlyCallTask -> {
             count.incrementAndGet();
             repeatedlyCallTask.stop();
             return Future.succeededFuture();
         });
 
         Promise<Void> promise = Promise.promise();
-        RepeatedlyCallTask.start(getVertx(), task, promise);
+        RepeatedlyCallTaskImpl.start(getVertx(), task, promise);
 
         promise.future().onComplete(ar -> {
             if (ar.succeeded()) {
@@ -101,7 +101,7 @@ class RepeatedlyCallTaskUnitTest extends KeelJUnit5Test {
     @Test
     void testRepeatedlyCallTaskStopBeforeFirstCall(VertxTestContext testContext) {
         AtomicInteger count = new AtomicInteger(0);
-        RepeatedlyCallTask task = new RepeatedlyCallTask(repeatedlyCallTask -> {
+        RepeatedlyCallTaskImpl task = new RepeatedlyCallTaskImpl(repeatedlyCallTask -> {
             count.incrementAndGet();
             return Future.succeededFuture();
         });
@@ -110,7 +110,7 @@ class RepeatedlyCallTaskUnitTest extends KeelJUnit5Test {
         task.stop();
 
         Promise<Void> promise = Promise.promise();
-        RepeatedlyCallTask.start(getVertx(), task, promise);
+        RepeatedlyCallTaskImpl.start(getVertx(), task, promise);
 
         promise.future().onComplete(ar -> {
             if (ar.succeeded()) {

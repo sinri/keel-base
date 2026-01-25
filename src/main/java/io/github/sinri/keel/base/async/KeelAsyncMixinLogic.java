@@ -1,5 +1,6 @@
-package io.github.sinri.keel.base.internal.async;
+package io.github.sinri.keel.base.async;
 
+import io.github.sinri.keel.base.internal.async.RepeatedlyCallTaskImpl;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import org.jspecify.annotations.NullMarked;
@@ -26,9 +27,9 @@ interface KeelAsyncMixinLogic extends KeelAsyncMixinCore {
      * @param repeatedlyCallTask 给定的异步循环任务
      * @return 异步循环执行结果
      */
-    private Future<Void> asyncCallRepeatedly(RepeatedlyCallTask repeatedlyCallTask) {
+    private Future<Void> asyncCallRepeatedly(RepeatedlyCallTaskImpl repeatedlyCallTask) {
         Promise<Void> promise = Promise.promise();
-        RepeatedlyCallTask.start(this, repeatedlyCallTask, promise);
+        RepeatedlyCallTaskImpl.start(this, repeatedlyCallTask, promise);
         return promise.future();
     }
 
@@ -39,7 +40,7 @@ interface KeelAsyncMixinLogic extends KeelAsyncMixinCore {
      * @return 异步循环执行结果
      */
     default Future<Void> asyncCallRepeatedly(Function<RepeatedlyCallTask, Future<Void>> processor) {
-        return asyncCallRepeatedly(new RepeatedlyCallTask(processor));
+        return asyncCallRepeatedly(new RepeatedlyCallTaskImpl(processor));
     }
 
     /**

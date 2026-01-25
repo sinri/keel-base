@@ -1,13 +1,12 @@
 package io.github.sinri.keel.base.verticles;
 
 import io.github.sinri.keel.base.async.Keel;
-import io.github.sinri.keel.base.internal.async.KeelAsyncMixin;
 import io.vertx.core.*;
 import io.vertx.core.json.JsonObject;
 import org.jspecify.annotations.Nullable;
 
 /**
- * 这是一个介于 {@link Deployable} 和 {@link VerticleBase} 之间的拟合接口，通过 {@link KeelAsyncMixin} 提供了基于 Vertx 的异步特性。
+ * Keel 体系下的标准 Verticle 可部署对象接口，期望部署于 {@link Keel} 所实现的 {@link  Vertx} 实例下。
  * <p>
  * 通常，应尽可能使用 {@link KeelVerticleBase} 作为父类实现所需的类；除非唯一父类被占用。
  *

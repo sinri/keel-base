@@ -1,5 +1,6 @@
 package io.github.sinri.keel.base.internal.async;
 
+import io.github.sinri.keel.base.async.RepeatedlyCallTask;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
@@ -15,20 +16,20 @@ import java.util.function.Function;
  * 每次任务循环结束时，检查任务结束标记确认是否结束循环；
  * 当循环执行任务中抛出异常引发异步失败，则循环强制结束并向外抛出该根因异常。
  *
- * @see #start(Vertx, RepeatedlyCallTask, Promise)
+ * @see #start(Vertx, RepeatedlyCallTaskImpl, Promise)
  * @see #stop()
  * @since 5.0.0
  */
 @NullMarked
-public final class RepeatedlyCallTask {
+public final class RepeatedlyCallTaskImpl implements RepeatedlyCallTask {
     private final Function<RepeatedlyCallTask, Future<Void>> processor;
     private volatile boolean toStop = false;
 
-    public RepeatedlyCallTask(Function<RepeatedlyCallTask, Future<Void>> processor) {
+    public RepeatedlyCallTaskImpl(Function<RepeatedlyCallTask, Future<Void>> processor) {
         this.processor = processor;
     }
 
-    public static void start(Vertx vertx, RepeatedlyCallTask thisTask, Promise<Void> finalPromise) {
+    public static void start(Vertx vertx, RepeatedlyCallTaskImpl thisTask, Promise<Void> finalPromise) {
         Future.succeededFuture()
               .compose(v -> {
                   if (thisTask.toStop) {

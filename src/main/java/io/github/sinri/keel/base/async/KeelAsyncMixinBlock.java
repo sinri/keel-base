@@ -1,4 +1,4 @@
-package io.github.sinri.keel.base.internal.async;
+package io.github.sinri.keel.base.async;
 
 import io.github.sinri.keel.base.annotations.TechnicalPreview;
 import io.github.sinri.keel.base.verticles.KeelVerticleBase;

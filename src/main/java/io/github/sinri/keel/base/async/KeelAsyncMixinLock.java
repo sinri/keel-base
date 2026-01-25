@@ -1,4 +1,4 @@
-package io.github.sinri.keel.base.internal.async;
+package io.github.sinri.keel.base.async;
 
 import io.vertx.core.Future;
 import org.jspecify.annotations.NullMarked;

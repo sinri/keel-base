@@ -1,6 +1,5 @@
 package io.github.sinri.keel.base.async;
 
-import io.github.sinri.keel.base.internal.async.KeelAsyncMixin;
 import io.github.sinri.keel.base.internal.async.KeelImpl;
 import io.vertx.core.Vertx;
 import org.jspecify.annotations.NullMarked;
