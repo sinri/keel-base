@@ -35,9 +35,9 @@ class KeelAsyncMixinLockUnitTest extends KeelJUnit5Test {
     void testAsyncCallExclusively(VertxTestContext testContext) {
         AtomicInteger counter = new AtomicInteger(0);
 
-        asyncCallExclusively("test-lock", () -> {
+        getKeel().asyncCallExclusively("test-lock", () -> {
             counter.incrementAndGet();
-            return asyncSleep(10).map(v -> "success");
+            return getKeel().asyncSleep(10).map(v -> "success");
         }).onComplete(ar -> {
             if (ar.succeeded()) {
                 assertEquals("success", ar.result());
@@ -53,9 +53,9 @@ class KeelAsyncMixinLockUnitTest extends KeelJUnit5Test {
     void testAsyncCallExclusivelyWithTimeout(VertxTestContext testContext) {
         AtomicInteger counter = new AtomicInteger(0);
 
-        asyncCallExclusively("test-lock-timeout", 1000, () -> {
+        getKeel().asyncCallExclusively("test-lock-timeout", 1000, () -> {
             counter.incrementAndGet();
-            return asyncSleep(10).map(v -> "success");
+            return getKeel().asyncSleep(10).map(v -> "success");
         }).onComplete(ar -> {
             if (ar.succeeded()) {
                 assertEquals("success", ar.result());
@@ -72,14 +72,14 @@ class KeelAsyncMixinLockUnitTest extends KeelJUnit5Test {
         AtomicInteger counter = new AtomicInteger(0);
 
         // First call
-        asyncCallExclusively("sequential-lock", () -> {
+        getKeel().asyncCallExclusively("sequential-lock", () -> {
             counter.incrementAndGet();
-            return asyncSleep(50).map(v -> "first");
+            return getKeel().asyncSleep(50).map(v -> "first");
         }).compose(firstResult -> {
             // Second call should wait for first to complete
-            return asyncCallExclusively("sequential-lock", () -> {
+            return getKeel().asyncCallExclusively("sequential-lock", () -> {
                 counter.incrementAndGet();
-                return asyncSleep(10).map(v -> "second");
+                return getKeel().asyncSleep(10).map(v -> "second");
             });
         }).onComplete(ar -> {
             if (ar.succeeded()) {
@@ -94,7 +94,7 @@ class KeelAsyncMixinLockUnitTest extends KeelJUnit5Test {
 
     @Test
     void testAsyncCallExclusivelyWithFailure(VertxTestContext testContext) {
-        asyncCallExclusively("failure-lock", () -> {
+        getKeel().asyncCallExclusively("failure-lock", () -> {
             return Future.failedFuture(new RuntimeException("Test failure"));
         }).onComplete(ar -> {
             if (ar.failed()) {

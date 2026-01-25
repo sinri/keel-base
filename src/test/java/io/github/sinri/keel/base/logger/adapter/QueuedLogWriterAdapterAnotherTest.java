@@ -15,16 +15,6 @@ import java.util.List;
 @NullMarked
 public class QueuedLogWriterAdapterAnotherTest extends KeelJUnit5Test {
 
-    /**
-     * 构造方法。
-     * <p>本方法在 {@code @BeforeAll} 注解的静态方法运行后运行。
-     * <p>注意，本构造方法会注册 {@code JsonifiableSerializer} 所载 JSON 序列化能力。
-     *
-     * @param vertx 由 VertxExtension 提供的 Vertx 实例。
-     */
-    public QueuedLogWriterAdapterAnotherTest() {
-        super();
-    }
 
     @Test
     void test1(VertxTestContext testContext) throws Exception {
@@ -34,7 +24,7 @@ public class QueuedLogWriterAdapterAnotherTest extends KeelJUnit5Test {
                    getUnitTestLogger().info("deployMe: " + s);
                    adapter.accept("A", new Log()
                            .message("AAA"));
-                   return asyncSleep(2000L);
+                   return getKeel().asyncSleep(2000L);
                })
                .compose(v -> {
                    return adapter.undeployMe();

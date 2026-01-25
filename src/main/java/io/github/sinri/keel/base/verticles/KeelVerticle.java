@@ -1,7 +1,7 @@
 package io.github.sinri.keel.base.verticles;
 
 import io.github.sinri.keel.base.async.Keel;
-import io.github.sinri.keel.base.async.KeelAsyncMixin;
+import io.github.sinri.keel.base.internal.async.KeelAsyncMixin;
 import io.vertx.core.*;
 import io.vertx.core.json.JsonObject;
 import org.jspecify.annotations.Nullable;
@@ -13,7 +13,7 @@ import org.jspecify.annotations.Nullable;
  *
  * @since 5.0.0
  */
-public interface KeelVerticle extends Deployable, KeelAsyncMixin {
+public interface KeelVerticle extends Deployable {
     /**
      * Initialise the verticle.
      * This is called by Vert.x when the verticle instance is deployed. Don't call it yourself.
@@ -103,7 +103,7 @@ public interface KeelVerticle extends Deployable, KeelAsyncMixin {
      */
     default Future<Void> undeployMe() {
         String deploymentID = deploymentID();
-        return getVertx().undeploy(deploymentID);
+        return getKeel().undeploy(deploymentID);
     }
 
     /**

@@ -36,12 +36,12 @@ class KeelAsyncMixinLogicUnitTest extends KeelJUnit5Test {
     void testAsyncCallRepeatedly(VertxTestContext testContext) {
         AtomicInteger count = new AtomicInteger(0);
 
-        asyncCallRepeatedly(repeatedlyCallTask -> {
+        getKeel().asyncCallRepeatedly(repeatedlyCallTask -> {
             int current = count.incrementAndGet();
             if (current >= 5) {
                 repeatedlyCallTask.stop();
             }
-            return asyncSleep(10);
+            return getKeel().asyncSleep(10);
         }).onComplete(ar -> {
             if (ar.succeeded()) {
                 assertEquals(5, count.get());
@@ -57,9 +57,9 @@ class KeelAsyncMixinLogicUnitTest extends KeelJUnit5Test {
         List<String> items = Arrays.asList("a", "b", "c");
         List<String> processed = new ArrayList<>();
 
-        asyncCallIteratively(items.iterator(), item -> {
+        getKeel().asyncCallIteratively(items.iterator(), item -> {
             processed.add(item);
-            return asyncSleep(10);
+            return getKeel().asyncSleep(10);
         }).onComplete(ar -> {
             if (ar.succeeded()) {
                 assertEquals(3, processed.size());
@@ -78,9 +78,9 @@ class KeelAsyncMixinLogicUnitTest extends KeelJUnit5Test {
         List<String> items = Arrays.asList("x", "y", "z");
         List<String> processed = new ArrayList<>();
 
-        asyncCallIteratively(items, item -> {
+        getKeel().asyncCallIteratively(items, item -> {
             processed.add(item);
-            return asyncSleep(10);
+            return getKeel().asyncSleep(10);
         }).onComplete(ar -> {
             if (ar.succeeded()) {
                 assertEquals(3, processed.size());
@@ -96,9 +96,9 @@ class KeelAsyncMixinLogicUnitTest extends KeelJUnit5Test {
         List<Integer> items = Arrays.asList(1, 2, 3, 4, 5);
         List<List<Integer>> batches = new ArrayList<>();
 
-        asyncCallIteratively(items.iterator(), (batch, task) -> {
+        getKeel().asyncCallIteratively(items.iterator(), (batch, task) -> {
             batches.add(new ArrayList<>(batch));
-            return asyncSleep(10);
+            return getKeel().asyncSleep(10);
         }, 2).onComplete(ar -> {
             if (ar.succeeded()) {
                 assertTrue(batches.size() >= 2);
@@ -114,8 +114,8 @@ class KeelAsyncMixinLogicUnitTest extends KeelJUnit5Test {
         List<Integer> items = Arrays.asList(1, 2, 3);
 
         assertThrows(IllegalArgumentException.class, () -> {
-            asyncCallIteratively(items.iterator(), (batch, task) ->
-                    asyncSleep(10), 0);
+            getKeel().asyncCallIteratively(items.iterator(), (batch, task) ->
+                    getKeel().asyncSleep(10), 0);
         });
         testContext.completeNow();
     }
@@ -124,9 +124,9 @@ class KeelAsyncMixinLogicUnitTest extends KeelJUnit5Test {
     void testAsyncCallStepwise(VertxTestContext testContext) {
         List<Long> values = new ArrayList<>();
 
-        asyncCallStepwise(0, 5, 1, (value, task) -> {
+        getKeel().asyncCallStepwise(0, 5, 1, (value, task) -> {
             values.add(value);
-            return asyncSleep(10);
+            return getKeel().asyncSleep(10);
         }).onComplete(ar -> {
             if (ar.succeeded()) {
                 assertEquals(5, values.size());
@@ -143,9 +143,9 @@ class KeelAsyncMixinLogicUnitTest extends KeelJUnit5Test {
     void testAsyncCallStepwiseWithTimes(VertxTestContext testContext) {
         AtomicInteger count = new AtomicInteger(0);
 
-        asyncCallStepwise(3, (value, task) -> {
+        getKeel().asyncCallStepwise(3, (value, task) -> {
             count.incrementAndGet();
-            return asyncSleep(10);
+            return getKeel().asyncSleep(10);
         }).onComplete(ar -> {
             if (ar.succeeded()) {
                 assertEquals(3, count.get());
@@ -159,8 +159,8 @@ class KeelAsyncMixinLogicUnitTest extends KeelJUnit5Test {
     @Test
     void testAsyncCallStepwiseWithInvalidStep(VertxTestContext testContext) {
         assertThrows(IllegalArgumentException.class, () -> {
-            asyncCallStepwise(0, 10, 0, (value, task) ->
-                    asyncSleep(10));
+            getKeel().asyncCallStepwise(0, 10, 0, (value, task) ->
+                    getKeel().asyncSleep(10));
         });
         testContext.completeNow();
     }
@@ -168,8 +168,8 @@ class KeelAsyncMixinLogicUnitTest extends KeelJUnit5Test {
     @Test
     void testAsyncCallStepwiseWithInvalidRange(VertxTestContext testContext) {
         assertThrows(IllegalArgumentException.class, () -> {
-            asyncCallStepwise(10, 5, 1, (value, task) ->
-                    asyncSleep(10));
+            getKeel().asyncCallStepwise(10, 5, 1, (value, task) ->
+                    getKeel().asyncSleep(10));
         });
         testContext.completeNow();
     }
@@ -178,9 +178,9 @@ class KeelAsyncMixinLogicUnitTest extends KeelJUnit5Test {
     void testAsyncCallStepwiseWithZeroTimes(VertxTestContext testContext) {
         AtomicInteger count = new AtomicInteger(0);
 
-        asyncCallStepwise(0, (value, task) -> {
+        getKeel().asyncCallStepwise(0, (value, task) -> {
             count.incrementAndGet();
-            return asyncSleep(10);
+            return getKeel().asyncSleep(10);
         }).onComplete(ar -> {
             if (ar.succeeded()) {
                 assertEquals(0, count.get());
@@ -196,12 +196,12 @@ class KeelAsyncMixinLogicUnitTest extends KeelJUnit5Test {
         List<String> items = Arrays.asList("a", "b", "c", "d", "e");
         List<String> processed = new ArrayList<>();
 
-        asyncCallIteratively(items.iterator(), (item, task) -> {
+        getKeel().asyncCallIteratively(items.iterator(), (item, task) -> {
             processed.add(item);
             if (processed.size() >= 3) {
                 task.stop();
             }
-            return asyncSleep(10);
+            return getKeel().asyncSleep(10);
         }).onComplete(ar -> {
             if (ar.succeeded()) {
                 assertEquals(3, processed.size());

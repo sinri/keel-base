@@ -8,7 +8,6 @@ module io.github.sinri.keel.base {
     requires static org.jspecify;
 
     // Export public APIs, except io.github.sinri.keel.base.internal
-    exports io.github.sinri.keel.base;
     exports io.github.sinri.keel.base.annotations;
     exports io.github.sinri.keel.base.async;
     exports io.github.sinri.keel.base.configuration;

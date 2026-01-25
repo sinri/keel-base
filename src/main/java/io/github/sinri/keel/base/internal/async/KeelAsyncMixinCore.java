@@ -1,8 +1,8 @@
-package io.github.sinri.keel.base.async;
+package io.github.sinri.keel.base.internal.async;
 
-import io.github.sinri.keel.base.VertxHolder;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
+import io.vertx.core.Vertx;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
@@ -12,7 +12,7 @@ import org.jspecify.annotations.Nullable;
  * @since 5.0.0
  */
 @NullMarked
-interface KeelAsyncMixinCore extends VertxHolder {
+interface KeelAsyncMixinCore extends Vertx {
 
     /**
      * 非阻塞地{@code 睡眠}一段时间。
@@ -36,12 +36,12 @@ interface KeelAsyncMixinCore extends VertxHolder {
     default Future<Void> asyncSleep(long time, @Nullable Promise<Void> interrupter) {
         Promise<Void> promise = Promise.promise();
         time = Math.max(1, time);
-        long timer_id = getVertx().setTimer(time, timerID -> {
+        long timer_id = setTimer(time, timerID -> {
             promise.complete();
         });
         if (interrupter != null) {
             interrupter.future().onSuccess(interrupted -> {
-                getVertx().cancelTimer(timer_id);
+                cancelTimer(timer_id);
                 promise.tryComplete();
             });
         }

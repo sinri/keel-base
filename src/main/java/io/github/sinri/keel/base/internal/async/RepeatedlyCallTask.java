@@ -1,4 +1,4 @@
-package io.github.sinri.keel.base.async;
+package io.github.sinri.keel.base.internal.async;
 
 import io.vertx.core.Future;
 import io.vertx.core.Promise;

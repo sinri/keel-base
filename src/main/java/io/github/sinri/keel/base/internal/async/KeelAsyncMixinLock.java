@@ -1,4 +1,4 @@
-package io.github.sinri.keel.base.async;
+package io.github.sinri.keel.base.internal.async;
 
 import io.vertx.core.Future;
 import org.jspecify.annotations.NullMarked;
@@ -26,7 +26,7 @@ interface KeelAsyncMixinLock extends KeelAsyncMixinCore {
      */
     default <T> Future<T> asyncCallExclusively(String lockName, long waitTimeForLock,
                                                Supplier<Future<T>> exclusiveSupplier) {
-        return getVertx().sharedData()
+        return sharedData()
                          .getLockWithTimeout(lockName, waitTimeForLock)
                          .compose(lock -> Future.succeededFuture()
                                                 .compose(v -> exclusiveSupplier.get())

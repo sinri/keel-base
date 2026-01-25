@@ -31,7 +31,7 @@ class KeelAsyncMixinCoreUnitTest extends KeelJUnit5Test {
     @Test
     void testAsyncSleep(VertxTestContext testContext) {
         long startTime = System.currentTimeMillis();
-        asyncSleep(100)
+        getKeel().asyncSleep(100)
                   .onComplete(ar -> {
                       if (ar.succeeded()) {
                           long elapsed = System.currentTimeMillis() - startTime;
@@ -47,7 +47,7 @@ class KeelAsyncMixinCoreUnitTest extends KeelJUnit5Test {
     void testAsyncSleepWithInterrupter(VertxTestContext testContext) {
         Promise<Void> interrupter = Promise.promise();
 
-        asyncSleep(1000, interrupter)
+        getKeel().asyncSleep(1000, interrupter)
                   .onComplete(ar -> {
                       if (ar.succeeded()) {
                           testContext.completeNow();
@@ -63,7 +63,7 @@ class KeelAsyncMixinCoreUnitTest extends KeelJUnit5Test {
     @Test
     void testAsyncSleepMinimumTime(VertxTestContext testContext) {
         long startTime = System.currentTimeMillis();
-        asyncSleep(0) // Should be treated as 1ms minimum
+        getKeel().asyncSleep(0) // Should be treated as 1ms minimum
                   .onComplete(ar -> {
                       if (ar.succeeded()) {
                           long elapsed = System.currentTimeMillis() - startTime;
@@ -78,7 +78,7 @@ class KeelAsyncMixinCoreUnitTest extends KeelJUnit5Test {
     @Test
     void testAsyncSleepNegativeTime(VertxTestContext testContext) {
         long startTime = System.currentTimeMillis();
-        asyncSleep(-100) // Should be treated as 1ms minimum
+        getKeel().asyncSleep(-100) // Should be treated as 1ms minimum
                   .onComplete(ar -> {
                       if (ar.succeeded()) {
                           long elapsed = System.currentTimeMillis() - startTime;

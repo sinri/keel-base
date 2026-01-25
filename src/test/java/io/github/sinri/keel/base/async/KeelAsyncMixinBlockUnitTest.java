@@ -33,7 +33,7 @@ public class KeelAsyncMixinBlockUnitTest extends KeelJUnit5Test {
     void testAsyncTransformCompletableFuture(VertxTestContext testContext) {
         CompletableFuture<String> cf = CompletableFuture.supplyAsync(() -> "test-result");
 
-        asyncTransformCompletableFuture(cf)
+        getKeel().asyncTransformCompletableFuture(cf)
                 .onComplete(ar -> {
                     if (ar.succeeded()) {
                         assertEquals("test-result", ar.result());
@@ -50,7 +50,7 @@ public class KeelAsyncMixinBlockUnitTest extends KeelJUnit5Test {
             throw new RuntimeException("Test exception");
         });
 
-        asyncTransformCompletableFuture(cf)
+        getKeel().asyncTransformCompletableFuture(cf)
                 .onComplete(ar -> {
                     if (ar.failed()) {
                         assertInstanceOf(RuntimeException.class, ar.cause());
@@ -65,7 +65,7 @@ public class KeelAsyncMixinBlockUnitTest extends KeelJUnit5Test {
     void testAsyncTransformRawFuture(VertxTestContext testContext) {
         java.util.concurrent.Future<String> rawFuture = CompletableFuture.completedFuture("result");
 
-        asyncTransformRawFuture(rawFuture)
+        getKeel().asyncTransformRawFuture(rawFuture)
                 .onComplete(ar -> {
                     if (ar.succeeded()) {
                         assertEquals("result", ar.result());
@@ -83,7 +83,7 @@ public class KeelAsyncMixinBlockUnitTest extends KeelJUnit5Test {
         // Complete after 100ms
         getVertx().setTimer(100, id -> cf.complete("delayed-result"));
 
-        asyncTransformRawFuture(cf, 50)
+        getKeel().asyncTransformRawFuture(cf, 50)
                 .onComplete(ar -> {
                     if (ar.succeeded()) {
                         assertEquals("delayed-result", ar.result());
@@ -99,7 +99,7 @@ public class KeelAsyncMixinBlockUnitTest extends KeelJUnit5Test {
         CompletableFuture<String> cf = new CompletableFuture<>();
         cf.cancel(true);
 
-        asyncTransformRawFuture(cf, 50)
+        getKeel().asyncTransformRawFuture(cf, 50)
                 .onComplete(ar -> {
                     if (ar.failed()) {
                         assertInstanceOf(CancellationException.class, ar.cause());
@@ -113,13 +113,13 @@ public class KeelAsyncMixinBlockUnitTest extends KeelJUnit5Test {
     @Test
     public void testBlockAwait(VertxTestContext testContext) {
         // This test needs to run in a worker thread context
-        Future<String> future = asyncSleep(50).map(v -> "success");
+        Future<String> future = getKeel().asyncSleep(50).map(v -> "success");
         KeelVerticleBase verticle = KeelVerticleBase.wrap(keelVerticle -> {
-            keelVerticle.getVertx().setTimer(100L, id -> {
+            keelVerticle.getKeel().setTimer(100L, id -> {
                 try {
                     ThreadingModel threadingModel = Vertx.currentContext().threadingModel();
                     System.out.println("Current thread is " + threadingModel.toString());
-                    String result = blockAwait(future);
+                    String result = getKeel().blockAwait(future);
                     assertEquals("success", result);
                     System.out.println("Block await success");
                     testContext.completeNow();
@@ -148,7 +148,7 @@ public class KeelAsyncMixinBlockUnitTest extends KeelJUnit5Test {
         // blockAwait should throw exception in event loop
         getVertx().setTimer(100, id -> {
             assertThrows(IllegalThreadStateException.class, () -> {
-                blockAwait(asyncSleep(10).map(v -> "test"));
+                getKeel().blockAwait(getKeel().asyncSleep(10).map(v -> "test"));
             });
             testContext.completeNow();
         });

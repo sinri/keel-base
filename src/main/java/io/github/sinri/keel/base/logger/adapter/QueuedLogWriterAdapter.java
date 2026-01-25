@@ -54,10 +54,10 @@ public abstract class QueuedLogWriterAdapter extends KeelVerticleBase implements
     protected abstract Future<Void> prepareForLoop();
 
     private void runLoop() {
-        asyncCallRepeatedly(repeatedlyCallTask -> {
+        getKeel().asyncCallRepeatedly(repeatedlyCallTask -> {
             Set<String> topics = this.queueMap.keySet();
             AtomicInteger counter = new AtomicInteger(0);
-            return asyncCallIteratively(topics, topic -> {
+            return getKeel().asyncCallIteratively(topics, topic -> {
                 Queue<SpecificLog<?>> queue = this.queueMap.get(topic);
                 List<SpecificLog<?>> bufferOfTopic = new ArrayList<>();
                 while (true) {
@@ -80,7 +80,7 @@ public abstract class QueuedLogWriterAdapter extends KeelVerticleBase implements
                                 repeatedlyCallTask.stop();
                                 return Future.succeededFuture();
                             }
-                            return asyncSleep(100L);
+                            return getKeel().asyncSleep(100L);
                         } else {
                             return Future.succeededFuture();
                         }

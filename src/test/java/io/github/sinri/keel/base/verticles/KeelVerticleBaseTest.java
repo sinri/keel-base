@@ -275,7 +275,7 @@ class KeelVerticleBaseTest extends KeelJUnit5Test {
     void testGetVertxBeforeDeployment() {
         TestVerticle verticle = new TestVerticle();
 
-        assertThrows(IllegalStateException.class, verticle::getVertx,
+        assertThrows(IllegalStateException.class, verticle::getKeel,
                 "Getting Vertx before deployment should throw IllegalStateException");
     }
 
@@ -409,10 +409,10 @@ class KeelVerticleBaseTest extends KeelJUnit5Test {
         @Override
         protected Future<?> startVerticle() {
             System.out.println("starting: " + deploymentID());
-            return asyncSleep(2000L)
+            return getKeel().asyncSleep(2000L)
                     .andThen(v -> {
                         System.out.println("slept");
-                        getVertx().setTimer(100L, id -> undeployMe());
+                        getKeel().setTimer(100L, id -> undeployMe());
                     });
         }
     }

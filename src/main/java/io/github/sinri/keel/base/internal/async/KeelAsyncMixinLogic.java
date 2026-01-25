@@ -1,4 +1,4 @@
-package io.github.sinri.keel.base.async;
+package io.github.sinri.keel.base.internal.async;
 
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
@@ -28,7 +28,7 @@ interface KeelAsyncMixinLogic extends KeelAsyncMixinCore {
      */
     private Future<Void> asyncCallRepeatedly(RepeatedlyCallTask repeatedlyCallTask) {
         Promise<Void> promise = Promise.promise();
-        RepeatedlyCallTask.start(getVertx(), repeatedlyCallTask, promise);
+        RepeatedlyCallTask.start(this, repeatedlyCallTask, promise);
         return promise.future();
     }
 

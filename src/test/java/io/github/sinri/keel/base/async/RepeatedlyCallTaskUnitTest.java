@@ -1,6 +1,7 @@
 package io.github.sinri.keel.base.async;
 
 import io.github.sinri.keel.base.KeelJUnit5Test;
+import io.github.sinri.keel.base.internal.async.RepeatedlyCallTask;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.junit5.VertxExtension;

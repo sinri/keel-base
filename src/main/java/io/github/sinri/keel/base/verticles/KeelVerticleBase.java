@@ -1,22 +1,23 @@
 package io.github.sinri.keel.base.verticles;
 
 import io.github.sinri.keel.base.async.Keel;
-import io.github.sinri.keel.base.async.KeelAsyncMixin;
 import io.github.sinri.keel.logger.api.LateObject;
 import io.vertx.core.*;
 import io.vertx.core.json.JsonObject;
 import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 import java.util.function.Function;
 
 /**
- * 基于{@link KeelVerticle}，提供 {@link KeelAsyncMixin} 和自部署功能支持的 {@link VerticleBase} 标准范式。
+ * Keel 体系下的标准 Verticle 基类，实现接口 {@link KeelVerticle}，期望部署于 {@link Keel} 所实现的 {@link  Vertx} 实例下。
  *
  * @since 5.0.0
  */
 @NullMarked
-abstract public class KeelVerticleBase extends VerticleBase implements KeelVerticle {
+public abstract class KeelVerticleBase implements KeelVerticle {
     private final LateObject<Keel> lateKeel = new LateObject<>();
+    private final LateObject<Context> lateContext = new LateObject<>();
     private final Promise<Void> undeployPromise = Promise.promise();
     private KeelVerticleRunningStateEnum runningState;
 
@@ -45,32 +46,16 @@ abstract public class KeelVerticleBase extends VerticleBase implements KeelVerti
         return wrap(startFunc, Future::succeededFuture);
     }
 
-    public final Vertx getVertx() {
-        if (vertx != null)
-            return vertx;
-        throw new IllegalStateException("Vertx of this verticle not initialized yet");
-    }
-
     @Override
     public final Keel getKeel() {
-        if (vertx == null) {
-            throw new IllegalStateException("Vertx of this verticle not initialized yet");
-        }
-        if (vertx instanceof Keel keel) {
-            return lateKeel.ensure(() -> keel);
-        } else {
-            return lateKeel.ensure(() -> new Keel(vertx));
-        }
+        return lateKeel.get();
     }
 
     public ThreadingModel getCurrentThreadingModel() {
-        return context.threadingModel();
+        return getContext().threadingModel();
     }
 
     public final JsonObject getVerticleInfo() {
-        if (context == null) {
-            throw new IllegalStateException("Context of this verticle not initialized yet");
-        }
         return new JsonObject()
                 .put("identity", getVerticleIdentity())
                 .put("class", this.getClass().getName())
@@ -85,10 +70,10 @@ abstract public class KeelVerticleBase extends VerticleBase implements KeelVerti
 
     public final Future<String> deployMe(Vertx vertx, DeploymentOptions deploymentOptions) {
         Keel x;
-        if(vertx instanceof Keel keel){
-            x=keel;
-        }else{
-            x=new Keel(vertx);
+        if (vertx instanceof Keel keel) {
+            x = keel;
+        } else {
+            x = Keel.create(vertx);
         }
         return deployMe(x, deploymentOptions);
     }
@@ -96,7 +81,7 @@ abstract public class KeelVerticleBase extends VerticleBase implements KeelVerti
     /**
      * 在指定Keel实例下部署当前 verticle 并使用指定的部署选项。
      *
-     * @param keel             Keel 实例
+     * @param keel              Keel 实例
      * @param deploymentOptions 部署选项
      * @return 一个异步完成，如果部署成功则返回部署唯一标识，如果部署失败则返回异常
      */
@@ -114,7 +99,7 @@ abstract public class KeelVerticleBase extends VerticleBase implements KeelVerti
      */
     public final Future<Void> undeployMe() {
         String deploymentID = deploymentID();
-        return getVertx().undeploy(deploymentID);
+        return getKeel().undeploy(deploymentID);
     }
 
     /**
@@ -124,6 +109,32 @@ abstract public class KeelVerticleBase extends VerticleBase implements KeelVerti
      */
     public final String getVerticleInstanceIdentity() {
         return String.format("%s@%s", getVerticleIdentity(), deploymentID());
+    }
+
+    @Override
+    public void init(Vertx vertx, Context context) {
+        if (vertx instanceof Keel keel) {
+            this.lateKeel.set(keel);
+        } else {
+            this.lateKeel.set(Keel.create(vertx));
+        }
+
+        lateContext.set(context);
+    }
+
+    public Context getContext() {
+        return lateContext.get();
+    }
+
+    @Override
+    public String deploymentID() {
+        return getContext().deploymentID();
+    }
+
+
+    @Override
+    public @Nullable JsonObject config() {
+        return getContext().config();
     }
 
     @Override
@@ -137,7 +148,7 @@ abstract public class KeelVerticleBase extends VerticleBase implements KeelVerti
     abstract protected Future<?> startVerticle();
 
     @Override
-    public final Future<?> stop() throws Exception {
+    public final Future<?> stop() {
         return stopVerticle()
                 .onSuccess(ar -> {
                     runningState = KeelVerticleRunningStateEnum.AFTER_RUNNING;
@@ -152,5 +163,16 @@ abstract public class KeelVerticleBase extends VerticleBase implements KeelVerti
     @Override
     public final Future<Void> undeployed() {
         return undeployPromise.future();
+    }
+
+    @Override
+    public final Future<?> deploy(Context context) {
+        init(context.owner(), context);
+        return start();
+    }
+
+    @Override
+    public final Future<?> undeploy(Context context) {
+        return stop();
     }
 }

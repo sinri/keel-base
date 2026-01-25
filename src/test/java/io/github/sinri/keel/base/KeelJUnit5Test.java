@@ -1,7 +1,6 @@
 package io.github.sinri.keel.base;
 
 import io.github.sinri.keel.base.async.Keel;
-import io.github.sinri.keel.base.async.KeelAsyncMixin;
 import io.github.sinri.keel.base.configuration.ConfigElement;
 import io.github.sinri.keel.base.json.JsonifiableSerializer;
 import io.github.sinri.keel.base.logger.factory.StdoutLoggerFactory;
@@ -32,7 +31,7 @@ import java.io.IOException;
  */
 @NullMarked
 @ExtendWith(VertxExtension.class)
-public abstract class KeelJUnit5Test implements KeelAsyncMixin {
+public abstract class KeelJUnit5Test {
 
     @RegisterExtension
     protected final static RunTestOnContext rtoc = new RunTestOnContext();
@@ -88,6 +87,10 @@ public abstract class KeelJUnit5Test implements KeelAsyncMixin {
      */
     public final Vertx getVertx() {
         return rtoc.vertx();
+    }
+
+    public final Keel getKeel() {
+        return Keel.ensureShared(() -> Keel.create(getVertx()));
     }
 
     /**

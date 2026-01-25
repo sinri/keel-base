@@ -1,6 +1,5 @@
-package io.github.sinri.keel.base.async;
+package io.github.sinri.keel.base.internal.async;
 
-import io.vertx.core.Vertx;
 import org.jspecify.annotations.NullMarked;
 
 /**
@@ -10,7 +9,4 @@ import org.jspecify.annotations.NullMarked;
  */
 @NullMarked
 public interface KeelAsyncMixin extends KeelAsyncMixinParallel, KeelAsyncMixinLock, KeelAsyncMixinBlock {
-    static KeelAsyncMixin wrap(Vertx vertx) {
-        return () -> vertx;
-    }
 }

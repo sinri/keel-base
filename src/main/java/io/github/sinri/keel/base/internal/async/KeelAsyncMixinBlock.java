@@ -1,4 +1,4 @@
-package io.github.sinri.keel.base.async;
+package io.github.sinri.keel.base.internal.async;
 
 import io.github.sinri.keel.base.annotations.TechnicalPreview;
 import io.github.sinri.keel.base.verticles.KeelVerticleBase;
@@ -18,7 +18,7 @@ import java.util.function.Supplier;
  */
 @NullMarked
 interface KeelAsyncMixinBlock extends KeelAsyncMixinLogic {
-    private boolean isInNonBlockContext() {
+    private static boolean isInNonBlockContext() {
         Context currentContext = Vertx.currentContext();
         return currentContext != null && currentContext.isEventLoopContext();
     }
@@ -34,13 +34,13 @@ interface KeelAsyncMixinBlock extends KeelAsyncMixinLogic {
         return KeelVerticleBase
                 .wrap(keelVerticle -> function
                         .get()
-                        .onComplete(ar -> keelVerticle.getVertx()
+                        .onComplete(ar -> keelVerticle.getKeel()
                                                       .setTimer(10, timer -> {
                                                           keelVerticle.undeployMe();
                                                       }))
                 )
                 .deployMe(
-                        getVertx(),
+                        this,
                         new DeploymentOptions()
                                 .setThreadingModel(ThreadingModel.VIRTUAL_THREAD)
                 )
@@ -94,7 +94,7 @@ interface KeelAsyncMixinBlock extends KeelAsyncMixinLogic {
      */
     default <R> Future<R> asyncTransformRawFuture(java.util.concurrent.Future<R> rawFuture) {
         if (isInNonBlockContext()) {
-            return getVertx().executeBlocking(rawFuture::get);
+            return executeBlocking(rawFuture::get);
         } else {
             try {
                 var r = rawFuture.get();

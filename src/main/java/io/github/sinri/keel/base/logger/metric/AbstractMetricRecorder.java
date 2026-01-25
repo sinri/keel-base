@@ -59,7 +59,7 @@ public abstract class AbstractMetricRecorder extends KeelVerticleBase implements
     abstract protected Future<Void> prepareForLoop();
 
     private void runLoop() {
-        asyncCallRepeatedly(repeatedlyCallTask -> {
+        getKeel().asyncCallRepeatedly(repeatedlyCallTask -> {
             return Future.succeededFuture()
                          .compose(v -> {
                              List<MetricRecord> buffer = new ArrayList<>();
@@ -85,7 +85,7 @@ public abstract class AbstractMetricRecorder extends KeelVerticleBase implements
                                  repeatedlyCallTask.stop();
                                  return Future.succeededFuture();
                              } else {
-                                 return asyncSleep(10L);
+                                 return getKeel().asyncSleep(10L);
                              }
                          });
         })
