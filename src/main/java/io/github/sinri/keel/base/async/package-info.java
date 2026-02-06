@@ -1,12 +1,16 @@
 /**
- * <p>The async package provides asynchronous programming utilities and mixins for the Keel framework.</p>
- * <p>This package contains asynchronous operation components, including:</p>
- * <p>- Async mixin interfaces and implementations</p>
- * <p>- Non-blocking operation support</p>
- * <p>- Async block execution and management</p>
- * <p>- Future and promise handling utilities</p>
- * <p>- Async operation chaining and composition</p>
- * <p>These components enable developers to write non-blocking, reactive applications</p>
- * <p>with improved performance and resource utilization.</p>
+ * Keel 体系的异步能力包。
+ * <p>
+ * 本包提供异步操作相关组件，包括：
+ * <p>
+ * - 异步 mixin 接口与实现
+ * <p>
+ * - 非阻塞操作支持
+ * <p>
+ * - 阻塞代码异步化（block）执行与管理
+ * <p>
+ * - Future/Promise 处理工具
+ * <p>
+ * - 异步链式调用与组合
  */
 package io.github.sinri.keel.base.async;

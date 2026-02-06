@@ -13,6 +13,14 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * 配置树节点。
+ * <p>
+ * 本类用于表示 Keel 体系中分层配置（以键链组织）的节点，可用于加载 `.properties` 文件并构建配置树，
+ * 再按键链提取配置项并进行类型读取。
+ *
+ * @since 5.0.0
+ */
 @NullMarked
 public class ConfigElement {
     private final static ConfigElement ROOT_CONFIG_ELEMENT = new ConfigElement("");

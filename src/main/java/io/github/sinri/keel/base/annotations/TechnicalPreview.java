@@ -6,6 +6,7 @@ import java.lang.annotation.*;
 
 /**
  * 本注解表示对应类、方法、字段等在框架实现内尚处于技术预览阶段，应谨慎用于业务。
+ * @since 5.0.0
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)

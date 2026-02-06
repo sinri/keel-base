@@ -12,6 +12,13 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+/**
+ * {@link QueuedLogWriterAdapter} 的补充单元测试。
+ * <p>
+ * 用于验证队列式日志写入适配器在部署、写入、解除部署流程中的基本行为。
+ *
+ * @since 5.0.0
+ */
 @NullMarked
 public class QueuedLogWriterAdapterAnotherTest extends KeelJUnit5Test {
 

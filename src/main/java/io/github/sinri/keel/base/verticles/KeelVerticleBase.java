@@ -79,11 +79,11 @@ public abstract class KeelVerticleBase implements KeelVerticle {
     }
 
     /**
-     * 在指定Keel实例下部署当前 verticle 并使用指定的部署选项。
+     * 在指定 Keel 实例下部署当前 Verticle，并使用指定的部署选项。
      *
      * @param keel              Keel 实例
      * @param deploymentOptions 部署选项
-     * @return 一个异步完成，如果部署成功则返回部署唯一标识，如果部署失败则返回异常
+     * @return 一个异步结果；如果部署成功则返回部署 ID，如果部署失败则返回异常
      */
     public final Future<String> deployMe(Keel keel, DeploymentOptions deploymentOptions) {
         if (getRunningState() != KeelVerticleRunningStateEnum.BEFORE_RUNNING) {
@@ -93,7 +93,7 @@ public abstract class KeelVerticleBase implements KeelVerticle {
     }
 
     /**
-     * 在当前已部署的verticle对应Vertx实例下解除部署。
+     * 在当前已部署的 Verticle 所属的 Vertx 实例下解除部署。
      *
      * @return 一个异步完成，如果解除部署成功则返回，如果解除部署失败则返回异常
      */
@@ -103,9 +103,9 @@ public abstract class KeelVerticleBase implements KeelVerticle {
     }
 
     /**
-     * 获取当前 verticle 实例的唯一标识或 "身份"。
+     * 获取当前 Verticle 实例的唯一标识或“身份”。
      *
-     * @return 当前 verticle 实例的身份，格式为 "标识@部署ID"
+     * @return 当前 Verticle 实例的身份，格式为 "标识@部署 ID"
      */
     public final String getVerticleInstanceIdentity() {
         return String.format("%s@%s", getVerticleIdentity(), deploymentID());

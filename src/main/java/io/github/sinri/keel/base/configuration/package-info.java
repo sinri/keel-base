@@ -1,12 +1,16 @@
 /**
- * <p>The configuration package provides configuration management utilities for the Keel framework.</p>
- * <p>This package contains configuration handling components, including:</p>
- * <p>- Configuration property definitions and builders</p>
- * <p>- Configuration element management</p>
- * <p>- Properties file and YAML configuration support</p>
- * <p>- Configuration validation and type safety</p>
- * <p>- Dynamic configuration updates and reloading</p>
- * <p>These components provide a flexible and type-safe way to manage application</p>
- * <p>configuration across different environments and deployment scenarios.</p>
+ * Keel 体系的配置管理包。
+ * <p>
+ * 本包提供配置处理组件，包括：
+ * <p>
+ * - 配置项（properties）定义与构建器
+ * <p>
+ * - 配置节点（树）管理
+ * <p>
+ * - `.properties` 与 YAML 配置支持
+ * <p>
+ * - 配置校验与类型安全
+ * <p>
+ * - 动态更新与重载
  */
 package io.github.sinri.keel.base.configuration;

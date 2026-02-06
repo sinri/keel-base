@@ -10,6 +10,13 @@ import org.jspecify.annotations.Nullable;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
+/**
+ * Keel 体系中 {@link Keel} 的默认实现。
+ * <p>
+ * 本实现基于 {@link VertxWrapper} 对 Vert.x 的 {@link Vertx} 能力进行包装，并提供全局共享 Keel 实例的存取能力。
+ *
+ * @since 5.0.0
+ */
 @NullMarked
 public class KeelImpl extends VertxWrapper implements Keel {
     private static final AtomicReference<@Nullable Keel> sharedKeelRef = new AtomicReference<>();

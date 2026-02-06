@@ -7,7 +7,9 @@ import org.jspecify.annotations.NullMarked;
 import java.util.function.Supplier;
 
 /**
- * It is to work as {@link Vertx} in Keel Framework.
+ * Keel 体系下的异步能力入口。
+ * <p>
+ * 本接口用于在 Keel 体系中以 {@link Vertx} 的方式组织与扩展异步能力。
  */
 @NullMarked
 public interface Keel extends KeelAsyncMixin {

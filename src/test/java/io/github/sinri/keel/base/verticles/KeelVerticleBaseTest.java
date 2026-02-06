@@ -47,7 +47,7 @@ class KeelVerticleBaseTest extends KeelJUnit5Test {
     /**
      * 测试基本的部署和解除部署功能。
      * <p>
-     * 验证 verticle 可以成功部署和解除部署。
+     * 验证 Verticle 可以成功部署和解除部署。
      */
     @Test
     void testDeployAndUndeploy(Vertx vertx, VertxTestContext testContext) throws Throwable {
@@ -97,7 +97,7 @@ class KeelVerticleBaseTest extends KeelJUnit5Test {
     /**
      * 测试重复部署的异常处理。
      * <p>
-     * 验证不能对已部署的 verticle 再次部署。
+     * 验证不能对已部署的 Verticle 再次部署。
      */
     @Test
     void testDoubleDeployment(Vertx vertx, VertxTestContext testContext) throws Throwable {
@@ -119,7 +119,7 @@ class KeelVerticleBaseTest extends KeelJUnit5Test {
     /**
      * 测试 wrap 静态工厂方法（带start和stop函数）。
      * <p>
-     * 验证可以通过 wrap 方法创建匿名 verticle 实例。
+     * 验证可以通过 wrap 方法创建匿名 Verticle 实例。
      */
     @Test
     void testWrapWithStartAndStop(Vertx vertx, VertxTestContext testContext) throws Throwable {
@@ -154,7 +154,7 @@ class KeelVerticleBaseTest extends KeelJUnit5Test {
     /**
      * 测试 wrap 静态工厂方法（仅start函数）。
      * <p>
-     * 验证可以通过 wrap 方法创建只需要 start 逻辑的 verticle。
+     * 验证可以通过 wrap 方法创建只需要 start 逻辑的 Verticle。
      */
     @Test
     void testWrapWithStartOnly(Vertx vertx, VertxTestContext testContext) throws Throwable {
@@ -182,7 +182,7 @@ class KeelVerticleBaseTest extends KeelJUnit5Test {
     /**
      * 测试 getVerticleInfo 方法。
      * <p>
-     * 验证能够正确获取 verticle 的信息。
+     * 验证能够正确获取 Verticle 的信息。
      */
     @Test
     void testGetVerticleInfo(Vertx vertx, VertxTestContext testContext) throws Throwable {
@@ -215,7 +215,7 @@ class KeelVerticleBaseTest extends KeelJUnit5Test {
     /**
      * 测试 getVerticleIdentity 方法。
      * <p>
-     * 验证能够获取 verticle 的身份标识。
+     * 验证能够获取 Verticle 的身份标识。
      */
     @Test
     void testGetVerticleIdentity(Vertx vertx, VertxTestContext testContext) throws Throwable {
@@ -240,7 +240,7 @@ class KeelVerticleBaseTest extends KeelJUnit5Test {
     }
 
     /**
-     * 测试自定义 verticle 身份标识。
+     * 测试自定义 Verticle 身份标识。
      * <p>
      * 验证可以重载 getVerticleIdentity 方法来自定义身份。
      */
@@ -269,7 +269,7 @@ class KeelVerticleBaseTest extends KeelJUnit5Test {
     /**
      * 测试在未部署时访问 Vertx 实例。
      * <p>
-     * 验证在 verticle 未部署时访问 Vertx 会抛出异常。
+     * 验证在 Verticle 未部署时访问 Vertx 会抛出异常。
      */
     @Test
     void testGetVertxBeforeDeployment() {
@@ -280,9 +280,9 @@ class KeelVerticleBaseTest extends KeelJUnit5Test {
     }
 
     /**
-     * 测试在未部署时获取 verticle 信息。
+     * 测试在未部署时获取 Verticle 信息。
      * <p>
-     * 验证在 verticle 未部署时获取信息会抛出异常。
+     * 验证在 Verticle 未部署时获取信息会抛出异常。
      */
     @Test
     void testGetVerticleInfoBeforeDeployment() {
@@ -295,7 +295,7 @@ class KeelVerticleBaseTest extends KeelJUnit5Test {
     /**
      * 测试多次连续部署和解除部署。
      * <p>
-     * 验证可以多次部署和解除部署不同的 verticle 实例。
+     * 验证可以多次部署和解除部署不同的 Verticle 实例。
      */
     @Test
     void testMultipleDeployments(Vertx vertx, VertxTestContext testContext) throws Throwable {
@@ -339,7 +339,7 @@ class KeelVerticleBaseTest extends KeelJUnit5Test {
     }
 
     /**
-     * 测试用的基础 verticle 实现。
+     * 测试用的基础 Verticle 实现。
      * <p>
      * 提供基本的启动和停止功能。
      */
@@ -370,7 +370,7 @@ class KeelVerticleBaseTest extends KeelJUnit5Test {
     }
 
     /**
-     * 测试用的失败 verticle。
+     * 测试用的失败 Verticle。
      * <p>
      * 启动时总是返回失败。
      */
@@ -382,7 +382,7 @@ class KeelVerticleBaseTest extends KeelJUnit5Test {
     }
 
     /**
-     * 测试用的自定义身份 verticle。
+     * 测试用的自定义身份 Verticle。
      * <p>
      * 使用自定义的身份标识。
      */

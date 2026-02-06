@@ -4,6 +4,7 @@ import org.jspecify.annotations.NullMarked;
 
 /**
  * 本接口定义了一种可用于链式调用的实体。
+ * @since 5.0.0
  */
 @NullMarked
 public interface SelfInterface<T> {
