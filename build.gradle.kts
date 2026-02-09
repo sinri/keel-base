@@ -121,6 +121,8 @@ publishing {
     publications {
         create<MavenPublication>("mavenJava") {
             from(components["java"])
+            // 显式绑定版本号，确保与项目版本一致
+            version = project.version.toString()
 
             pom {
                 name.set(projectName)
@@ -223,10 +225,10 @@ jreleaser {
                     stagingRepository("build/staging-deploy")
 
                     // 认证信息通常通过环境变量提供，或在这里显式设置
-                    // username.set("your-sonatype-username")
-                    // password.set("your-sonatype-token-password")
                     username.set(sonatypeUsername)
                     password.set(sonatypePassword)
+
+                    enabled.set(true)
                 }
             }
         }
