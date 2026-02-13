@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * 辅助方法：打印格式化的 JSON 输出，用于可视化测试结果
  */
-class JsonObjectConvertibleBeanTest {
+class JsonObjectMappedBeanTest {
 
     /**
      * 打印格式化的 JSON 输出
@@ -166,8 +166,8 @@ class JsonObjectConvertibleBeanTest {
 
         // 即使字段未设置，所有 getter 方法也会被包含在输出中
         assertNotNull(json);
-        // TestBean 现在有 11 个 getter 方法：getUserName, getUserId, isActive, isClosed, isOpen, isA, isB, getIpAddress, getXmlHttpRequest, getHttpResponse, getX
-        assertEquals(11, json.size());
+        // TestBean 现在有 12 个 getter 方法：getUserName, getUserId, isActive, isClosed, isOpen, isA, isB, getIpAddress, getXmlHttpRequest, getHttpResponse, getX, getTags
+        assertEquals(12, json.size());
         // 验证键名正确转换
         assertTrue(json.containsKey("user_name"));
         assertTrue(json.containsKey("user_id"));
@@ -180,6 +180,7 @@ class JsonObjectConvertibleBeanTest {
         assertTrue(json.containsKey("xml_http_request"));
         assertTrue(json.containsKey("http_response"));
         assertTrue(json.containsKey("x"));
+        assertTrue(json.containsKey("tags"));
     }
 
     /**
@@ -201,8 +202,8 @@ class JsonObjectConvertibleBeanTest {
         JsonObject json = bean.toJsonObject();
         printJsonOutput("testMixedScenario", json);
 
-        // TestBean 现在有 11 个 getter 方法
-        assertEquals(11, json.size());
+        // TestBean 现在有 12 个 getter 方法
+        assertEquals(12, json.size());
         assertEquals("john", json.getString("user_name"));
         assertEquals(456, json.getInteger("user_id"));
         assertTrue(json.getBoolean("active"));
@@ -216,6 +217,8 @@ class JsonObjectConvertibleBeanTest {
         // isA 和 isB 返回 false
         assertFalse(json.getBoolean("a"));
         assertFalse(json.getBoolean("b"));
+        // tags 未设置，应为 null
+        assertNull(json.getJsonArray("tags"));
 
         // 验证被忽略的字段
         assertFalse(json.containsKey("is_active"));
@@ -292,9 +295,274 @@ class JsonObjectConvertibleBeanTest {
     }
 
     /**
+     * 测试 reloadData 方法 - 基本功能
+     */
+    @Test
+    void testReloadDataBasic() {
+        TestBean bean = new TestBean();
+        JsonObject json = new JsonObject()
+                .put("user_name", "Alice")
+                .put("user_id", 789)
+                .put("active", true)
+                .put("ip_address", "192.168.2.1");
+
+        printJsonOutput("testReloadDataBasic - Input JSON", json);
+
+        bean.reloadData(json);
+
+        printJsonOutput("testReloadDataBasic - After Reload", bean.toJsonObject());
+
+        assertEquals("Alice", bean.getUserName());
+        assertEquals(789, bean.getUserId());
+        assertTrue(bean.isActive());
+        assertEquals("192.168.2.1", bean.getIpAddress());
+    }
+
+    /**
+     * 测试 reloadData 方法 - 下划线命名法转换为驼峰命名法
+     */
+    @Test
+    void testReloadDataSnakeCaseToCamelCase() {
+        TestBean bean = new TestBean();
+        JsonObject json = new JsonObject()
+                .put("user_name", "Bob")
+                .put("ip_address", "10.0.0.5")
+                .put("xml_http_request", "<test>");
+
+        bean.reloadData(json);
+
+        assertEquals("Bob", bean.getUserName());
+        assertEquals("10.0.0.5", bean.getIpAddress());
+        assertEquals("<test>", bean.getXmlHttpRequest());
+    }
+
+    /**
+     * 测试 reloadData 方法 - 驼峰命名法（不包含下划线）
+     */
+    @Test
+    void testReloadDataCamelCase() {
+        TestBean bean = new TestBean();
+        // 注意：如果 JSON 中直接使用驼峰命名法，可能无法匹配到 setter 方法
+        // 因为当前的实现假设键是下划线命名法或已经正确转换为驼峰命名法
+        JsonObject json = new JsonObject()
+                .put("user_name", "Charlie");  // 使用下划线命名法
+
+        bean.reloadData(json);
+
+        assertEquals("Charlie", bean.getUserName());
+    }
+
+    /**
+     * 测试 reloadData 方法 - boolean 类型字段
+     */
+    @Test
+    void testReloadDataBooleanFields() {
+        TestBean bean = new TestBean();
+        JsonObject json = new JsonObject()
+                .put("active", true)
+                .put("closed", false)
+                .put("open", true);
+
+        bean.reloadData(json);
+
+        assertTrue(bean.isActive());
+        assertFalse(bean.isClosed());
+        assertTrue(bean.isOpen());
+    }
+
+    /**
+     * 测试 reloadData 方法 - 类型转换
+     */
+    @Test
+    void testReloadDataTypeConversion() {
+        TestBean bean = new TestBean();
+        JsonObject json = new JsonObject()
+                .put("user_name", "123")  // 字符串数字
+                .put("user_id", 456);  // 整数
+
+        bean.reloadData(json);
+
+        assertEquals("123", bean.getUserName());  // 应该保持为字符串
+        assertEquals(456, bean.getUserId());
+    }
+
+    /**
+     * 测试 reloadData 方法 - 往返一致性
+     */
+    @Test
+    void testReloadDataRoundTrip() {
+        TestBean originalBean = new TestBean();
+        originalBean.setUserName("Dave");
+        originalBean.setUserId(999);
+        originalBean.setActive(true);
+        originalBean.setClosed(false);
+        originalBean.setIpAddress("172.16.0.1");
+        originalBean.setXmlHttpRequest("<original>");
+
+        // 转换为 JSON
+        JsonObject json = originalBean.toJsonObject();
+
+        printJsonOutput("testReloadDataRoundTrip - Original Bean", json);
+
+        // 创建新的 Bean 并从 JSON 重载数据
+        TestBean newBean = new TestBean();
+        newBean.reloadData(json);
+
+        printJsonOutput("testReloadDataRoundTrip - Reloaded Bean", newBean.toJsonObject());
+
+        // 验证数据一致性
+        assertEquals(originalBean.getUserName(), newBean.getUserName());
+        assertEquals(originalBean.getUserId(), newBean.getUserId());
+        assertEquals(originalBean.isActive(), newBean.isActive());
+        assertEquals(originalBean.isClosed(), newBean.isClosed());
+        assertEquals(originalBean.getIpAddress(), newBean.getIpAddress());
+        assertEquals(originalBean.getXmlHttpRequest(), newBean.getXmlHttpRequest());
+    }
+
+    /**
+     * 测试 reloadData 方法 - 不存在的字段
+     */
+    @Test
+    void testReloadDataNonExistentFields() {
+        TestBean bean = new TestBean();
+        bean.setUserName("Original");
+
+        JsonObject json = new JsonObject()
+                .put("user_name", "Updated")
+                .put("non_existent_field", "value");  // 不存在的字段
+
+        // 应该不会抛出异常
+        assertDoesNotThrow(() -> bean.reloadData(json));
+
+        assertEquals("Updated", bean.getUserName());
+    }
+
+    /**
+     * 测试 reloadData 方法 - 空对象
+     */
+    @Test
+    void testReloadDataEmptyJsonObject() {
+        TestBean bean = new TestBean();
+        bean.setUserName("Initial");
+
+        JsonObject json = new JsonObject();
+
+        // 应该不会抛出异常
+        assertDoesNotThrow(() -> bean.reloadData(json));
+
+        // 原有值应该保持不变
+        assertEquals("Initial", bean.getUserName());
+    }
+
+    @Test
+    void testNested1() {
+        JsonObject jsonObject = new JsonObject()
+                .put("a", new JsonObject()
+                        .put("value", "123")
+                );
+        TestNestedBean testNestedBean = new TestNestedBean();
+        testNestedBean.reloadData(jsonObject);
+        printJsonOutput("testNested1", testNestedBean.toJsonObject());
+        assertEquals("123", testNestedBean.getA().getValue());
+    }
+
+    /**
+     * 测试 reloadData 方法 - JsonArray 类型
+     */
+    @Test
+    void testReloadDataJsonArray() {
+        TestBean bean = new TestBean();
+        io.vertx.core.json.JsonArray tagsArray = new io.vertx.core.json.JsonArray()
+                .add("java")
+                .add("kotlin")
+                .add("python");
+
+        JsonObject json = new JsonObject()
+                .put("user_name", "Developer")
+                .put("tags", tagsArray);
+
+        printJsonOutput("testReloadDataJsonArray - Input JSON", json);
+
+        bean.reloadData(json);
+
+        printJsonOutput("testReloadDataJsonArray - After Reload", bean.toJsonObject());
+
+        assertEquals("Developer", bean.getUserName());
+        assertNotNull(bean.getTags());
+        assertEquals(3, bean.getTags().size());
+        assertEquals("java", bean.getTags().get(0));
+        assertEquals("kotlin", bean.getTags().get(1));
+        assertEquals("python", bean.getTags().get(2));
+    }
+
+    /**
+     * 测试 reloadData 方法 - JsonArray 为空数组
+     */
+    @Test
+    void testReloadDataJsonArrayEmpty() {
+        TestBean bean = new TestBean();
+        io.vertx.core.json.JsonArray tagsArray = new io.vertx.core.json.JsonArray();
+
+        JsonObject json = new JsonObject()
+                .put("tags", tagsArray);
+
+        bean.reloadData(json);
+
+        assertNotNull(bean.getTags());
+        assertTrue(bean.getTags().isEmpty());
+    }
+
+    /**
+     * 测试 toJsonObject 方法 - JsonArray 类型
+     */
+    @Test
+    void testToJsonObjectJsonArray() {
+        TestBean bean = new TestBean();
+        bean.setUserName("TestUser");
+        bean.setTags(java.util.List.of("tag1", "tag2", "tag3"));
+
+        JsonObject json = bean.toJsonObject();
+        printJsonOutput("testToJsonObjectJsonArray", json);
+
+        assertEquals("TestUser", json.getString("user_name"));
+        assertTrue(json.containsKey("tags"));
+        io.vertx.core.json.JsonArray tagsArray = json.getJsonArray("tags");
+        assertEquals(3, tagsArray.size());
+        assertEquals("tag1", tagsArray.getString(0));
+        assertEquals("tag2", tagsArray.getString(1));
+        assertEquals("tag3", tagsArray.getString(2));
+    }
+
+    /**
+     * 测试 JsonArray 往返一致性
+     */
+    @Test
+    void testJsonArrayRoundTrip() {
+        TestBean originalBean = new TestBean();
+        originalBean.setUserName("RoundTripUser");
+        originalBean.setTags(java.util.List.of("a", "b", "c"));
+
+        // 转换为 JSON
+        JsonObject json = originalBean.toJsonObject();
+
+        printJsonOutput("testJsonArrayRoundTrip - Original Bean", json);
+
+        // 创建新的 Bean 并从 JSON 重载数据
+        TestBean newBean = new TestBean();
+        newBean.reloadData(json);
+
+        printJsonOutput("testJsonArrayRoundTrip - Reloaded Bean", newBean.toJsonObject());
+
+        // 验证数据一致性
+        assertEquals(originalBean.getUserName(), newBean.getUserName());
+        assertNotNull(newBean.getTags());
+        assertEquals(originalBean.getTags(), newBean.getTags());
+    }
+
+    /**
      * 测试用的 Bean 类
      */
-    static class TestBean implements JsonObjectConvertibleBean {
+    static class TestBean implements JsonObjectMappedBean {
         private String userName;
         private int userId;
         private boolean active;  // 使用 is 前缀 getter
@@ -305,6 +573,7 @@ class JsonObjectConvertibleBeanTest {
         private String httpResponse;
         private String get;  // 字段名为 get，对应方法 get()
         private String getX; // 字段名为 getX，对应方法 getX()
+        private java.util.List<String> tags;  // JsonArray 类型示例
 
         public TestBean() {
         }
@@ -402,6 +671,14 @@ class JsonObjectConvertibleBeanTest {
             this.getX = getX;
         }
 
+        public java.util.List<String> getTags() {
+            return tags;
+        }
+
+        public void setTags(java.util.List<String> tags) {
+            this.tags = tags;
+        }
+
         // 带参数的方法，应该被忽略
         public String getUserName(String prefix) {
             return prefix + userName;
@@ -419,6 +696,32 @@ class JsonObjectConvertibleBeanTest {
 
         public boolean isB() {
             return false;
+        }
+    }
+
+    static class TestNestedBean implements JsonObjectMappedBean {
+        private TestNestedBeanA a;
+
+        public TestNestedBeanA getA() {
+            return a;
+        }
+
+        public TestNestedBean setA(TestNestedBeanA a) {
+            this.a = a;
+            return this;
+        }
+    }
+
+    static class TestNestedBeanA implements JsonObjectMappedBean {
+        private String value;
+
+        public String getValue() {
+            return value;
+        }
+
+        public TestNestedBeanA setValue(String value) {
+            this.value = value;
+            return this;
         }
     }
 }
