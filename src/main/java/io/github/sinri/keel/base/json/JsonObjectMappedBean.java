@@ -3,9 +3,15 @@ package io.github.sinri.keel.base.json;
 import io.github.sinri.keel.base.annotations.TechnicalPreview;
 import io.vertx.core.json.JsonObject;
 import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.InvocationTargetException;
 
+/**
+ * 本接口对应一种可以与 JsonObject 进行互换的 Bean 实体。
+ *
+ * @since 5.0.2
+ */
 @NullMarked
 @TechnicalPreview(since = "5.0.2")
 public interface JsonObjectMappedBean extends JsonObjectConvertible, JsonObjectReloadable, java.io.Serializable {
@@ -159,7 +165,7 @@ public interface JsonObjectMappedBean extends JsonObjectConvertible, JsonObjectR
      * @param targetType 目标类型
      * @return 转换后的值，如果无法转换则返回 null
      */
-    private Object convertValue(Object value, Class<?> targetType) {
+    private <T> @Nullable Object convertValue(@Nullable Object value, Class<T> targetType) {
         if (value == null) {
             return null;
         }
@@ -204,15 +210,17 @@ public interface JsonObjectMappedBean extends JsonObjectConvertible, JsonObjectR
             // 目标类型是 List 或其子类
             if (java.util.List.class.isAssignableFrom(targetType)) {
                 try {
-                    java.util.List<Object> list = (java.util.List<Object>) (targetType == java.util.List.class ? new java.util.ArrayList<>() : targetType.getDeclaredConstructor()
-                                                                                                                                                         .newInstance());
+                    java.util.List<Object> list = (java.util.List<Object>) (targetType == java.util.List.class
+                            ? new java.util.ArrayList<>()
+                            : targetType.getDeclaredConstructor().newInstance());
                     for (Object item : jsonArray) {
-                        if (item instanceof JsonObject itemJson) {
-                            // 尝试推断元素类型，默认使用 JsonObject
-                            list.add(itemJson);
-                        } else {
-                            list.add(item);
-                        }
+                        //                        if (item instanceof JsonObject itemJson) {
+                        //                            // 尝试推断元素类型，默认使用 JsonObject
+                        //                            list.add(itemJson);
+                        //                        } else {
+                        //                            list.add(item);
+                        //                        }
+                        list.add(item);
                     }
                     return list;
                 } catch (Exception e) {
@@ -222,7 +230,7 @@ public interface JsonObjectMappedBean extends JsonObjectConvertible, JsonObjectR
         }
 
         // 处理基本类型转换
-        if (targetType == String.class && value != null) {
+        if (targetType == String.class) {
             return value.toString();
         }
         if (targetType == Integer.class || targetType == int.class) {
@@ -258,7 +266,7 @@ public interface JsonObjectMappedBean extends JsonObjectConvertible, JsonObjectR
         }
 
         // 无法转换
-        return null;
+        throw new IllegalArgumentException("Unsupported target type " + targetType + " for value " + value);
     }
 
     @Override
