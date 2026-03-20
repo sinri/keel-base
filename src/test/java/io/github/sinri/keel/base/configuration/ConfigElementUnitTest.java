@@ -193,6 +193,9 @@ class ConfigElementUnitTest {
         ConfigElement extracted = configElement.extract(Arrays.asList("server", "host"));
         assertNotNull(extracted);
         assertEquals("localhost", extracted.getElementValue());
+
+        ConfigElement extract = configElement.extract("server");
+        System.out.println(extract.debugToString(0));
     }
 
     @Test
