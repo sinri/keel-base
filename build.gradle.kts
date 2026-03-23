@@ -2,7 +2,7 @@ plugins {
     `java-library`
     `maven-publish`
     signing
-    id("org.jreleaser") version "1.22.0"
+    id("org.jreleaser") version "1.23.0"
 }
 
 // Project metadata from gradle.properties
@@ -199,9 +199,10 @@ signing {
     useGpgCmd()
 
     // Only sign if not a SNAPSHOT and signing credentials are available
-    setRequired({
-        !version.toString().endsWith("SNAPSHOT") && gradle.taskGraph.hasTask("publish")
-    })
+    setRequired {
+        !version.toString().endsWith("SNAPSHOT") &&
+                gradle.startParameter.taskNames.any { it == "publish" || it.endsWith(":publish") }
+    }
     sign(publishing.publications["mavenJava"])
 }
 
