@@ -41,12 +41,9 @@ public abstract class QueuedLogWriterAdapter extends KeelVerticleBase implements
 
     @Override
     protected final Future<Void> startVerticle() {
-        System.out.println("Starting LogWriterAdapter preparation");
         return prepareForLoop()
                 .compose(v -> {
-                    System.out.println("Starting LogWriterAdapter prepared");
                     runLoop();
-                    System.out.println("Started Loop of LogWriterAdapter");
                     return Future.succeededFuture();
                 });
     }
@@ -55,38 +52,38 @@ public abstract class QueuedLogWriterAdapter extends KeelVerticleBase implements
 
     private void runLoop() {
         getKeel().asyncCallRepeatedly(repeatedlyCallTask -> {
-            Set<String> topics = this.queueMap.keySet();
-            AtomicInteger counter = new AtomicInteger(0);
-            return getKeel().asyncCallIteratively(topics, topic -> {
-                Queue<SpecificLog<?>> queue = this.queueMap.get(topic);
-                List<SpecificLog<?>> bufferOfTopic = new ArrayList<>();
-                while (true) {
-                    SpecificLog<?> r = queue.poll();
-                    if (r == null) break;
-                    bufferOfTopic.add(r);
-                    counter.incrementAndGet();
-                    if (bufferOfTopic.size() >= this.bufferSize()) {
-                        break;
-                    }
-                }
+                     Set<String> topics = this.queueMap.keySet();
+                     AtomicInteger counter = new AtomicInteger(0);
+                     return getKeel().asyncCallIteratively(topics, topic -> {
+                                         Queue<SpecificLog<?>> queue = this.queueMap.get(topic);
+                                         List<SpecificLog<?>> bufferOfTopic = new ArrayList<>();
+                                         while (true) {
+                                             SpecificLog<?> r = queue.poll();
+                                             if (r == null) break;
+                                             bufferOfTopic.add(r);
+                                             counter.incrementAndGet();
+                                             if (bufferOfTopic.size() >= this.bufferSize()) {
+                                                 break;
+                                             }
+                                         }
 
-                if (bufferOfTopic.isEmpty()) return Future.succeededFuture();
+                                         if (bufferOfTopic.isEmpty()) return Future.succeededFuture();
 
-                return processLogRecords(topic, bufferOfTopic);
-            })
-                    .eventually(() -> {
-                        if (counter.get() == 0) {
-                            if (closeFlag.get()) {
-                                repeatedlyCallTask.stop();
-                                return Future.succeededFuture();
-                            }
-                            return getKeel().asyncSleep(100L);
-                        } else {
-                            return Future.succeededFuture();
-                        }
-                    });
-        })
-                .onComplete(endedPromise::handle);
+                                         return processLogRecords(topic, bufferOfTopic);
+                                     })
+                                     .eventually(() -> {
+                                         if (counter.get() == 0) {
+                                             if (closeFlag.get()) {
+                                                 repeatedlyCallTask.stop();
+                                                 return Future.succeededFuture();
+                                             }
+                                             return getKeel().asyncSleep(100L);
+                                         } else {
+                                             return Future.succeededFuture();
+                                         }
+                                     });
+                 })
+                 .onComplete(endedPromise::handle);
     }
 
     @Override
@@ -99,6 +96,7 @@ public abstract class QueuedLogWriterAdapter extends KeelVerticleBase implements
     @Override
     protected Future<?> stopVerticle() {
         closeFlag.set(true);
+        // there is no TIMEOUT, if this queue should be stopped, the ending should be reached.
         return endedPromise.future()
                            .eventually(Future::succeededFuture);
     }

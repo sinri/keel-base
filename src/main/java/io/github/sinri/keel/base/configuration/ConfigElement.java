@@ -39,8 +39,8 @@ public class ConfigElement {
     public ConfigElement(ConfigElement another) {
         this.elementName = another.elementName;
         this.elementValue = another.elementValue;
-        this.children = another.children;
-        this.parentKeyChain = another.parentKeyChain;
+        this.children = new ConcurrentHashMap<>(another.children);
+        this.parentKeyChain = new ArrayList<>(another.parentKeyChain);
     }
 
     /**
@@ -55,18 +55,20 @@ public class ConfigElement {
     public static Properties loadLocalPropertiesFile(String propertiesFileName, Charset charset) throws IOException {
         File file = new File(propertiesFileName);
         Properties properties = new Properties();
-        try {
+        try (FileReader reader = new FileReader(file, charset)) {
             // here, the file named as `propertiesFileName` should be put along with JAR
-            properties.load(new FileReader(file, charset));
+            properties.load(reader);
         } catch (IOException e) {
             StdoutLoggerFactory.getInstance().createLogger(ConfigElement.class.getName())
                                .warning("Cannot read the file %s. Use the embedded one.".formatted(file.getAbsolutePath()));
-            InputStream resourceAsStream = ConfigElement.class.getClassLoader().getResourceAsStream(propertiesFileName);
-            if (resourceAsStream == null) {
-                // if the embedded file is not found, throw an IOException
-                throw new IOException("The embedding properties file is not found.");
+            try (InputStream resourceAsStream = ConfigElement.class.getClassLoader()
+                                                                   .getResourceAsStream(propertiesFileName)) {
+                if (resourceAsStream == null) {
+                    // if the embedded file is not found, throw an IOException
+                    throw new IOException("The embedding properties file is not found.");
+                }
+                properties.load(resourceAsStream);
             }
-            properties.load(resourceAsStream);
         }
         return properties;
     }
@@ -274,11 +276,14 @@ public class ConfigElement {
      * @return 提取的子项，如果不存在则返回 null
      */
     public @Nullable ConfigElement tryToExtract(List<String> keychain) {
-        try {
-            return extract(keychain);
-        } catch (NotConfiguredException e) {
-            return null;
+        ConfigElement configElement = this;
+        for (String key : keychain) {
+            configElement = configElement.tryToGetChild(key);
+            if (configElement == null) {
+                return null;
+            }
         }
+        return configElement;
     }
 
     /**

@@ -1,5 +1,10 @@
 # Keel Base
 
+## Documents of related libraries
+
+* https://sinri.github.io/keel-logger-api/
+* https://sinri.github.io/keel-logger-ext/
+
 ## Vertx Logging Preparation
 
 在初始化 Keel 框架之前，可以通过以下代码确保 Vert.x 日志提供者有默认的配置（使用 JUL）。

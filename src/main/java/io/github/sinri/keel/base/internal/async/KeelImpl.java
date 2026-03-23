@@ -32,7 +32,7 @@ public class KeelImpl extends VertxWrapper implements Keel {
     public static Keel shared() {
         Keel keel = sharedKeelRef.get();
         if (keel == null) {
-            throw new IllegalStateException("Shared Keel has been initialized");
+            throw new IllegalStateException("Shared Keel has not been initialized yet");
         }
         return keel;
     }
@@ -50,11 +50,14 @@ public class KeelImpl extends VertxWrapper implements Keel {
     }
 
     public static Keel ensureShared(Supplier<Keel> supplier) {
-        Keel keel = sharedKeelRef.get();
-        if (keel == null) {
-            keel = supplier.get();
-            sharedKeelRef.set(keel);
+        Keel existing = sharedKeelRef.get();
+        if (existing != null) {
+            return existing;
         }
-        return keel;
+        Keel created = supplier.get();
+        if (sharedKeelRef.compareAndSet(null, created)) {
+            return created;
+        }
+        return sharedKeelRef.get();
     }
 }

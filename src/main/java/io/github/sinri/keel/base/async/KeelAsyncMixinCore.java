@@ -37,7 +37,7 @@ interface KeelAsyncMixinCore extends Vertx {
         Promise<Void> promise = Promise.promise();
         time = Math.max(1, time);
         long timer_id = setTimer(time, timerID -> {
-            promise.complete();
+            promise.tryComplete();
         });
         if (interrupter != null) {
             interrupter.future().onSuccess(interrupted -> {

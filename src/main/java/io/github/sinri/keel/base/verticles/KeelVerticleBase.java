@@ -19,7 +19,7 @@ public abstract class KeelVerticleBase implements KeelVerticle {
     private final LateObject<Keel> lateKeel = new LateObject<>();
     private final LateObject<Context> lateContext = new LateObject<>();
     private final Promise<Void> undeployPromise = Promise.promise();
-    private KeelVerticleRunningStateEnum runningState;
+    private volatile KeelVerticleRunningStateEnum runningState;
 
     public KeelVerticleBase() {
         this.runningState = KeelVerticleRunningStateEnum.BEFORE_RUNNING;
@@ -150,9 +150,13 @@ public abstract class KeelVerticleBase implements KeelVerticle {
     @Override
     public final Future<?> stop() {
         return stopVerticle()
-                .onSuccess(ar -> {
+                .onComplete(ar -> {
                     runningState = KeelVerticleRunningStateEnum.AFTER_RUNNING;
-                    undeployPromise.complete();
+                    if (ar.succeeded()) {
+                        undeployPromise.tryComplete();
+                    } else {
+                        undeployPromise.tryFail(ar.cause());
+                    }
                 });
     }
 
