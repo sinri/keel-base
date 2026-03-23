@@ -1,3 +1,8 @@
+---
+layout: default
+title: keel-base 5.0.2 版本说明
+---
+
 # keel-base 5.0.2 版本说明
 
 本文档面向使用 keel-base 库的开发者，说明 5.0.2 版本中引入的新特性、行为变更与缺陷修复。

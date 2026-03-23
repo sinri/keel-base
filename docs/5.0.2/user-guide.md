@@ -1,3 +1,8 @@
+---
+layout: default
+title: keel-base 5.0.2 使用指南
+---
+
 # keel-base 5.0.2 使用指南
 
 本文档面向使用 `keel-base` 库的开发者，系统介绍 5.0.2 版本的模块设计、核心 API 及典型使用方式。
