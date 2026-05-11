@@ -56,7 +56,7 @@ dependencies {
     implementation("io.vertx:vertx-json-schema:$vertxVersion")
 
     // Jackson dependencies (matching module-info.java requires transitive)
-    api("com.fasterxml.jackson.core:jackson-core:$jacksonVersion")
+//    api("com.fasterxml.jackson.core:jackson-core:$jacksonVersion")
     api("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:$jacksonVersion")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
