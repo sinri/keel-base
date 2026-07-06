@@ -140,6 +140,23 @@ class KeelAsyncMixinLogicUnitTest extends KeelJUnit5Test {
     }
 
     @Test
+    void testAsyncCallStepwiseWithEmptyRange(VertxTestContext testContext) {
+        AtomicInteger count = new AtomicInteger(0);
+
+        getKeel().asyncCallStepwise(5, 5, 1, (value, task) -> {
+            count.incrementAndGet();
+            return getKeel().asyncSleep(10);
+        }).onComplete(ar -> {
+            if (ar.succeeded()) {
+                assertEquals(0, count.get());
+                testContext.completeNow();
+            } else {
+                testContext.failNow(ar.cause());
+            }
+        });
+    }
+
+    @Test
     void testAsyncCallStepwiseWithTimes(VertxTestContext testContext) {
         AtomicInteger count = new AtomicInteger(0);
 
@@ -192,6 +209,23 @@ class KeelAsyncMixinLogicUnitTest extends KeelJUnit5Test {
     }
 
     @Test
+    void testAsyncCallStepwiseWithNegativeTimes(VertxTestContext testContext) {
+        AtomicInteger count = new AtomicInteger(0);
+
+        getKeel().asyncCallStepwise(-1, (value, task) -> {
+            count.incrementAndGet();
+            return getKeel().asyncSleep(10);
+        }).onComplete(ar -> {
+            if (ar.succeeded()) {
+                assertEquals(0, count.get());
+                testContext.completeNow();
+            } else {
+                testContext.failNow(ar.cause());
+            }
+        });
+    }
+
+    @Test
     void testAsyncCallIterativelyWithStop(VertxTestContext testContext) {
         List<String> items = Arrays.asList("a", "b", "c", "d", "e");
         List<String> processed = new ArrayList<>();
@@ -212,4 +246,3 @@ class KeelAsyncMixinLogicUnitTest extends KeelJUnit5Test {
         });
     }
 }
-

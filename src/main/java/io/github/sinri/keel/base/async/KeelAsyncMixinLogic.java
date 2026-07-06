@@ -187,10 +187,13 @@ interface KeelAsyncMixinLogic extends KeelAsyncMixinCore {
     /**
      * 基于给定的起始、终止、步长数值，基于异步循环调用，进行异步步进循环。
      * <p>
+     * 本方法使用排他终止边界，等价于 {@code for (long i = start; i < end; i += step)}；
+     * 当起始数值等于终止数值时，将直接返回成功结果。
+     * <p>
      * 步进方向要求是增量且可达的；因此，如果起始数值大于终止数值，或步进数值小于等于 0，将抛出异常。
      *
      * @param start     起始数值。
-     * @param end       终止数值
+     * @param end       终止数值，不包含在循环范围内
      * @param step      步长数值
      * @param processor 异步步进循环逻辑
      * @return 异步循环执行结果
@@ -203,6 +206,8 @@ interface KeelAsyncMixinLogic extends KeelAsyncMixinCore {
             throw new IllegalArgumentException("step must be greater than 0");
         if (start > end)
             throw new IllegalArgumentException("start must not be greater than end");
+        if (start == end)
+            return Future.succeededFuture();
         AtomicLong ptr = new AtomicLong(start);
         return asyncCallRepeatedly(task -> Future
                 .succeededFuture()
@@ -219,9 +224,10 @@ interface KeelAsyncMixinLogic extends KeelAsyncMixinCore {
     /**
      * 基于异步循环调用，进行异步的指定次数步进循环，可以提前中断。
      * <p>
-     * 基于{@link KeelAsyncMixinLogic#asyncCallStepwise(long, long, long, BiFunction)}，起始数值设定为 0、步长数值设定为 1。
+     * 基于{@link KeelAsyncMixinLogic#asyncCallStepwise(long, long, long, BiFunction)}，起始数值设定为 0、步长数值设定为 1，
+     * 终止数值为排他边界。
      *
-     * @param times     循环次数。即终止数值。当循环次数小于等于 0 时，将直接返回成功结果。
+     * @param times     循环次数。当循环次数小于等于 0 时，将直接返回成功结果。
      * @param processor 异步步进循环逻辑
      * @return 异步循环执行结果
      */
@@ -238,7 +244,7 @@ interface KeelAsyncMixinLogic extends KeelAsyncMixinCore {
     /**
      * 基于异步循环调用，进行异步的指定次数步进循环。
      *
-     * @param times     循环次数。即终止数值。当循环次数小于等于 0 时，将直接返回成功结果。
+     * @param times     循环次数。当循环次数小于等于 0 时，将直接返回成功结果。
      * @param processor 异步步进循环逻辑
      * @return 异步循环执行结果
      */
