@@ -210,16 +210,8 @@ public interface JsonObjectMappedBean extends JsonObjectConvertible, JsonObjectR
             // 目标类型是 List 或其子类
             if (java.util.List.class.isAssignableFrom(targetType)) {
                 try {
-                    java.util.List<Object> list = (java.util.List<Object>) (targetType == java.util.List.class
-                            ? new java.util.ArrayList<>()
-                            : targetType.getDeclaredConstructor().newInstance());
+                    java.util.List<Object> list = createListInstance(targetType);
                     for (Object item : jsonArray) {
-                        //                        if (item instanceof JsonObject itemJson) {
-                        //                            // 尝试推断元素类型，默认使用 JsonObject
-                        //                            list.add(itemJson);
-                        //                        } else {
-                        //                            list.add(item);
-                        //                        }
                         list.add(item);
                     }
                     return list;
@@ -267,6 +259,24 @@ public interface JsonObjectMappedBean extends JsonObjectConvertible, JsonObjectR
 
         // 无法转换
         throw new IllegalArgumentException("Unsupported target type " + targetType + " for value " + value);
+    }
+
+    @SuppressWarnings("unchecked")
+    private java.util.List<Object> createListInstance(Class<?> targetType) throws ReflectiveOperationException {
+        if (targetType == java.util.List.class) {
+            return new java.util.ArrayList<>();
+        }
+
+        Object instance = targetType.getDeclaredConstructor().newInstance();
+        if (instance instanceof java.util.List<?>) {
+            /*
+             * The target class has already been checked as a List subtype by convertValue.
+             * Element type is erased at runtime, so this narrow cast is the only unchecked boundary.
+             */
+            return (java.util.List<Object>) instance;
+        }
+
+        throw new IllegalArgumentException("Target type is not a List: " + targetType);
     }
 
     @Override
