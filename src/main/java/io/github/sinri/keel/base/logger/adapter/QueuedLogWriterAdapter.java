@@ -37,6 +37,15 @@ public abstract class QueuedLogWriterAdapter extends KeelVerticleBase implements
         return 128;
     }
 
+    /**
+     * 等待处理日志的间隙，单位为毫秒。
+     *
+     * @return 当囤积的日志处理完之后，等待下一波次的间隙毫秒数。
+     */
+    protected long restMs() {
+        return 100L;
+    }
+
     abstract protected Future<Void> processLogRecords(String topic, List<SpecificLog<?>> batch);
 
     @Override
@@ -77,7 +86,7 @@ public abstract class QueuedLogWriterAdapter extends KeelVerticleBase implements
                                                  repeatedlyCallTask.stop();
                                                  return Future.succeededFuture();
                                              }
-                                             return getKeel().asyncSleep(100L);
+                                             return getKeel().asyncSleep(restMs());
                                          } else {
                                              return Future.succeededFuture();
                                          }

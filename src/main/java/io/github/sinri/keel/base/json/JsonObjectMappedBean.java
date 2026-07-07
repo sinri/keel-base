@@ -131,7 +131,7 @@ public interface JsonObjectMappedBean extends JsonObjectConvertible, JsonObjectR
      * @return 驼峰命名法字符串
      */
     private String snakeToCamel(String snakeCase) {
-        if (snakeCase == null || snakeCase.isEmpty()) {
+        if (snakeCase.isEmpty()) {
             return snakeCase;
         }
 
