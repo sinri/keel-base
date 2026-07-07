@@ -179,6 +179,17 @@ publishing {
     }
 }
 
+val cleanMavenCentralStaging by tasks.registering(Delete::class) {
+    delete(
+        layout.buildDirectory.dir("staging-deploy"),
+        layout.buildDirectory.dir("jreleaser/deploy")
+    )
+}
+
+tasks.named("publishMavenJavaPublicationToMavenRepository") {
+    dependsOn(cleanMavenCentralStaging)
+}
+
 // 在 publishing 配置块之后添加
 tasks.named("publish") {
     // 仅当版本是正式版本时，自动触发 jreleaserDeploy

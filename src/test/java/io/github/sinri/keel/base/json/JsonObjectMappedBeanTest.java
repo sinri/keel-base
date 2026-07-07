@@ -513,6 +513,41 @@ class JsonObjectMappedBeanTest {
     }
 
     /**
+     * 测试 reloadData 方法 - JsonArray 转换为具体 List 子类
+     */
+    @Test
+    void testReloadDataJsonArrayToConcreteListType() {
+        TestLinkedListBean bean = new TestLinkedListBean();
+        io.vertx.core.json.JsonArray tagsArray = new io.vertx.core.json.JsonArray()
+                .add("alpha")
+                .add("beta");
+
+        JsonObject json = new JsonObject()
+                .put("tags", tagsArray);
+
+        bean.reloadData(json);
+
+        assertNotNull(bean.getTags());
+        assertInstanceOf(java.util.LinkedList.class, bean.getTags());
+        assertEquals(java.util.List.of("alpha", "beta"), bean.getTags());
+    }
+
+    /**
+     * 测试 reloadData 方法 - 不支持的目标类型
+     */
+    @Test
+    void testReloadDataUnsupportedTargetType() {
+        TestUnsupportedTargetTypeBean bean = new TestUnsupportedTargetTypeBean();
+        JsonObject json = new JsonObject()
+                .put("uri", "https://example.com");
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> bean.reloadData(json));
+
+        assertTrue(exception.getMessage().contains("Unsupported target type"));
+        assertTrue(exception.getMessage().contains("java.net.URI"));
+    }
+
+    /**
      * 测试 toJsonObject 方法 - JsonArray 类型
      */
     @Test
@@ -696,6 +731,30 @@ class JsonObjectMappedBeanTest {
 
         public boolean isB() {
             return false;
+        }
+    }
+
+    static class TestLinkedListBean implements JsonObjectMappedBean {
+        private java.util.LinkedList<String> tags;
+
+        public java.util.LinkedList<String> getTags() {
+            return tags;
+        }
+
+        public void setTags(java.util.LinkedList<String> tags) {
+            this.tags = tags;
+        }
+    }
+
+    static class TestUnsupportedTargetTypeBean implements JsonObjectMappedBean {
+        private java.net.URI uri;
+
+        public java.net.URI getUri() {
+            return uri;
+        }
+
+        public void setUri(java.net.URI uri) {
+            this.uri = uri;
         }
     }
 

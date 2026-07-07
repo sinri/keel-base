@@ -12,6 +12,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 
 /**
  * 配置树节点。
@@ -426,6 +427,28 @@ public class ConfigElement {
         } catch (NotConfiguredException e) {
             return null;
         }
+    }
+
+    /**
+     * @since 5.0.5
+     */
+    public String readPropertyRequired(String dotJoinedKeyChain) throws NotConfiguredException {
+        String[] split = dotJoinedKeyChain.split("\\.");
+        return readString(List.of(split));
+    }
+
+    /**
+     * @since 5.0.5
+     */
+    public <R> R readPropertyRequired(String dotJoinedKeyChain, Function<@Nullable String, R> formatter) {
+        String[] split = dotJoinedKeyChain.split("\\.");
+        String s;
+        try {
+            s = readString(List.of(split));
+        } catch (NotConfiguredException e) {
+            s = null;
+        }
+        return formatter.apply(s);
     }
 
     String debugToString(int level) {
