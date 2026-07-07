@@ -87,11 +87,15 @@ interface KeelAsyncMixinBlock extends KeelAsyncMixinLogic {
 
     /**
      * 将 {@link java.util.concurrent.Future} 转换为 {@link Future}。
+     * <p>
+     * 已废弃：建议直接使用 {@link Vertx#executeBlocking(java.util.concurrent.Callable)}
+     * 包装阻塞等待逻辑，以保持统一的 Vert.x worker pool 调度语义。
      *
      * @param rawFuture 给定的 {@link java.util.concurrent.Future}
      * @param <R>       异步返回值的类型
      * @return 转换好的 {@link Future}
      */
+    @Deprecated(since = "5.0.5", forRemoval = true)
     default <R> Future<R> asyncTransformRawFuture(java.util.concurrent.Future<R> rawFuture) {
         if (isInNonBlockContext()) {
             return executeBlocking(rawFuture::get);
@@ -107,12 +111,18 @@ interface KeelAsyncMixinBlock extends KeelAsyncMixinLogic {
 
     /**
      * 将 {@link java.util.concurrent.Future} 转换为 {@link Future}。
+     * <p>
+     * 已废弃：{@code sleepTime} 表达的是轮询间隔而不是超时时间，语义不够清晰。
+     * 建议直接使用 {@link Vertx#executeBlocking(java.util.concurrent.Callable)}
+     * 包装阻塞等待逻辑；如需超时，应由调用方使用 {@link java.util.concurrent.Future#get(long, java.util.concurrent.TimeUnit)}
+     * 实现明确的超时控制。
      *
      * @param rawFuture 给定的 {@link java.util.concurrent.Future}
      * @param sleepTime 等待时间，单位毫秒
      * @param <R>       异步返回值的类型
      * @return 转换好的 {@link Future}
      */
+    @Deprecated(since = "5.0.5", forRemoval = true)
     default <R> Future<R> asyncTransformRawFuture(java.util.concurrent.Future<R> rawFuture, long sleepTime) {
         return asyncCallRepeatedly(repeatedlyCallTask -> {
             if (rawFuture.isDone()) {
@@ -137,6 +147,10 @@ interface KeelAsyncMixinBlock extends KeelAsyncMixinLogic {
 
     /**
      * 阻塞等待一个异步任务完成，并返回其结果。
+     * <p>
+     * 已废弃：Vert.x 5 已提供 {@link Future#await()} 和
+     * {@link Future#await(long, java.util.concurrent.TimeUnit)}。
+     * 建议调用方直接使用 Vert.x 原生 await 方法，以获得一致的阻塞限制、异常和超时语义。
      * <p>
      * 本方法使用 {@link CountDownLatch} 实现阻塞等待，避免 CPU 空转。
      * 方法会阻塞当前线程直到异步任务完成（成功或失败）。
@@ -169,6 +183,7 @@ interface KeelAsyncMixinBlock extends KeelAsyncMixinLogic {
      * @throws IllegalThreadStateException 如果在 EventLoop 线程中调用本方法
      * @throws RuntimeException            如果异步任务失败，或当前线程在等待过程中被中断
      */
+    @Deprecated(since = "5.0.5", forRemoval = true)
     @Nullable
     default <T> T blockAwait(Future<T> longTermAsyncProcessFuture) {
         if (isInNonBlockContext()) {
