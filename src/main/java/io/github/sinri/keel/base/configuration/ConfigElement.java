@@ -111,11 +111,12 @@ public class ConfigElement {
     /**
      * 获取配置节点的值
      *
-     * @return 当前配置节点的配置子项值，可以为 null。
+     * @return 当前配置节点的配置子项值
+     * @throws NotConfiguredRuntimeException 如果当前节点不是叶节点
      */
-    public String getElementValue() throws NotConfiguredException {
+    public String getElementValue() {
         if (!isLeafNode()) {
-            throw new NotConfiguredException(getAbsoluteKeyChain());
+            throw new NotConfiguredRuntimeException(getAbsoluteKeyChain());
         }
         return elementValue;
     }
@@ -187,12 +188,13 @@ public class ConfigElement {
      * 获取指定名称对应的配置节点的子项
      *
      * @param childName 子节点的名称
-     * @return 子节点，如果不存在就返回 null
+     * @return 子节点
+     * @throws NotConfiguredRuntimeException 如果指定的子节点不存在
      */
-    public ConfigElement getChild(String childName) throws NotConfiguredException {
+    public ConfigElement getChild(String childName) {
         var x = children.get(childName);
         if (x == null) {
-            throw new NotConfiguredException(parentKeyChain, childName);
+            throw new NotConfiguredRuntimeException(parentKeyChain, childName);
         }
         return x;
     }
@@ -235,9 +237,9 @@ public class ConfigElement {
      *
      * @param keychain 键链，表示要提取的子项路径
      * @return 提取的子项
-     * @throws NotConfiguredException 如果在键链中找不到对应的配置项
+     * @throws NotConfiguredRuntimeException 如果在键链中找不到对应的配置项
      */
-    public ConfigElement extract(String... keychain) throws NotConfiguredException {
+    public ConfigElement extract(String... keychain) {
         return extract(java.util.Arrays.asList(keychain));
     }
 
@@ -256,15 +258,15 @@ public class ConfigElement {
      *
      * @param keychain 键链，表示要提取的子项路径
      * @return 提取的子项
-     * @throws NotConfiguredException 如果在键链中找不到对应的配置项
+     * @throws NotConfiguredRuntimeException 如果在键链中找不到对应的配置项
      */
-    public ConfigElement extract(List<String> keychain) throws NotConfiguredException {
+    public ConfigElement extract(List<String> keychain) {
         ConfigElement configElement = this;
         for (String key : keychain) {
             List<String> absoluteKeyChain = configElement.getAbsoluteKeyChain();
             configElement = configElement.tryToGetChild(key);
             if (configElement == null) {
-                throw new NotConfiguredException(absoluteKeyChain, key);
+                throw new NotConfiguredRuntimeException(absoluteKeyChain, key);
             }
         }
         return configElement;
@@ -341,16 +343,16 @@ public class ConfigElement {
      *
      * @param keychain 配置项的键链，从根节点到目标节点的路径
      * @return 配置项的字符串值
-     * @throws NotConfiguredException 如果配置不存在或值为 null
+     * @throws NotConfiguredRuntimeException 如果配置不存在或值为 null
      */
-    public String readString(List<String> keychain) throws NotConfiguredException {
+    public String readString(List<String> keychain) {
         ConfigElement extract = extract(keychain);
 
         if (extract.isLeafNode()) {
             return extract.getElementValue();
         } else {
             var mergedListOfKeys = mergeListOfKeys(parentKeyChain, keychain);
-            throw new NotConfiguredException(mergedListOfKeys);
+            throw new NotConfiguredRuntimeException(mergedListOfKeys);
         }
     }
 
@@ -361,9 +363,9 @@ public class ConfigElement {
      *
      * @param keychain 配置项的键链，从根节点到目标节点的路径
      * @return 配置项的布尔值
-     * @throws NotConfiguredException 如果配置不存在或值为 null
+     * @throws NotConfiguredRuntimeException 如果配置不存在或值为 null
      */
-    public boolean readBoolean(List<String> keychain) throws NotConfiguredException {
+    public boolean readBoolean(List<String> keychain) {
         String value = readString(keychain);
         return "YES".equalsIgnoreCase(value) || "TRUE".equalsIgnoreCase(value);
     }
@@ -373,10 +375,10 @@ public class ConfigElement {
      *
      * @param keychain 配置项的键链，从根节点到目标节点的路径
      * @return 配置项的整数值
-     * @throws NotConfiguredException 如果配置不存在或值为 null
-     * @throws NumberFormatException  如果字符串无法解析为整数
+     * @throws NotConfiguredRuntimeException 如果配置不存在或值为 null
+     * @throws NumberFormatException         如果字符串无法解析为整数
      */
-    public int readInteger(List<String> keychain) throws NotConfiguredException {
+    public int readInteger(List<String> keychain) {
         String value = readString(keychain);
         return Integer.parseInt(value);
     }
@@ -386,10 +388,10 @@ public class ConfigElement {
      *
      * @param keychain 配置项的键链，从根节点到目标节点的路径
      * @return 配置项的长整数值
-     * @throws NotConfiguredException 如果配置不存在或值为 null
-     * @throws NumberFormatException  如果字符串无法解析为长整数
+     * @throws NotConfiguredRuntimeException 如果配置不存在或值为 null
+     * @throws NumberFormatException         如果字符串无法解析为长整数
      */
-    public long readLong(List<String> keychain) throws NotConfiguredException {
+    public long readLong(List<String> keychain) {
         String value = readString(keychain);
         return Long.parseLong(value);
     }
@@ -399,10 +401,10 @@ public class ConfigElement {
      *
      * @param keychain 配置项的键链，从根节点到目标节点的路径
      * @return 配置项的浮点数值
-     * @throws NotConfiguredException 如果配置不存在或值为 null
-     * @throws NumberFormatException  如果字符串无法解析为浮点数
+     * @throws NotConfiguredRuntimeException 如果配置不存在或值为 null
+     * @throws NumberFormatException         如果字符串无法解析为浮点数
      */
-    public float readFloat(List<String> keychain) throws NotConfiguredException {
+    public float readFloat(List<String> keychain) {
         String value = readString(keychain);
         return Float.parseFloat(value);
     }
@@ -412,10 +414,10 @@ public class ConfigElement {
      *
      * @param keychain 配置项的键链，从根节点到目标节点的路径
      * @return 配置项的双精度浮点数值
-     * @throws NotConfiguredException 如果配置不存在或值为 null
-     * @throws NumberFormatException  如果字符串无法解析为双精度浮点数
+     * @throws NotConfiguredRuntimeException 如果配置不存在或值为 null
+     * @throws NumberFormatException         如果字符串无法解析为双精度浮点数
      */
-    public double readDouble(List<String> keychain) throws NotConfiguredException {
+    public double readDouble(List<String> keychain) {
         String value = readString(keychain);
         return Double.parseDouble(value);
     }
@@ -424,15 +426,16 @@ public class ConfigElement {
         String[] split = dotJoinedKeyChain.split("\\.");
         try {
             return readString(List.of(split));
-        } catch (NotConfiguredException e) {
+        } catch (NotConfiguredRuntimeException e) {
             return null;
         }
     }
 
     /**
+     * @throws NotConfiguredRuntimeException 如果配置不存在或值为 null
      * @since 5.0.5
      */
-    public String readPropertyRequired(String dotJoinedKeyChain) throws NotConfiguredException {
+    public String readPropertyRequired(String dotJoinedKeyChain) {
         String[] split = dotJoinedKeyChain.split("\\.");
         return readString(List.of(split));
     }
@@ -445,7 +448,7 @@ public class ConfigElement {
         String s;
         try {
             s = readString(List.of(split));
-        } catch (NotConfiguredException e) {
+        } catch (NotConfiguredRuntimeException e) {
             s = null;
         }
         return formatter.apply(s);

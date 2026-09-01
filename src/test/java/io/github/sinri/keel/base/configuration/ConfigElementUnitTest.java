@@ -38,7 +38,7 @@ class ConfigElementUnitTest {
     }
 
     @Test
-    void testSetAndGetElementValue() throws NotConfiguredException {
+    void testSetAndGetElementValue() {
         configElement.setElementValue("testValue");
         assertEquals("testValue", configElement.getElementValue());
     }
@@ -46,7 +46,7 @@ class ConfigElementUnitTest {
     @Test
     void testGetElementValueOnNonLeafNode() {
         configElement.ensureChild("child1");
-        assertThrows(NotConfiguredException.class, () -> configElement.getElementValue());
+        assertThrows(NotConfiguredRuntimeException.class, () -> configElement.getElementValue());
     }
 
     @Test
@@ -123,7 +123,7 @@ class ConfigElementUnitTest {
     }
 
     @Test
-    void testLoadDataWithSimpleProperties() throws NotConfiguredException {
+    void testLoadDataWithSimpleProperties() {
         Properties properties = new Properties();
         properties.setProperty("key1", "value1");
         properties.setProperty("key2", "value2");
@@ -135,7 +135,7 @@ class ConfigElementUnitTest {
     }
 
     @Test
-    void testLoadDataWithNestedProperties() throws NotConfiguredException {
+    void testLoadDataWithNestedProperties() {
         Properties properties = new Properties();
         properties.setProperty("server.host", "localhost");
         properties.setProperty("server.port", "8080");
@@ -154,7 +154,7 @@ class ConfigElementUnitTest {
     }
 
     @Test
-    void testLoadDataWithDeepNestedProperties() throws NotConfiguredException {
+    void testLoadDataWithDeepNestedProperties() {
         Properties properties = new Properties();
         properties.setProperty("a.b.c.d", "deepValue");
 
@@ -173,7 +173,7 @@ class ConfigElementUnitTest {
 
 
     @Test
-    void testExtractWithVarargs() throws NotConfiguredException {
+    void testExtractWithVarargs() {
         Properties properties = new Properties();
         properties.setProperty("server.host", "localhost");
 
@@ -184,7 +184,7 @@ class ConfigElementUnitTest {
     }
 
     @Test
-    void testExtractWithList() throws NotConfiguredException {
+    void testExtractWithList() {
         Properties properties = new Properties();
         properties.setProperty("server.host", "localhost");
 
@@ -298,7 +298,7 @@ class ConfigElementUnitTest {
     }
 
     @Test
-    void testReadStringWithList() throws NotConfiguredException {
+    void testReadStringWithList() {
         Properties properties = new Properties();
         properties.setProperty("app.name", "MyApp");
 
@@ -309,15 +309,15 @@ class ConfigElementUnitTest {
     }
 
     @Test
-    void testReadStringWithListThrowsNotConfiguredException() {
-        assertThrows(NotConfiguredException.class,
+    void testReadStringWithListThrowsNotConfiguredRuntimeException() {
+        assertThrows(NotConfiguredRuntimeException.class,
                 () -> configElement.readString(Arrays.asList("nonExistent", "key")));
     }
 
     @Test
     void testReadStringWithNonLeafNodeThrowsException() {
         configElement.ensureChild("parent").ensureChild("child");
-        assertThrows(NotConfiguredException.class,
+        assertThrows(NotConfiguredRuntimeException.class,
                 () -> configElement.readString(List.of("parent")));
     }
 
@@ -339,7 +339,7 @@ class ConfigElementUnitTest {
     }
 
     @Test
-    void testReadBoolean() throws NotConfiguredException {
+    void testReadBoolean() {
         Properties properties = new Properties();
         properties.setProperty("flag.yes", "YES");
         properties.setProperty("flag.true", "TRUE");
@@ -359,7 +359,7 @@ class ConfigElementUnitTest {
     }
 
     @Test
-    void testReadInteger() throws NotConfiguredException {
+    void testReadInteger() {
         Properties properties = new Properties();
         properties.setProperty("number.int", "42");
         properties.setProperty("number.negative", "-100");
@@ -382,7 +382,7 @@ class ConfigElementUnitTest {
     }
 
     @Test
-    void testReadLong() throws NotConfiguredException {
+    void testReadLong() {
         Properties properties = new Properties();
         properties.setProperty("number.long", "9223372036854775807");
         properties.setProperty("number.negative", "-9223372036854775808");
@@ -405,7 +405,7 @@ class ConfigElementUnitTest {
     }
 
     @Test
-    void testReadFloat() throws NotConfiguredException {
+    void testReadFloat() {
         Properties properties = new Properties();
         properties.setProperty("number.float", "3.14");
         properties.setProperty("number.negative", "-2.5");
@@ -428,7 +428,7 @@ class ConfigElementUnitTest {
     }
 
     @Test
-    void testReadDouble() throws NotConfiguredException {
+    void testReadDouble() {
         Properties properties = new Properties();
         properties.setProperty("number.double", "3.141592653589793");
         properties.setProperty("number.negative", "-2.718281828459045");
@@ -451,7 +451,7 @@ class ConfigElementUnitTest {
     }
 
     @Test
-    void testComplexConfigurationScenario() throws NotConfiguredException {
+    void testComplexConfigurationScenario() {
         Properties properties = new Properties();
         properties.setProperty("app.name", "TestApp");
         properties.setProperty("app.version", "1.0.0");
@@ -506,4 +506,3 @@ class ConfigElementUnitTest {
         });
     }
 }
-
